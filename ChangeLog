@@ -1,0 +1,8 @@
+Version	Changes
+-------	-------
+1.0.0:	Initial release
+1.0.2:	New input datatypes & verifications added, required flag for input fields, fixed searchable flag
+1.0.3:	Security fix & minor changes
+1.0.4:	Bugfix - wrong function call produced log warnings
+1.1.0:	Subcategories are now implemented
+1.1.1:	Normal BE user access to the FE administration interface, minor fixes  & documentation added
