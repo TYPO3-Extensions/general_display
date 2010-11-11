@@ -562,6 +562,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 					# get data fields
 					$dataContent = $objArr[$uid]->getDatafieldContent();
+					
 					# sort fields
 					$orderedDataContent = array();
 					foreach($datafieldNameHash as $key => $value) $orderedDataContent[$key] = $dataContent[$key];	
@@ -1061,7 +1062,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		{
 		foreach($arr as $key => $value)
 			{
-			eregi("^###(.*)###$",$key,$result);
+			preg_match("/^###(.*)###$/",$key,$result);
 			$arr[$key] = $this->wrapInDiv($value,$callingFunction."-".strtolower($result[1]));
 			}
 		return $arr;
