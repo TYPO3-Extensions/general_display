@@ -6,4 +6,4 @@ Version	Changes
 1.0.4:	Bugfix - wrong function call produced log warnings
 1.1.0:	Subcategories are now implemented
 1.1.1:	Normal BE user access to the FE administration interface, minor fixes  & documentation added
-1.2.0	Content is now base64 encoded to prevent data corruption through charset change, replaced deprecated eregi-function  
+1.2.0:	Content is now base64 encoded to prevent data corruption through charset change, replaced deprecated eregi-function  
