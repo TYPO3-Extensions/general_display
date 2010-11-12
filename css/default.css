@@ -1,0 +1,175 @@
+.tx-generaldatadisplay-pi1-showError-heading {
+	font-weight: bold;
+	}
+
+.tx-generaldatadisplay-pi1-showError-text {
+	color: red;
+	margin-bottom: 12px;
+	}
+
+.tx-generaldatadisplay-pi1 select{
+	max-width: 14em;
+	}
+
+.tx-generaldatadisplay-pi1-backLink {
+        margin-top: 12px;
+        }
+
+.tx-generaldatadisplay-pi1-backLink img {
+	width: 16px;
+	height: 16px;
+	}
+
+.tx-generaldatadisplay-pi1-optionField-adminLinks {
+	background-color: #F0E68C;
+	padding: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-deleteRequest table {
+	min-width:30%;
+	margin-top: 2px;
+	font-size: 12px;
+	background: #dddddd;
+	}
+
+.tx-generaldatadisplay-pi1-deleteRequest th {
+	font-size: 12px;
+	background: #F0E68C;
+	}
+
+.tx-generaldatadisplay-pi1-deleteRequest td, th{
+	padding: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-deleteRequest-heading_delete_request, .tx-generaldatadisplay-pi1-deleteRequest-heading_title, .tx-generaldatadisplay-pi1-deleteRequest-heading_name, .tx-generaldatadisplay-pi1-deleteRequest-heading_type, .tx-generaldatadisplay-pi1-deleteRequest-dataHeading {
+	font-weight: bold;
+	}
+
+.tx-generaldatadisplay-pi1-singleView-dataHeading, .tx-generaldatadisplay-pi1-singleView-heading_title {
+	font-weight: bold;
+	}
+
+.tx-generaldatadisplay-pi1-singleView-category-name {
+	font-size: 12px;
+	font-weight: bold;
+	border-bottom: solid 2px #000000;
+	padding-bottom: 4px;
+	margin-bottom: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-singleView-data_title {
+	font-size: 14px;
+	font-weight: bold;
+	margin-bottom: 14px;
+	}
+
+.tx-generaldatadisplay-pi1-singleView-dataContent {
+	margin-bottom: 12px;
+	}
+
+.tx-generaldatadisplay-pi1-singleView-adminstuff{
+	margin-top: 4px;
+	padding: 2px;
+	text-align: center;
+	background-color: #F0E68C;
+	}
+
+.tx-generaldatadisplay-pi1-singleView-adminStuff img{
+	margin-left: 16px;
+	margin-right: 16px;
+	width: 16px;
+	height: 16px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-listdata {
+	margin-top:12px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-categorylvl0 {
+	margin-left: 0px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-categorylvl1 {
+	margin-left: 12px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-categorylvl2 {
+	margin-left: 24px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-categorylvl3 {
+	margin-left: 36px;
+	}
+
+.tx-generaldatadisplay-pi1-editView-heading_title, .tx-generaldatadisplay-pi1-editView-heading_category, .tx-generaldatadisplay-pi1-editView-heading_subcategory, .tx-generaldatadisplay-pi1-editView-dataHeading, .tx-generaldatadisplay-pi1-editView-heading_input_datafields, .tx-generaldatadisplay-pi1-editView-heading_fieldname, .tx-generaldatadisplay-pi1-editView-heading_type {
+	font-weight: bold;
+	margin-top: 12px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-category-name {
+	margin-top:4px;
+	font-weight: bold;
+	}
+
+.tx-generaldatadisplay-pi1-listView-title {
+	margin-left: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-pagelinks {
+	text-align: center;
+	margin-top: 12px;
+	padding-left: 4px;
+	border-top: solid 1px #000000;
+	}
+
+.tx-generaldatadisplay-pi1-listView-pagelink {
+	font-weight: normal;
+	padding-left: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-pagelinkActive {
+	font-weight: bold;
+	padding-left: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-listView-hits {
+	font-size: smaller;
+	text-align: center;
+	padding-left: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-tableView table {
+	margin-top: 2px;
+	font-size: 12px;
+	background: #dddddd;
+	}
+
+.tx-generaldatadisplay-pi1-tableView td, th {
+	padding: 4px;
+	}
+
+.tx-generaldatadisplay-pi1-tableView th {
+	font-size: 12px;
+	background: #F0E68C;
+	}
+
+.tx-generaldatadisplay-pi1-tableView-adminstuff img{
+	margin-left: 6px;
+	width: 14px;
+	height: 14px;
+	}
+
+.tx-generaldatadisplay-pi1-editView-datafields {
+	border-color: white;
+	border-width: 2px;
+	border-style: ridge;
+	padding-left: 12px;
+	padding-bottom: 12px;
+	margin-top: 12px;
+	}
+
+.tx-generaldatadisplay-pi1-editView-formError{
+        font-weight: bold;
+        color: red;
+        }
+

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<type>module</type>
+		<description>Language labels for plugin &quot;tx_generaldatadisplay_pi1&quot;</description>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="data">Dataset</label>
+			<label index="title">Title</label>
+			<label index="name">Name</label>
+			<label index="category">Category</label>
+			<label index="subcategory">Subcategory of</label>
+			<label index="datafields">Datafield</label>
+			<label index="datafields">Datafields</label>
+			<label index="fieldname">Fieldname</label>
+			<label index="type">Fieldtype</label>
+			<label index="required">required</label>
+			<label index="searchable">searchable</label>
+			<label index="visible">Content visible</label>
+			<label index="all_items">All fields</label>
+			<label index="all_categories">All categories</label>
+			<label index="entry_up">Entry up</label>
+			<label index="entry_down">Entry down</label>
+			<label index="hits">Hits</label>
+			<label index="back">back</label>
+			<label index="cancel">cancel</label>
+			<label index="submit">submit</label>
+			<label index="show">show</label>
+			<label index="yes">yes</label>
+			<label index="no">no</label>
+			<label index="ok">ok</label>
+			<label index="new_data">New data</label>
+			<label index="new_category">New category</label>
+			<label index="new_datafield">New datafield</label>
+			<label index="show_categories">Show categories</label>
+			<label index="show_datafields">Show datafields</label>
+			<label index="delete_request">Delete confirmation</label>
+			<label index="delete">Delete data</label>
+			<label index="modify">Edit data</label>
+			<label index="tinytext">Input field</label>
+			<label index="text">Text field</label>
+			<label index="int">Integer field</label>
+			<label index="bool">Yes/No field</label>
+			<label index="date">Date field</label>
+			<label index="time">Time field</label>
+			<label index="email">Email field</label>
+			<label index="url">URL field</label>
+			<label index="empty_category">No categories</label>
+			<label index="no_category">No category assigned</label>
+			<label index="no_data">No data found</label>
+			<label index="no_datafields">No datafields defined</label>
+			
+			<label index="error">An error occured!</label>
+			<label index="error_notEmpty">Field is empty</label>
+			<label index="error_isNumeric">Value is not numeric</label>
+			<label index="error_isBool">Valuetype is not bool</label>
+			<label index="error_isDate">Unknown date format</label>
+			<label index="error_isTime">Unknown time format</label>
+			<label index="error_isEmail">Incorrect email address</label>
+			<label index="error_isURL">Incorrect URL</label>
+			<label index="error_isType">Unknown fieldtype</label>
+			<label index="error_isUnique">Value already existing</label>
+			<label index="error_missing_uid">No UID given</label>
+			
+			<label index="dberror_permission">Permission denied : You are not the owner of this dataset</label>
+			<label index="dberror_no_dataset">Requested dataset not existing</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="data">Datensatz</label>
+			<label index="title">Titel</label>
+			<label index="name">Name</label>
+			<label index="category">Kategorie</label>
+			<label index="subcategory">Unterkategorie von</label>
+			<label index="datafield">Datenfeld</label>
+			<label index="datafields">Datenfelder</label>
+			<label index="fieldname">Feldname</label>
+			<label index="type">Feldtyp</label>
+			<label index="required">benötigt</label>
+			<label index="searchable">durchsuchbar</label>
+			<label index="visible">Inhalt sichtbar</label>
+			<label index="all_items">Alle Felder</label>
+			<label index="all_categories">Alle Kategorien</label>
+			<label index="entry_up">Eintrag hoch</label>
+			<label index="entry_down">Eintrag runter</label>
+			<label index="hits">Treffer</label>
+			<label index="back">zurück</label>
+			<label index="cancel">abbrechen</label>
+			<label index="submit">absenden</label>
+			<label index="show">anzeigen</label>
+			<label index="yes">ja</label>
+			<label index="no">nein</label>
+			<label index="ok">ok</label>
+			<label index="new_data">Neuer Datensatz</label>
+			<label index="new_category">Neue Kategorie</label>
+			<label index="new_datafield">Neues Datenfeld</label>
+			<label index="show_categories">Kategorien listen</label>
+			<label index="show_datafields">Datenfelder listen</label>
+			<label index="delete_request">Löschbestätigung</label>
+			<label index="delete">Datensatz löschen</label>
+			<label index="modify">Datensatz editieren</label>
+			<label index="tinytext">Eingabefeld</label>
+			<label index="text">Textfeld</label>
+			<label index="int">Ganzzahlfeld</label>
+			<label index="bool">Ja/Nein Feld</label>
+			<label index="date">Datumsfeld</label>
+			<label index="time">Zeitfeld</label>
+			<label index="email">Emailfeld</label>
+			<label index="url">URL Feld</label>
+			<label index="empty_category">Keine Kategorien</label>
+			<label index="no_category">Keiner Kategorie zugeordnet</label>
+			<label index="no_data">Keine Daten gefunden</label>
+			<label index="no_datafields">Keine Datenfelder definiert</label>
+			
+			<label index="error">Ein Fehler ist aufgetreten!</label>
+			<label index="error_notEmpty">Feld ist leer</label>
+			<label index="error_isInt">Wert ist nicht ganzzahlig</label>
+			<label index="error_isNumeric">Wert ist nicht numerisch</label>
+			<label index="error_isBool">Kein Wahrheitswert</label>
+			<label index="error_isDate">Unbekanntes Datumsformat</label>
+			<label index="error_isTime">Unbekanntes Zeitformat</label>
+			<label index="error_isEmail">Fehlerhafte Email Adresse</label>
+			<label index="error_isURL">Fehlerhafte URL</label>
+			<label index="error_isType">Unbekannter Feldtyp</label>
+			<label index="error_isUnique">Wert existiert bereits</label>
+			<label index="error_missing_uid">Keine UID angegeben</label>
+			
+			<label index="dberror_permission">Zugriff verweigert : Sie sind nicht der Besitzer des Datensatzes</label>
+			<label index="dberror_no_dataset">Der angeforderte Datensatz existiert nicht</label>
+		</languageKey>
+	</data>
+</T3locallang>
