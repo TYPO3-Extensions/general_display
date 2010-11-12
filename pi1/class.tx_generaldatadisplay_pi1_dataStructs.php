@@ -147,11 +147,6 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 		{
 		$this->fields = array_merge($this->commonFields,$this->fields);
 		}
-
-	public function getDatafieldContent()
-		{
-		return $this->getObjVar('data_field_content') ? unserialize($this->getObjVar('data_field_content')) : array();
-		}
 	}
 
 class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataSet
