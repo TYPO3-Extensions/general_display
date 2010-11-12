@@ -64,16 +64,15 @@ class ext_update
 	
 	public function access()
 		{
-		$result = true;
-	
 		# check if convertion ist necessary
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('data_field_content',
 								'tx_generaldatadisplay_data'
 								);
 
-		while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet) && $result = $result && base64_decode($row['data_field_content'],true)) {}
+		while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
+			if (! base64_decode($row['data_field_content'],true)) return true;
 	
-		return $result;
+		return false;
 		}
 	}
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/general_data_display/class.ext_update.php']) {
