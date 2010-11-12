@@ -6,14 +6,14 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
-			<label index="tx_generaldatadisplay_data">General display-data</label>
+			<label index="tx_generaldatadisplay_data">General data display-data</label>
 			<label index="tx_generaldatadisplay_data.title">Title</label>
 			<label index="tx_generaldatadisplay_data.category">Category</label>
-			<label index="tx_generaldatadisplay_data.data_field_content">General display-data field content</label>
-			<label index="tx_generaldatadisplay_categories">General display-categories</label>
+			<label index="tx_generaldatadisplay_data.data_field_content">General data display-data field content</label>
+			<label index="tx_generaldatadisplay_categories">General data display-categories</label>
 			<label index="tx_generaldatadisplay_categories.name">Category</label>
 			<label index="tx_generaldatadisplay_categories.progenitor">Subcategory of</label>
-			<label index="tx_generaldatadisplay_datafields">General display-data fields</label>
+			<label index="tx_generaldatadisplay_datafields">General data display-data fields</label>
 			<label index="tx_generaldatadisplay_datafields.name">Field name</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.0">Input field</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.1">Text field</label>
@@ -49,7 +49,7 @@
 			<label index="tx_generaldatadisplay_categories">Allgemeine Datenanzeige-Kategorien</label>
 			<label index="tx_generaldatadisplay_categories.name">Kategorie</label>
 			<label index="tx_generaldatadisplay_categories.progenitor">Unterkategorie von</label>
-			<label index="tx_generaldatadisplay_datafields">Allgemeine Datebanzeige-Datenfelder</label>
+			<label index="tx_generaldatadisplay_datafields">Allgemeine Datenanzeige-Datenfelder</label>
 			<label index="tx_generaldatadisplay_datafields.name">Feldname</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.0">Eingabefeld</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.1">Textfeld</label>

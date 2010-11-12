@@ -9,7 +9,7 @@ CREATE TABLE tx_generaldatadisplay_data (
 	cruser_id int(11) DEFAULT '0' NOT NULL,
 	data_title tinytext,
 	data_category int(11) DEFAULT '',
-	data_field_content text,
+	data_field_content mediumtext,
 	
 	PRIMARY KEY (uid),
 	KEY parent (pid)

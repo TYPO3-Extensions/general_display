@@ -205,7 +205,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 			}
 
 		# unserialize data_field_content to fill formfields
-		$dataContent = unserialize($formData['data_field_content']);
+		$dataContent = unserialize(base64_decode($formData['data_field_content']));
 		
 		# save content in dataArr
 		if ($dataContent) foreach($dataContent as $key => $value)
@@ -224,7 +224,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 			# check required fields
 			if (!$this->formError[$datafieldHash[$key]] && $requiredHash[$key]=='yes') $this->formError[$datafieldHash[$key]] = $this->checkValue($dataContent[$key],'notEmpty');
 			}
-		$this->dataArr['data_field_content'] = serialize($dataContent);
+		$this->dataArr['data_field_content'] = base64_encode(serialize($dataContent)); 
 
 		return $this->dataArr;
 		}

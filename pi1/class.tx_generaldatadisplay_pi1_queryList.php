@@ -150,7 +150,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 					# first unset possibly existing datacontent array
 					unset($dataContent);
 					# get unmapped data
-					$unmappedDataContent = unserialize($row['data_field_content']);
+					$unmappedDataContent = unserialize(base64_decode($row['data_field_content']));
 					if ($unmappedDataContent)
 						{
 						# only defined fields -> map data

@@ -561,7 +561,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$contentArray['###DETAILDATA###'] ="";
 
 					# get data fields
-					$dataContent = $objArr[$uid]->getDatafieldContent();
+					$dataContent = unserialize(base64_decode($objArr[$uid]->getObjVar('data_field_content')));
+					
 					# sort fields
 					$orderedDataContent = array();
 					foreach($datafieldNameHash as $key => $value) $orderedDataContent[$key] = $dataContent[$key];	
@@ -758,7 +759,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			
 				# get datafield hash
 				$datafieldHash = $this->getHashFromTable("datafield","datafield_name");
-				$dataContent = $obj->getDatafieldContent();
+				$dataContent = unserialize(base64_decode($obj->getObjVar('data_field_content')));
 				if ($dataContent)
 					{
 					# get data subpart
@@ -1061,7 +1062,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		{
 		foreach($arr as $key => $value)
 			{
-			eregi("^###(.*)###$",$key,$result);
+			preg_match("/^###(.*)###$/",$key,$result);
 			$arr[$key] = $this->wrapInDiv($value,$callingFunction."-".strtolower($result[1]));
 			}
 		return $arr;
