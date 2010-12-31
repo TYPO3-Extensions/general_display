@@ -46,6 +46,7 @@
 			<label index="time">Time field</label>
 			<label index="email">Email field</label>
 			<label index="url">URL field</label>
+			<label index="img">Picture</label>
 			<label index="empty_category">No categories</label>
 			<label index="no_category">No category assigned</label>
 			<label index="no_data">No data found</label>
@@ -107,6 +108,7 @@
 			<label index="time">Zeitfeld</label>
 			<label index="email">Emailfeld</label>
 			<label index="url">URL Feld</label>
+			<label index="img">Bild</label>
 			<label index="empty_category">Keine Kategorien</label>
 			<label index="no_category">Keiner Kategorie zugeordnet</label>
 			<label index="no_data">Keine Daten gefunden</label>

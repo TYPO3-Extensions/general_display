@@ -59,15 +59,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->pi_loadLL();
 		
 		if (!$this->piVars) $this->piVars = array();
-
+		
 		# t3lib_div::debug($this->piVars,'piVars');
-
 		# Init Flex form
 		$this->pi_initPIflexForm();
 
 		# define picturePath
 		$this->picturePath = t3lib_extMgm::extRelPath($this->extKey).'images/';
 
+		# globalize some values
 		# get PID from current page	
 		define("CURRENT_PID",$GLOBALS['TSFE']->id);
 		# get pid from FlexForm if one is given
@@ -77,6 +77,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		
 		# get & store permission
 		define("ADM_PERM",$this->isAdmin());
+
+		define("IMGUPLOADPATH",$this->uploadPath."/".PID);
+		define("MAXIMGSIZE",$this->conf['maxImageSize'] ? $this->conf['maxImageSize'] : 100000);
 
 		# use configured css, if none is given use standard stylesheet
 		$userStyleFile = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "userStyleSheet","general");
@@ -289,7 +292,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					if ($objArr)
 						{
 						$obj = $objArr[$this->piVars['uid']];
-						$content = $obj->deleteDS() ? $this->view() : $this->showError('dberror_permission');
+						$succDelete = $obj->deleteDS();
+						# is anything else to do ?
+						if ($succDelete) $this->postDelete($objArr);
+						$content = $succDelete ? $this->view() : $this->showError('dberror_permission');
 						} else $content=$this->showError('dberror_no_dataset');
 					} else $content = $this->showError('error_missing_uid');
 				}
@@ -688,6 +694,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						case 'url':
 						$subpartType=$this->cObj->getSubpart($this->template,"###URL_INPUT###");
 						break;
+
+						case 'img':
+						$subpartType=$this->cObj->getSubpart($this->template,"###UPLOAD_IMAGE###");
+						break;
 						}
 					$contentArray['###INPUT_DATAFIELDS###'].= $this->cObj->substituteMarkerArrayCached($subpartType,$inputArray);
 					}
@@ -713,7 +723,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$contentArray['###DATAFIELD_NAME###']=$formValues['datafield_name'];
 				$contentArray['###DISPLAY_SEQUENCE###']=$formValues['display_sequence'] ? $formValues['display_sequence'] : time();
 				# types
-				$types = array('tinytext','text','int','bool','date','time','email','url');
+				$types = array('tinytext','text','int','bool','date','time','email','url','img');
 				foreach ($types as $type) 
 					$options .= "<option value=".$type.(($type==$formValues['datafield_type']) ? " selected>" : ">").$this->pi_getLL($type)."</option>";
 				$contentArray['###DATAFIELD_TYPE_OPTIONS###'] = $options;
@@ -796,6 +806,27 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$contentAll['###DETAILS###'] = $this->cObj->substituteMarkerArrayCached($details,$contentAll);
 		$content = $this->cObj->substituteMarkerArrayCached($subpart,$contentAll);
 		return $content;
+		}
+
+	private function postDelete($objArr)
+		{
+		# make dataTypeHash
+		$datafieldTypeHash = $this->getHashFromTable('datafield','datafield_type','uid');
+		# get dataset
+		$obj = $objArr[key($objArr)];
+		$objVars = $obj->getProperty('objVars');
+
+		$dataContent = unserialize(base64_decode($objVars['data_field_content']));
+
+		foreach($dataContent as $key => $value)
+			{
+			switch ($datafieldTypeHash[$key])
+				{
+				case 'img':
+				unlink(IMGUPLOADPATH."/".$value);
+				break;
+				}
+			}
 		}
 
 	private function showError($errorCode)
@@ -971,6 +1002,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 			case 'bool':
 			$value = $this->pi_getLL($value);
+			break;
+
+			case 'img':
+			$value = '<img src="'.IMGUPLOADPATH.'/'.$value.'">';
 			break;
 			}
 

@@ -65,7 +65,7 @@
 
 <!-- ###EDIT_DATA### -->
 <div class="###PLUGINNAME###edit">
-<form method="POST" action="###ACTION_URL###">
+<form method="POST" action="###ACTION_URL###" enctype="multipart/form-data">
 	<input type="hidden" name="no_cache" value="1">
         <input type="hidden" name="###PI_BASE###[action]" value="update"></input>
         <input type="hidden" name="###PI_BASE###[uid]" value="###UID###"></input>
@@ -139,25 +139,25 @@
 </div>
 <!-- ###EDIT_DATAFIELD### -->
 
-<!--###TINYTEXT_INPUT### -->
+<!-- ###TINYTEXT_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40"  value="###DATAFIELD_CONTENT###"></input>
-<!--###TINYTEXT_INPUT### -->
+<!-- ###TINYTEXT_INPUT### -->
 
-<!--###TEXTAREA_INPUT### -->
+<!-- ##TEXTAREA_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<textarea name="###PI_BASE###[###DATAFIELD_NAME###]" cols="60" rows="10">###DATAFIELD_CONTENT###</textarea>
-<!--###TEXTAREA_INPUT### -->
+<!-- ###TEXTAREA_INPUT### -->
 
-<!--###INT_INPUT### -->
+<!-- ###INT_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="10"  value="###DATAFIELD_CONTENT###"></input>
-<!--###INT_INPUT### -->
+<!-- ###INT_INPUT### -->
 
-<!--###BOOL_INPUT### -->
+<!-- ###BOOL_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<select name="###PI_BASE###[###DATAFIELD_NAME###]">
@@ -165,31 +165,40 @@
 		<option value="###VALUE_DATAFIELD_YES###" ###DATAFIELD_SELECTED_YES###>###YES###</option>
 		<option value="###VALUE_DATAFIELD_NO###" ###DATAFIELD_SELECTED_NO###>###NO###</option>
 	</select>
-<!--###BOOL_INPUT### -->
+<!-- ###BOOL_INPUT### -->
 
-<!--###DATE_INPUT### -->
+<!-- ###DATE_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="10" maxlength="10" value="###DATAFIELD_CONTENT###"></input>
-<!--###DATE_INPUT### -->
+<!-- ###DATE_INPUT### -->
 
-<!--###TIME_INPUT### -->
+<!-- ###TIME_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="8" maxlength="8" value="###DATAFIELD_CONTENT###"></input>
-<!--###TIME_INPUT### -->
+<!-- ###TIME_INPUT### -->
 
-<!--###EMAIL_INPUT### -->
+<!-- ###EMAIL_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###"></input>
-<!--###EMAIL_INPUT### -->
+<!-- ###EMAIL_INPUT### -->
 
-<!--###URL_INPUT### -->
+<!-- ###URL_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###"></input>
-<!--###URL_INPUT### -->
+<!-- ###URL_INPUT### -->
+
+<!-- ###UPLOAD_IMAGE### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###" readonly></input><br>
+	<input name="###PI_BASE###[###DATAFIELD_NAME###SELECT]" type="file" size="20"></input>
+	
+<!-- ###UPLOAD_IMAGE### -->
+
 
 <!-- ###DELETE_REQUEST### -->
 <div class="###PLUGINNAME###deleteRequest">

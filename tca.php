@@ -117,6 +117,7 @@ $TCA['tx_generaldatadisplay_datafields'] = array (
 					array('LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_datafields.type.I.5', 'time'),
 					array('LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_datafields.type.I.6', 'email'),
 					array('LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_datafields.type.I.7', 'url'),
+					array('LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_datafields.type.I.7', 'img'),
 				),
 				'size' => 1,	
 				'maxitems' => 1,

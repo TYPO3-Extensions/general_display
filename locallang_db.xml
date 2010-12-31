@@ -23,6 +23,7 @@
 			<label index="tx_generaldatadisplay_datafields.type.I.5">Time field</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.6">Email field</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.7">URL field</label>
+			<label index="tx_generaldatadisplay_datafields.type.I.8">Picture</label>
 			<label index="tx_generaldatadisplay_datafields.type">Type</label>
 			<label index="tx_generaldatadisplay_datafields.answer.yes">Yes</label>
 			<label index="tx_generaldatadisplay_datafields.answer.no">No</label>
@@ -59,6 +60,7 @@
 			<label index="tx_generaldatadisplay_datafields.type.I.5">Zeitfeld</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.6">Emailfeld</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.7">URL Feld</label>
+			<label index="tx_generaldatadisplay_datafields.type.I.8">Bild</label>
 			<label index="tx_generaldatadisplay_datafields.type">Typ</label>
 			<label index="tx_generaldatadisplay_datafields.answer.yes">Ja</label>
 			<label index="tx_generaldatadisplay_datafields.answer.no">Nein</label>

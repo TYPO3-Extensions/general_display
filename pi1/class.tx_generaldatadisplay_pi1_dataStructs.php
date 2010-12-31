@@ -33,6 +33,7 @@
 abstract class tx_generaldatadisplay_pi1_dataSet
 	{
 	# vars
+	protected $prefixId = 'tx_generaldatadisplay_pi1';
 	protected $uid;
 	protected $objVars = array();
 	protected $formError = array();
@@ -90,13 +91,13 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->table,'uid='.$this->uid,$this->cleanedObjVars());
 			return true;
 			} 
-		return false;		
+		return false;
 		}
 	
 	public function deleteDS()
 		{
 		if ($this->havePerm())
-			{	
+			{
 			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->table,'uid='.$this->uid);
 			return true;
 			}

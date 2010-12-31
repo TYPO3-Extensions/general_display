@@ -33,7 +33,6 @@
 abstract class tx_generaldatadisplay_pi1_formData 
 	{
 	protected $prefixId = 'tx_generaldatadisplay_pi1';
-
 	protected $dataArr = array();
 	protected $checkHash = array();
 	protected $formError = array();
@@ -117,7 +116,7 @@ abstract class tx_generaldatadisplay_pi1_formData
 				break;	
 
 			case 'isType':
-				$error=preg_match('/^(tinytext|text|int|bool|date|time|email|url)$/',$value) ? 0 : $check;
+				$error=preg_match('/^(tinytext|text|int|bool|date|time|email|url|img)$/',$value) ? 0 : $check;
 			break;
 
 			case 'existing':
@@ -133,6 +132,7 @@ abstract class tx_generaldatadisplay_pi1_formData
 		$typeList = t3lib_div::makeInstance($this->prefixId.'_'.$this->type.'List');
 		$objArr = $typeList->getDS();
 		foreach($objArr as $key => $obj)
+
 			{
 			# get objVars
 			$objVars = $obj->getProperty('objVars');
@@ -140,7 +140,27 @@ abstract class tx_generaldatadisplay_pi1_formData
 			}
 		return 0;
 		}
+
+	public function validImg($key)
+		{
+		if (!$_FILES[$this->prefixId]['tmp_name'][$key]) return false;
+		if (!$_FILES[$this->prefixId]['error'][$key]
+
+			&& $_FILES[$this->prefixId]['size'][$key] < MAXIMGSIZE 
+			&& preg_match('/^image\//',$_FILES[$this->prefixId]['type'][$key])) return $_FILES[$this->prefixId]['name'][$key];
+
+		else
+			{
+			if ($_FILES[$this->prefixId]['error'][$key]) $this->formError[$key] = "imgUpload";
+			if ($_FILES[$this->prefixId]['size'][$key] > MAXIMGSIZE) $this->formError[$key] = "imgFilesize";  
+			if (!preg_match('/^image\//',$_FILES[$this->prefixId]['type'][$key])) $this->formError[$key] = "imgType";
+
+			return false;
+			}
+		}
+
 	}
+
 
 class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formData
 	{
@@ -149,12 +169,13 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 
 	public function importValues($formData)
 		{
+		# first set $this->dataArr with formData
 		$this->dataArr = $formData;
 
 		$this->checkHash['uid'] = 'isInt';
 		$this->checkHash['data_title'] = 'notEmpty';
 		$this->checkHash['data_category'] = 'isInt';
-	
+
 		# get list of datafield names
 		$typeList = t3lib_div::makeInstance($this->prefixId.'_datafieldList');
 		$typeList->getDS();
@@ -211,6 +232,35 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 		if ($dataContent) foreach($dataContent as $key => $value)
 			{ 
 			$this->dataArr[$datafieldHash[$key]] = $value;
+			}
+
+		# if img is uploaded
+		if ($_FILES[$this->prefixId]['tmp_name'])
+			{
+			# create imguploaddir if necessary
+			if (!is_dir(IMGUPLOADPATH)) mkdir(IMGUPLOADPATH, 0750, true);
+
+			foreach ($_FILES[$this->prefixId]['tmp_name'] as $key => $value)
+				{
+				preg_match('/^(.+)SELECT$/',$key,$postVarMatch);
+
+				if ($filename = $this->validImg($key)) 
+					{
+					# get unique filename
+					$i=0;
+					preg_match('/^(.+)\.([^\.]+)$/',$filename,$fileNamePart);
+					$newFilename = $filename;
+					while(is_file(IMGUPLOADPATH."/".$newFilename)) $newFilename = $fileNamePart[1].$i++.".".$fileNamePart[2];
+					$succMove = move_uploaded_file($_FILES[$this->prefixId]['tmp_name'][$key],IMGUPLOADPATH."/".$newFilename);
+					if ($succMove)
+						{
+						# check if value was already set
+						if ($this->dataArr[$postVarMatch[1]]) unlink(IMGUPLOADPATH."/".$this->dataArr[$postVarMatch[1]]);
+						$this->dataArr[$postVarMatch[1]] = $newFilename;
+						}
+					else $this->formError[$postVarMatch[1]] = "imgMove";
+					}
+				}
 			}
 
 		# validate and save formData

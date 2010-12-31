@@ -45,7 +45,7 @@ CREATE TABLE tx_generaldatadisplay_datafields (
 	crdate int(11) DEFAULT '0' NOT NULL,
 	cruser_id int(11) DEFAULT '0' NOT NULL,
 	datafield_name tinytext,
-	datafield_type enum('tinytext','text','int','bool','date','time','email','url') NOT NULL,
+	datafield_type enum('tinytext','text','int','bool','date','time','email','url','img') NOT NULL,
 	datafield_required enum('yes','no') DEFAULT 'no',
 	datafield_searchable enum('yes','no') DEFAULT 'yes',
 	content_visible enum('yes','no') DEFAULT 'yes',
