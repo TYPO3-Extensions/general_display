@@ -57,7 +57,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->conf = $conf;
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
-		
+
 		if (!$this->piVars) $this->piVars = array();
 		
 		# t3lib_div::debug($this->piVars,'piVars');
@@ -68,18 +68,20 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->picturePath = t3lib_extMgm::extRelPath($this->extKey).'images/';
 
 		# globalize some values
+		# prefixId
+		define(PREFIX_ID,$this->prefixId);
 		# get PID from current page	
-		define("CURRENT_PID",$GLOBALS['TSFE']->id);
+		define(CURRENT_PID,$GLOBALS['TSFE']->id);
 		# get pid from FlexForm if one is given
 		$pid = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "pages", "general");
 		if (!$pid) $pid = CURRENT_PID;
-		define("PID",$pid);
+		define(PID,$pid);
 		
 		# get & store permission
-		define("ADM_PERM",$this->isAdmin());
+		define(ADM_PERM,$this->isAdmin());
 
-		define("IMGUPLOADPATH",$this->uploadPath."/".PID);
-		define("MAXIMGSIZE",$this->conf['maxImageSize'] ? $this->conf['maxImageSize'] : 100000);
+		define(IMGUPLOADPATH,$this->uploadPath."/".PID);
+		define(MAXIMGSIZE,$this->conf['maxImageSize'] ? $this->conf['maxImageSize'] : 100000);
 
 		# use configured css, if none is given use standard stylesheet
 		$userStyleFile = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "userStyleSheet","general");
@@ -96,8 +98,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		# get scope
 		if ($this->piVars['scope']) $this->scopeArr = unserialize(base64_decode($this->piVars['scope']));
-		
-
 
 		# get values from scope if no search is given
 		if ($this->piVars['action']!='search') 
@@ -193,7 +193,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			{
 			case 'update':
 				{
-				$formData = t3lib_div::makeInstance($this->prefixId.'_'.$this->piVars['type'].'Form');
+				$formData = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->piVars['type'].'Form');
 
 				if ($this->piVars['submit'])
 					{
@@ -201,7 +201,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						
 					if (!$formData->formError())
 						{
-						$db = t3lib_div::makeInstance($this->prefixId.'_'.$this->piVars['type']);
+						$db = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->piVars['type']);
 						$db->setProperty("objVars",$dataArr);
 			
 						if ($this->piVars['uid'])
@@ -215,7 +215,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					if ($this->piVars['uid']) # get formdata from database
 						{
-						$dataSet = t3lib_div::makeInstance($this->prefixId.'_'.$this->piVars['type'].'List');
+						$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->piVars['type'].'List');
 						$objArr = $dataSet->getDS('uid='.$this->piVars['uid']);
 						$formData->importValues($objArr[$this->piVars['uid']]->getProperty('objVars'));
 						}
@@ -228,7 +228,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				{
 				if (ADM_PERM && $this->piVars['uid'])
 					{
-					$datafields = t3lib_div::makeInstance($this->prefixId.'_datafieldList');
+					$datafields = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 					$objArr = $datafields->getDS();
 
 					if ($this->piVars['direction'] == 'up')
@@ -286,7 +286,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				{
 				if ($this->piVars['uid'])
 					{
-					$dataSet = t3lib_div::makeInstance($this->prefixId.'_'.$this->piVars['type'].'List');
+					$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->piVars['type'].'List');
 					$objArr = $dataSet->getDS('uid='.$this->piVars['uid']);
 
 					if ($objArr)
@@ -343,12 +343,12 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		$headingsArrayCSS = $this->wrapTemplateArrayInClass($this->makeHeadingsArray(),__FUNCTION__);	
 		$commons = array_merge($commons,$headingsArrayCSS);
-		
+
 		# instantiate typelist
-		$typeList = t3lib_div::makeInstance($this->prefixId.'_'.$type.'List');
+		$typeList = $this->getTypeListFromTable($type);
 
 		# get typelist
-		$objArr = $typeList->getDS();
+		$objArr = $typeList->getProperty('objArr');
 	
 		# Use subpart
 		$subpart=$this->cObj->getSubpart($this->template,'###TABLE-VIEW###');
@@ -427,102 +427,101 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				# use template subpart
 				$subpart=$this->cObj->getSubpart($this->template,'###LIST-DATAVIEW###');
 				$subsubpart=$this->cObj->getSubpart($this->template,'###LIST-DATA###');
-				
+
 				# instantiate typelist
-				$typeList = t3lib_div::makeInstance($this->prefixId.'_dataList');
+				$typeList = $this->getTypeListFromTable($type,$this->searchClause);
+				$objArr = $typeList->getProperty('objArr');
 
-				# create tempTable
-				$error = $typeList->createTempTable();
-				if (! $error)
+				# count results
+				$nrResults = count($objArr);
+
+				$contentArray['###HITS###'] = "(".$nrResults." ".$this->pi_getLL('hits').")";	
+
+				# defined display limit ?
+				if ($nrPageResults && $nrPageResults < $nrResults)
 					{
-					$tempTable = $typeList->getProperty('tempTable');			
+					$offset = intval($this->piVars['offset']);
+					$range =  $offset ? ($offset.",".($offset + $nrPageResults)) : $nrPageResults;
+					$objArr = $typeList->getDS($this->searchClause,$range);
 
-					# set new order
-					$typeList->setProperty('orderField','data_category,category_name,data_title');
-
-					# get datalist from tempTable
-					$objArr = $typeList->getDS($this->searchClause,$tempTable);
-					$nrResults = count($objArr);
-
-					$contentArray['###HITS###'] = "(".$nrResults." ".$this->pi_getLL('hits').")";	
-
-					# defined display limit ?
-					if ($nrPageResults && $nrPageResults < $nrResults)
+					$index = intval($offset / ($nrPageResults * $nrMaxPages));
+					$from = $index*$nrMaxPages*$nrPageResults;
+					$to = ($from + $nrMaxPages*$nrPageResults) > $nrResults ? $nrResults : $from + $nrMaxPages*$nrPageResults;
+					if ($from > 0) $contentArray['###PAGELINKS###'] = $this->wrapInSpan($this->pi_linkTP_keepPIvars("<<",array('offset' => $from-$nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
+					if ($offset) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("<",array('offset' => $offset - $nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
+					for ($i=$from; $i < $to; $i=$i+$nrPageResults)
 						{
-						$offset = intval($this->piVars['offset']);
-						$range =  $offset ? ($offset.",".($offset + $nrPageResults)) : $nrPageResults;
-						$objArr = $typeList->getDS($this->searchClause,$tempTable,$range);
-						$index = intval($offset / ($nrPageResults * $nrMaxPages));
-						$from = $index*$nrMaxPages*$nrPageResults;
-						$to = ($from + $nrMaxPages*$nrPageResults) > $nrResults ? $nrResults : $from + $nrMaxPages*$nrPageResults;
-						if ($from > 0) $contentArray['###PAGELINKS###'] = $this->wrapInSpan($this->pi_linkTP_keepPIvars("<<",array('offset' => $from-$nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
-						if ($offset) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("<",array('offset' => $offset - $nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
-						for ($i=$from; $i < $to; $i=$i+$nrPageResults)
-							{
-							$index1 = $i;
-							$index2 = ($i+$nrPageResults-1) >= $nrResults ? $nrResults-1 : $i+$nrPageResults-1;
-							$contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("[".($index1==$index2 ? ($index1+1) : ($index1+1)."-".($index2+1))."]",array('offset' => $index1, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__.($this->piVars['offset']==$index1 ? "-pageLinkActive" : "-pageLink"));
-							}
-						if (($offset + $nrPageResults) < $nrResults) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">",array('offset' => $offset + $nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
-						if ($index2 < $nrResults-1) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">>",array('offset' => $index2+1, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink"); 
-						} else {
-						$contentArray['###PAGELINKS###'] = "";
+						$index1 = $i;
+						$index2 = ($i+$nrPageResults-1) >= $nrResults ? $nrResults-1 : $i+$nrPageResults-1;
+						$contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("[".($index1==$index2 ? ($index1+1) : ($index1+1)."-".($index2+1))."]",array('offset' => $index1, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__.($this->piVars['offset']==$index1 ? "-pageLinkActive" : "-pageLink"));
 						}
+					if (($offset + $nrPageResults) < $nrResults) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">",array('offset' => $offset + $nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
+					if ($index2 < $nrResults-1) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">>",array('offset' => $index2+1, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink"); 
+					} else $contentArray['###PAGELINKS###'] = "";
+					
+				# get list of all categories
+				$categoryList = $this->getTypeListFromTable('category');
+				$catObjArr = $categoryList->getProperty('objArr');	
 
-					# get list of categories
-					$categoryList = $this->getTypeListFromTable('category');
-					$catObjArr = $categoryList->getProperty('objArr');	
-				
-					$categorySortHash[0] = 0; # no category 
-
-					# build sortHash
-					foreach($catObjArr as $key => $obj) 
+				# get a list of all used categories and progenitors of this view			
+				foreach($objArr as $key => $obj)
 						{
-						$categoryRanking[$key] = $categorySortHash[$key] = ++$inc;
-						}
-	
-					foreach($catObjArr as $key => $obj)
-						{
-						$catProgenitors = $categoryList->getAllProgenitors($key);
+						$dataCategory = $obj->getObjVar('data_category');
+						$category[$dataCategory] = 1;
+						$catProgenitors = $categoryList->getAllProgenitors($dataCategory);
 						foreach($catProgenitors as $catProgenitor)
-							$categorySortHash[$key] = $categoryRanking[$catProgenitor].$categorySortHash[$key]; 
-	
-						$categoryLvlHash[$key] = count($catProgenitors);
+							$category[$catProgenitor] = 1; 
 						}
-					asort($categorySortHash,SORT_STRING);
 
-					# build result list
-					foreach($objArr as $key => $obj)
-							{
-							$dataCategory = $catObjArr[$obj->getObjVar('data_category')] ? $obj->getObjVar('data_category') : 0;
-							$orderedList[$dataCategory] .=  $this->wrapInDiv($this->pi_linkTP_keepPIvars($obj->getObjVar('data_title'),array('uid' => $key, 'view' => '2', 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-title");	
-							# set all progenitors if nescessary
-							foreach($categoryList->getAllProgenitors($dataCategory) as $catProgenitor) 
-								$progenitorList[$catProgenitor] = 1;
-							}
-					
-					# go through categorySortHash and fill template
-					foreach($categorySortHash as $dataCategory => $value)
+				$categorySortHash[0] = 0; # no category 				
+		
+				# build sortHash
+				foreach (array_keys($category) as $key)
+					 {
+					 $categoryRanking[$key] = $categorySortHash[$key] = ++$inc;
+					 }
+
+				foreach(array_keys($category) as $key)
+					{
+					$catProgenitors = $categoryList->getAllProgenitors($key);
+					foreach($catProgenitors as $catProgenitor)
+						$categorySortHash[$key] = $categoryRanking[$catProgenitor].$categorySortHash[$key]; 
+					 # get category level
+					$categoryLvlHash[$key] = count($catProgenitors);
+					}
+				asort($categorySortHash,SORT_STRING);
+
+				# build result list
+				foreach($objArr as $key => $obj)
 						{
-						if ($orderedList[$dataCategory] || $progenitorList[$dataCategory])
-							{
-							$contentArray['###CATEGORY-NAME###'] = $this->wrapInDiv($catObjArr[$dataCategory] ? $catObjArr[$dataCategory]->getObjVar('category_name') : $this->pi_getLL('no_category'),__FUNCTION__."-category-name");
-							$contentArray['###DATA-TITLE###'] = $orderedList[$dataCategory];
-							$contentArray['###LISTDATA###'] .= $this->wrapInDiv($this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray),__FUNCTION__."-categorylvl".$categoryLvlHash[$dataCategory]);
-							}
+						$dataCategory = $catObjArr[$obj->getObjVar('data_category')] ? $obj->getObjVar('data_category') : 0;
+						$orderedList[$dataCategory] .=  $this->wrapInDiv($this->pi_linkTP_keepPIvars($obj->getObjVar('data_title'),array('uid' => $key, 'view' => '2', 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-title");	
+						# set all progenitors if nescessary
+						foreach($categoryList->getAllProgenitors($dataCategory) as $catProgenitor) 
+							$progenitorList[$catProgenitor] = 1;
 						}
 					
-					if (! $contentArray['###LISTDATA###'])
-						{ 
-						$contentArray['###CATEGORY-NAME###'] = "";
-						$contentArray['###LISTDATA###']=$this->pi_getLL('no_data');
+				# go through categorySortHash and fill template
+				foreach(array_keys($categorySortHash) as $dataCategory)
+					{
+					if ($orderedList[$dataCategory] || $progenitorList[$dataCategory])
+						{
+						$contentArray['###CATEGORY-NAME###'] = $this->wrapInDiv($catObjArr[$dataCategory] ? $catObjArr[$dataCategory]->getObjVar('category_name') : $this->pi_getLL('no_category'),__FUNCTION__."-category-name");
+						$contentArray['###DATA-TITLE###'] = $orderedList[$dataCategory];
+						$contentArray['###LISTDATA###'] .= $this->wrapInDiv($this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray),__FUNCTION__."-categorylvl".$categoryLvlHash[$dataCategory]);
 						}
-					$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);	
-					$contentAll = array_merge($contentArrayCSS,$commonsArray);
-					$content = $this->cObj->substituteMarkerArrayCached($subpart,$contentAll);
-					} else $content =  $this->showError($error);
+					}
+
+				if (! $contentArray['###LISTDATA###'])
+					{ 
+					$contentArray['###CATEGORY-NAME###'] = "";
+					$contentArray['###LISTDATA###']=$this->pi_getLL('no_data');
+					}
+				$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);	
+				$contentAll = array_merge($contentArrayCSS,$commonsArray);
+				$content = $this->cObj->substituteMarkerArrayCached($subpart,$contentAll);
 				}
-				break;	
+			break;
 			}
 		return $content;	
 		}
@@ -545,18 +544,14 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$subsubpart=$this->cObj->getSubpart($this->template,'###DETAIL-DATA###');
 
 				# instantiate typelist
-				$typeList = t3lib_div::makeInstance($this->prefixId.'_dataList');
-			
-				# get data 
-				$objArr = $typeList->getDS('uid='.$uid);
+				$typeList = $this->getTypeListFromTable($type,'uid='.$uid);
+
+				# get typelist
+				$objArr = $typeList->getProperty('objArr');
 
 				# get list of categories
 				$categoryList = $this->getTypeListFromTable('category');
 				$catObjArr = $categoryList->getProperty('objArr');
-
-				# make necessary hashes
-				$datafieldNameHash = $this->getHashFromTable('datafield','datafield_name','uid','content_visible="yes"');
-				$datafieldTypeHash = $this->getHashFromTable('datafield','datafield_type','uid','content_visible="yes"');
 
 				if ($objArr[$uid])
 					{
@@ -566,28 +561,29 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$contentArray['###DATA_TITLE###']=$objVars['data_title'];
 					$contentArray['###DETAILDATA###'] ="";
 
-					# get data fields
-					$dataContent = unserialize(base64_decode($objArr[$uid]->getObjVar('data_field_content')));
+					# get data fields ...
+					$dataContentList = $this->getTypeListFromTable('datacontent','tx_generaldatadisplay_datacontent.data_uid='.$uid);
+					$dataContentObjArr = $dataContentList->getProperty('objArr');
 					
-					# sort fields
-					$orderedDataContent = array();
-					foreach($datafieldNameHash as $key => $value) $orderedDataContent[$key] = $dataContent[$key];	
-					
-					foreach($orderedDataContent as $key => $value) 
+					# & fill template
+					foreach($dataContentObjArr as $key => $obj) 
 						{
-						# format value according to type
-						$value = $this->formatContentType($value,$datafieldTypeHash[$key]);
-
-						if ($value && $datafieldNameHash[$key])
+						$fieldName = $obj->getObjVar('datafield_name');
+						$value = $obj->getObjVar('datacontent');
+						$value = $this->formatContentType($value,$obj->getObjVar('datafield_type'));
+				
+						if ($value)
 							{
 							# standard template uses Detaildata - but you can also use your own template & "real" names
-							$contentArray['###HEADING_'.strtoupper($datafieldNameHash[$key]).'###'] = $this->wrapInDiv($key,__FUNCTION__."-dataHeading");
-							$contentArray['###'.strtoupper($datafieldNameHash[$key]).'###'] = $this->wrapInDiv($this->pi_getLL($value) ? $this->pi_getLL($value) : $value,__FUNCTION__."-dataContent");	
-							$contentArray['###HEADING_DATACONTENT###'] = $this->wrapInDiv($datafieldNameHash[$key],__FUNCTION__."-dataHeading");
+							$contentArray['###HEADING_'.strtoupper($fieldName).'###'] = $this->wrapInDiv($fieldName,__FUNCTION__."-dataHeading");
+							$contentArray['###'.strtoupper($key).'###'] = $this->wrapInDiv($this->pi_getLL($value) ? $this->pi_getLL($value) : $value,__FUNCTION__."-dataContent");	
+							$contentArray['###HEADING_DATACONTENT###'] = $this->wrapInDiv($fieldName,__FUNCTION__."-dataHeading");
 							$contentArray['###DATACONTENT###'] = $this->wrapInDiv($value,__FUNCTION__."-dataContent");
 							$contentArray['###DETAILDATA###'].= $this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray);
 							}
+
 						}
+
 					} 
 				$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);	
 				$contentAll = array_merge($contentArrayCSS,$commonsArray);
@@ -653,7 +649,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$inputArray['###DATAFIELD_NAME###'] = $objVars['datafield_name'];
 					$inputArray['###DATAFIELD_CONTENT###'] = $formValues[$objVars['datafield_name']];
 					$inputArray['###DATAFIELD_CONTENT_ERROR###'] = $formError[$objVars['datafield_name']] ? $this->wrapInDiv($this->pi_getLL('error_'. $formError[$objVars['datafield_name']]),'editView-Formerror') : "";
-					$inputArray['###PI_BASE###'] = $this->prefixId;
+					$inputArray['###PI_BASE###'] = PREFIX_ID;
 
 					switch ($objVars['datafield_type'])
 						{
@@ -741,7 +737,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function deleteRequest($type='data')
 		{
-		$dataSet = t3lib_div::makeInstance($this->prefixId.'_'.$type.'List');
+		$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
 		$objArr = $dataSet->getDS('uid='.$this->piVars['uid']);
 
 		$obj = $objArr[$this->piVars['uid']];
@@ -769,14 +765,19 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			
 				# get datafield hash
 				$datafieldHash = $this->getHashFromTable("datafield","datafield_name");
-				$dataContent = unserialize(base64_decode($obj->getObjVar('data_field_content')));
+				# get dataContent
+				$dataContentList = $this->getTypeListFromTable('datacontent','tx_generaldatadisplay_datacontent.data_uid='.$this->piVars['uid']);
+				$dataContentObjArr = $dataContentList->getProperty('objArr');
+					
+				foreach($dataContentObjArr as $key => $obj) $dataContent[$obj->getObjVar('datafield_name')] = $obj->getObjVar('datacontent');
+
 				if ($dataContent)
 					{
 					# get data subpart
 					$dataSub=$this->cObj->getSubpart($this->template,'###DELETE_REQUEST_DETAILS_DATAROW###');
 					foreach($dataContent as $key => $value) 
 						{
-						$contentDataArr['###HEADING_DATA_CONTENT###'] = $this->wrapInDiv($datafieldHash[$key],__FUNCTION__."-dataHeading");
+						$contentDataArr['###HEADING_DATA_CONTENT###'] = $this->wrapInDiv($key,__FUNCTION__."-dataHeading");
 						$contentDataArr['###DATA_CONTENT###'] = $value;
 						$contentArray['###DATAROWS###'] .= $this->cObj->substituteMarkerArrayCached($dataSub,$contentDataArr);
 						}
@@ -810,17 +811,21 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function postDelete($objArr)
 		{
-		# make dataTypeHash
-		$datafieldTypeHash = $this->getHashFromTable('datafield','datafield_type','uid');
 		# get dataset
 		$obj = $objArr[key($objArr)];
 		$objVars = $obj->getProperty('objVars');
 
-		$dataContent = unserialize(base64_decode($objVars['data_field_content']));
+		# get dataContent from temptable
+		$dataContentList = $this->getTypeListFromTable('datacontent','tx_generaldatadisplay_datacontent.data_uid='.$objVars['uid']);
+		$dataContentObjArr = $dataContentList->getProperty('objArr');
+		
+		foreach($dataContentObjArr as $key => $obj) 
+			$dataType[$obj->getObjVar('datafield_type')] = $obj->getObjVar('datacontent');
 
-		foreach($dataContent as $key => $value)
+		# remove image from uploadpath
+		foreach($dataType as $key => $value)
 			{
-			switch ($datafieldTypeHash[$key])
+			switch ($key)
 				{
 				case 'img':
 				unlink(IMGUPLOADPATH."/".$value);
@@ -905,7 +910,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function getTypeListFromTable($type,$whereClause='')
 		{
-		$typeList = t3lib_div::makeInstance($this->prefixId.'_'.$type.'List');
+		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
 		$typeList->getDS($whereClause);
 
 		return $typeList;
@@ -1014,7 +1019,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function makeCommonsArray()
 		{
-		$commonsArray['###PI_BASE###']=$this->prefixId;
+		$commonsArray['###PI_BASE###']= PREFIX_ID;
 		$commonsArray['###PLUGINNAME###'] = $this->pi_getClassName('');
 		$commonsArray['###SCOPE###']=base64_encode(serialize($this->scopeArr));
 		$commonsArray['###ACTION_URL###']=$this->pi_getPageLink($GLOBALS['TSFE']->id);

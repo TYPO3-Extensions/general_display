@@ -33,11 +33,16 @@
 abstract class tx_generaldatadisplay_pi1_dataSet
 	{
 	# vars
-	protected $prefixId = 'tx_generaldatadisplay_pi1';
 	protected $uid;
 	protected $objVars = array();
 	protected $formError = array();
+	protected $fields = array();
 	protected $commonFields = array('uid'=>1,'pid'=>1,'tstamp'=>1,'crdate'=>1,'cruser_id'=>1);
+
+	public function __construct()
+		{
+		$this->fields = array_merge($this->commonFields,$this->fields);
+		}
 
 	public function getProperty($property)
 		{
@@ -122,18 +127,30 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 			# update or delete existing DS
 			if ($this->uid)
 				{
-				$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('pid,cruser_id',
+				$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('pid',
 										$this->table,
 										$where='uid='.$this->uid);
 		
 				if ($dataSet) 
 					{
-					$ds=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet);	
+					$ds=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet);
 					return  ADM_PERM && ($ds['pid'] == PID);
 					}			
-				} else return 1; # new DS
+				} else return true; # new DS
 			}
-		return 0;
+		return false;
+		}
+
+	protected function tableExist()
+		{
+		$tableHash = $GLOBALS['TYPO3_DB']->admin_get_tables();
+		return isset($tableHash[$this->table]) ? true : false;
+		}
+
+	protected function isTableColumn($column)
+		{
+		$tableColumnHash = $GLOBALS['TYPO3_DB']->admin_get_fields($this->table);
+		return isset($tableColumnHash[$column]) ? true : false; 
 		}
 	}
 
@@ -142,12 +159,116 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 	# vars
 	protected $type = "data";
 	protected $table = "tx_generaldatadisplay_data";
-	protected $fields = array('data_title'=>1,'data_category'=>1,'data_field_content'=>1);
-	
-	public function __construct()
+	protected $fields = array('data_title'=>1,'data_category'=>1);
+
+	public function newDS()
 		{
-		$this->fields = array_merge($this->commonFields,$this->fields);
+		# save objVars (TODO sql error handling)
+		$savedObjVars = $this->objVars;
+
+		if ($this->havePerm() && $uid = parent::newDS())
+			{
+			# get all datafields
+			$dataFieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
+			$dataFieldList->getDS();
+
+			# instantiate datacontent obj
+			$dataContentObj = t3lib_div::makeInstance(PREFIX_ID.'_datacontent');
+
+			# build and insert datasets
+			foreach($savedObjVars as $name => $value)
+				{
+				if ($value && $dataContent['datafields_uid'] = $dataFieldList->getUidFromDatafield($name))
+					{
+					$dataContent['data_uid'] = $uid;
+					$dataContent['datacontent'] = $value;
+					$dataContentObj->setProperty("objVars",$dataContent);
+					$dataContentObj->newDS();
+					}
+				}
+			return true;
+			}
+		return false;
 		}
+
+	public function updateDS()
+		{
+		# save objVars (TODO sql error handling)
+		$savedObjVars = $this->objVars;
+
+		if ($this->havePerm() && parent::updateDS())
+			{
+			# get all datafields
+			$dataFieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
+			$dataFieldList->getDS();
+
+			# instantiate datacontent obj
+			$dataContentObj = t3lib_div::makeInstance(PREFIX_ID.'_datacontent');
+
+			# build and update datasets
+			foreach($savedObjVars as $name => $value)
+				{
+				if ($datafieldsUid = $dataFieldList->getUidFromDatafield($name))
+					{
+					# get uid from datacontent
+					$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
+					$objArr = $dataContentList->getDS('data_uid='.$this->uid.' AND datafields_uid='.$datafieldsUid);
+					# there should be maximum one DS
+					if ( count($objArr) <= 1)
+						{
+						$dataContent['datafields_uid'] =$datafieldsUid;
+						$dataContent['data_uid'] = $this->uid;
+						$dataContent['datacontent'] = $value;
+						$dataContentObj->setProperty("uid",key($objArr));
+						$dataContentObj->setProperty("objVars",$dataContent);
+						$objArr  ? $dataContentObj->updateDS() : $dataContentObj->newDS();
+						} else return false;
+					}
+				}
+			return true;
+			} 
+		return false;
+		}
+
+	public function deleteDS()
+		{
+		if ($this->havePerm())
+			{
+			$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid',
+									'tx_generaldatadisplay_datacontent',
+									 $where='uid='.$this->uid);
+
+			if ($dataset)
+				{
+				$query = "DELETE tx_generaldatadisplay_data,tx_generaldatadisplay_datacontent 
+					  FROM tx_generaldatadisplay_data,tx_generaldatadisplay_datacontent 
+					  WHERE tx_generaldatadisplay_data.uid = tx_generaldatadisplay_datacontent.data_uid 
+					  AND tx_generaldatadisplay_data.uid=".$this->uid;
+				
+				$GLOBALS['TYPO3_DB']->sql_query($query);
+				$dberror = $GLOBALS['TYPO3_DB']->sql_error();
+				} else parent::deleteDS();
+
+			# delete entry from temptable
+			if (!$dberror && PREFIX_ID.'_tempdata::$tempTable'); 
+				{
+				$tempData = t3lib_div::makeInstance(PREFIX_ID.'_tempdata');
+				$tempData->setProperty("uid",$this->uid);
+				$tempData->deleteDS();
+				}
+
+			return $dberror ? false : true;
+			}
+		return false;
+		}
+	}
+
+class tx_generaldatadisplay_pi1_datacontent extends tx_generaldatadisplay_pi1_dataSet
+	{
+	# vars
+	protected $type = "datacontent";
+	protected $table = "tx_generaldatadisplay_datacontent";
+	protected $fields = array('data_title'=>1,'datacontent'=>1,'data_uid'=>1,'datafields_uid'=>1);
 	}
 
 class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataSet
@@ -157,11 +278,6 @@ class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataS
 	protected $table = "tx_generaldatadisplay_categories";
 	protected $fields = array('category_name'=>1,'category_progenitor'=>1);
 
-	public function __construct()
-		{
-		$this->fields = array_merge($this->commonFields,$this->fields);
-		}
-
 	public function deleteDS()
 		{
 		if ($this->havePerm())
@@ -170,7 +286,7 @@ class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataS
 			# get progenitor
 			$catProgenitor = $this->getObjVar('category_progenitor');
 			# get list of all categories
-			$categoryList = t3lib_div::makeInstance('tx_generaldatadisplay_pi1_categoryList');
+			$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
 			$objArr = $categoryList->getDS();
 
 			foreach($objArr as $key => $obj)
@@ -196,10 +312,37 @@ class tx_generaldatadisplay_pi1_datafield extends tx_generaldatadisplay_pi1_data
 	protected $type = "datafield";
 	protected $table = "tx_generaldatadisplay_datafields";
 	protected $fields = array('datafield_name'=>1,'datafield_type'=>1,'datafield_required'=>1,'datafield_searchable'=>1,'content_visible'=>1, 'display_sequence'=>1);
+	}
 
-	public function __construct()
+class tx_generaldatadisplay_pi1_tempdata extends tx_generaldatadisplay_pi1_dataSet
+	{
+	# vars
+	protected $type = "tempdata";
+	protected $table = "tx_generaldatadisplay_temptable";
+
+	private static $tempTable;
+
+	public function newDS()
 		{
-		$this->fields = array_merge($this->commonFields,$this->fields);
+		$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->table,$this->objVars);
+
+		return $GLOBALS['TYPO3_DB']->sql_insert_id();
+		}
+
+	public function createTable($createFields)
+		{
+		# create temptable
+		$GLOBALS['TYPO3_DB']->sql_query("CREATE TEMPORARY TABLE ".$this->table." (".$createFields.")");
+		if (!$dberror = $GLOBALS['TYPO3_DB']->sql_error())
+			{
+			self::$tempTable = $dberror ? false : $this->table;
+			}
+		return $dberror;
+		}
+
+	public static function tempTableExist()
+		{
+		return self::$tempTable;
 		}
 	}
 

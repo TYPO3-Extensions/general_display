@@ -61,9 +61,6 @@ abstract class tx_generaldatadisplay_pi1_formData
 		{
 		foreach($this->dataArr as $key => $value)
 			{
-			# the safe way			
-			$this->dataArr[$key] = htmlspecialchars($this->dataArr[$key]);
-
 			# check value if it's not already checked
 			if ($this->checkHash[$key] && !$this->formError[$key])
 				$this->formError[$key] = $this->checkValue($this->dataArr[$key],$this->checkHash[$key]);
@@ -129,10 +126,9 @@ abstract class tx_generaldatadisplay_pi1_formData
 	public function valueExist($field, $value)
 		{
 		# get data
-		$typeList = t3lib_div::makeInstance($this->prefixId.'_'.$this->type.'List');
+		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->type.'List');
 		$objArr = $typeList->getDS();
 		foreach($objArr as $key => $obj)
-
 			{
 			# get objVars
 			$objVars = $obj->getProperty('objVars');
@@ -143,17 +139,17 @@ abstract class tx_generaldatadisplay_pi1_formData
 
 	public function validImg($key)
 		{
-		if (!$_FILES[$this->prefixId]['tmp_name'][$key]) return false;
-		if (!$_FILES[$this->prefixId]['error'][$key]
+		if (!$_FILES[PREFIX_ID]['tmp_name'][$key]) return false;
+		if (!$_FILES[PREFIX_ID]['error'][$key]
 
-			&& $_FILES[$this->prefixId]['size'][$key] < MAXIMGSIZE 
-			&& preg_match('/^image\//',$_FILES[$this->prefixId]['type'][$key])) return $_FILES[$this->prefixId]['name'][$key];
+			&& $_FILES[PREFIX_ID]['size'][$key] < MAXIMGSIZE 
+			&& preg_match('/^image\//',$_FILES[PREFIX_ID]['type'][$key])) return $_FILES[PREFIX_ID]['name'][$key];
 
 		else
 			{
-			if ($_FILES[$this->prefixId]['error'][$key]) $this->formError[$key] = "imgUpload";
-			if ($_FILES[$this->prefixId]['size'][$key] > MAXIMGSIZE) $this->formError[$key] = "imgFilesize";  
-			if (!preg_match('/^image\//',$_FILES[$this->prefixId]['type'][$key])) $this->formError[$key] = "imgType";
+			if ($_FILES[PREFIX_ID]['error'][$key]) $this->formError[$key] = "imgUpload";
+			if ($_FILES[PREFIX_ID]['size'][$key] > MAXIMGSIZE) $this->formError[$key] = "imgFilesize";  
+			if (!preg_match('/^image\//',$_FILES[PREFIX_ID]['type'][$key])) $this->formError[$key] = "imgType";
 
 			return false;
 			}
@@ -177,7 +173,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 		$this->checkHash['data_category'] = 'isInt';
 
 		# get list of datafield names
-		$typeList = t3lib_div::makeInstance($this->prefixId.'_datafieldList');
+		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 		$typeList->getDS();
 		$objArr = $typeList->getProperty('objArr');
 
@@ -225,22 +221,13 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 			$this->checkHash[$datafieldHash[$key]] = $checkMethod;
 			}
 
-		# unserialize data_field_content to fill formfields
-		$dataContent = unserialize(base64_decode($formData['data_field_content']));
-		
-		# save content in dataArr
-		if ($dataContent) foreach($dataContent as $key => $value)
-			{ 
-			$this->dataArr[$datafieldHash[$key]] = $value;
-			}
-
 		# if img is uploaded
-		if ($_FILES[$this->prefixId]['tmp_name'])
+		if ($_FILES[PREFIX_ID]['tmp_name'])
 			{
 			# create imguploaddir if necessary
 			if (!is_dir(IMGUPLOADPATH)) mkdir(IMGUPLOADPATH, 0750, true);
 
-			foreach ($_FILES[$this->prefixId]['tmp_name'] as $key => $value)
+			foreach ($_FILES[PREFIX_ID]['tmp_name'] as $key => $value)
 				{
 				preg_match('/^(.+)SELECT$/',$key,$postVarMatch);
 
@@ -251,7 +238,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 					preg_match('/^(.+)\.([^\.]+)$/',$filename,$fileNamePart);
 					$newFilename = $filename;
 					while(is_file(IMGUPLOADPATH."/".$newFilename)) $newFilename = $fileNamePart[1].$i++.".".$fileNamePart[2];
-					$succMove = move_uploaded_file($_FILES[$this->prefixId]['tmp_name'][$key],IMGUPLOADPATH."/".$newFilename);
+					$succMove = move_uploaded_file($_FILES[PREFIX_ID]['tmp_name'][$key],IMGUPLOADPATH."/".$newFilename);
 					if ($succMove)
 						{
 						# check if value was already set
@@ -265,17 +252,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 
 		# validate and save formData
 		$this->validateData();
-
-		# now serialize data fields and save it in $this->dataArr['data_field_content']
-		foreach($objArr as $key => $obj) 
-			{
-			$objVars = $obj->getProperty('objVars');
-			$dataContent[$key] = $this->dataArr[$objVars['datafield_name']];
-			# check required fields
-			if (!$this->formError[$datafieldHash[$key]] && $requiredHash[$key]=='yes') $this->formError[$datafieldHash[$key]] = $this->checkValue($dataContent[$key],'notEmpty');
-			}
-		$this->dataArr['data_field_content'] = base64_encode(serialize($dataContent)); 
-
+		
 		return $this->dataArr;
 		}
 	}
@@ -313,17 +290,24 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 		$this->checkHash['datafield_name'] = 'notEmpty';
 		$this->formError['datafield_name'] = $this->checkValue($this->dataArr['datafield_name'],$this->checkHash['datafield_name']);
 	
-		# convert backticks to ticks
+		# convert / remove some special chars
+		$searchArr = array("/","\\","\"","'","`","<",">","+");
+		$replaceArr = array("|","|");
 		if (! $this->formError['datafield_name']) 
-			{
-			$this->dataArr['datafield_name'] = str_replace("`","'",$this->dataArr['datafield_name']);
-			$this->dataArr['datafield_name'] = str_replace("/","|",$this->dataArr['datafield_name']);
-			}
+			$this->dataArr['datafield_name'] = str_replace($searchArr,$replaceArr,$this->dataArr['datafield_name']);
 
 		# now check if datafieldname is unique
-		$uid = $this->valueExist('datafield_name',$this->dataArr['datafield_name']);
-		if ((!$this->dataArr['uid'] && $uid) || ($this->dataArr['uid'] && $uid && $this->dataArr['uid'] != $uid ))
-			$this->formError['datafield_name'] = 'isUnique';
+		$tableColumnHash = tx_generaldatadisplay_pi1_dataList::getColumns();
+		$charEncoding = mb_detect_encoding($this->dataArr['datafield_name']);
+
+		foreach(array_keys($tableColumnHash) as $key) 
+			{
+			$key = mb_strtolower($key,$charEncoding);
+			$dataFieldName = mb_strtolower($this->dataArr['datafield_name'],$charEncoding);
+			if ($key == $dataFieldName && 
+			    $this->valueExist('datafield_name',$this->dataArr['datafield_name']) != $this->dataArr['uid']) 
+			    $this->formError['datafield_name'] = 'isUnique';
+			}
 
 		$this->checkHash['datafield_type'] = 'isType';
 		if (!$this->dataArr['datafield_required']) $this->dataArr['datafield_required']='no'; 

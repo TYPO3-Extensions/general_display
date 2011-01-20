@@ -30,7 +30,7 @@ class ext_update
 	{
 	public function main() 
 		{
-		/* If the update button hasn't been clicked */
+		# If the update button hasn't been clicked
 		if (!t3lib_div::_GP('do_update')) 
 			{
 			$onClick = "document.location='".t3lib_div::linkThisScript(array('do_update' => 1))."'; return false;";
@@ -40,38 +40,54 @@ class ext_update
 			$mysqlError = false;
 
 			# get list of datafield names
-			$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,data_field_content',
-								'tx_generaldatadisplay_data'
-								);
+			$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
+									'tx_generaldatadisplay_data'
+									);
 			if ($dataSet) 
 				{
 				# Content
 				while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 					{
-					if ($row['uid'])
+					
+					# convert content if it is not converted yet
+					$dataContent = base64_decode($row['data_field_content'],true) ? base64_decode($row['data_field_content']) : $row['data_field_content'];
+					$unserializedData = unserialize($dataContent);
+					# go through hash
+					if (is_array($unserializedData)) foreach($unserializedData as $key => $value)
 						{
-						# convert content if it is not converted yet
-						$base64_content['data_field_content'] = base64_decode($row['data_field_content'],true) ? $row['data_field_content'] : base64_encode($row['data_field_content']);
-						$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_generaldatadisplay_data','uid='.$row['uid'],$base64_content);
+						$insertData['pid'] = $row['pid'];
+						$insertData['tstamp'] = $row['tstamp'];
+						$insertData['crdate'] = $row['crdate'];
+						$insertData['cruser_id'] = $row['cruser_id'];
+						$insertData['data_uid'] = $row['uid'];
+						$insertData['datafields_uid'] = $key;
+						$insertData['datacontent'] = $value;
+						$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_generaldatadisplay_datacontent',$insertData);
 						$mysqlError = $mysqlError || $GLOBALS['TYPO3_DB']->sql_error();
-						} else $mysqlError =true;
+						if (!$mysqlError)
+							{
+							$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_generaldatadisplay_data',
+											       'uid='.$row['uid'],
+											       array('data_field_content' => NULL)
+											       );
+							}
+						}
+						
 					}
 				}
-			$content = $mysqlError ? '<p>Something went wrong during the database content update!</p>' : '<p>Database content update successful!</p>';
+			$content = $mysqlError ? "<p>Something went wrong during the database content update!</p>" : "<p>Database content update successful!</p>";
 			}
 		return $content;
 		}
 	
 	public function access()
 		{
-		# check if convertion ist necessary
-		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('data_field_content',
-								'tx_generaldatadisplay_data'
+		# check if there is old data_field_content
+		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid',
+					 			'tx_generaldatadisplay_data',
+								'data_field_content !=""'
 								);
-
-		while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
-			if (! base64_decode($row['data_field_content'],true)) return true;
-	
+		if ($dataSet) return $GLOBALS['TYPO3_DB']->sql_num_rows($dataSet) ? true : false;
 		return false;
 		}
 	}

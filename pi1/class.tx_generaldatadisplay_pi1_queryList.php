@@ -33,12 +33,8 @@
 abstract class tx_generaldatadisplay_pi1_queryList
 	{
 	# vars
-	private $objArr = array();
-
-	public function __construct()
-		{
-		$this->restrictFields="pid=".PID;
-		}
+	protected $prefixId = 'tx_generaldatadisplay_pi1';
+	protected $objArr = array();
 	
 	public function __destruct()
 		{
@@ -68,13 +64,12 @@ abstract class tx_generaldatadisplay_pi1_queryList
 		return $result; 
 		}
 
-	public function getDS($clause="",$tempTable="",$range="")
+	public function getDS($clause="",$range="")
 		{
-		$table = $tempTable ? $tempTable : $this->table;
-		$whereClause = $this->restrictFields.($this->restrictFields && $clause ? " AND ":"").$clause;
+		$whereClause = 'pid='.PID.('pid='.PID && $clause ? " AND ":"").$clause;
 
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
-								$table,
+								$this->table,
 								$where=$whereClause,
 								$groupBy='',
        								$orderBy=$this->orderField,
@@ -101,21 +96,107 @@ abstract class tx_generaldatadisplay_pi1_queryList
 class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_queryList
 	{
 	# vars
-	protected $table = "tx_generaldatadisplay_data";
+	protected $table = "tx_generaldatadisplay_temptable";
 	protected $objType = "tx_generaldatadisplay_pi1_data";
-	protected $orderField = "data_title";
+	protected $orderField = "category_name,data_title";
 
-	public function createTempTable()
+	public function getDS($clause="",$range="")
 		{
-		$this->tempTable = $this->table."_".PID;
+		$this->createTempTable();
+	
+		$whereClause = 'pid='.PID.($clause ? " AND ":"").$clause;
 		
-		$fieldArr[] = "pid int,uid int,data_title tinytext,data_category int,category_name tinytext";	
+		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
+								$this->table,
+								$where=$whereClause,
+								$groupBy='',
+								$orderBy=$this->orderField,
+								$limit=$range);
 
-		# build create query
+		if ($dataSet) 
+			{
+			# delete former result	
+			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
+
+			# Content
+			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
+				{ 
+				$data = t3lib_div::makeInstance($this->objType);
+				$uid = $data->setProperty("uid",$row['uid']);
+				$data->setProperty("objVars",$row);
+				$this->objArr[$uid] = $data;
+				}
+			}
+
+		return $this->objArr;
+		}
+
+	private function createTempTable()
+		{
+		$tempDataClass = PREFIX_ID.'_tempdata';
+		if ($tempDataClass::tempTableExist()) return true;
+
+		$tableColumnHash = $this->getColumns();
+		foreach($tableColumnHash as $key => $value)
+			$fieldArr[] = $this->addBackTicks($key)." ".$value;
+
+		$createFields = implode(",",$fieldArr);
+
+		# create temptable
+		$tempData = t3lib_div::makeInstance($tempDataClass);
+		$dberror = $tempData->createTable($createFields);
+
+		if (!$dberror)
+			{
+			$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_data.*,tx_generaldatadisplay_categories.category_name',
+									  'tx_generaldatadisplay_data LEFT JOIN tx_generaldatadisplay_categories 
+									   ON  tx_generaldatadisplay_data.pid = tx_generaldatadisplay_categories.pid
+									   AND tx_generaldatadisplay_data.data_category = tx_generaldatadisplay_categories.uid',
+									  'tx_generaldatadisplay_data.pid='.PID
+									  );
+			
+			if ($dataSet) 
+				{
+				# Content
+				while ($dataRow=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
+					{
+					# first unset possibly existing datacontent array
+					unset($dataContent);
+					# get dataContent
+					$dataContentSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datacontent.datacontent',
+												 'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
+												  ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
+												 'tx_generaldatadisplay_datacontent.pid='.PID.' AND tx_generaldatadisplay_datacontent.data_uid='.$dataRow['uid']
+												 );
+					if (! $GLOBALS['TYPO3_DB']->sql_error())
+						{
+						while ($dataContentRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataContentSet))
+							if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
+
+						# additional fields
+						$dataContent['pid'] = PID;
+						$dataContent['uid'] = $dataRow['uid'];
+						$dataContent['data_title'] = $dataRow['data_title'];
+						$dataContent['data_category'] = $dataRow['data_category'];
+						$dataContent['category_name'] = $dataRow['category_name'];
+						$dataContent = $this->addBackTicks($dataContent);
+
+						$tempData->setProperty("objVars",$dataContent);
+						$tempData->newDS();
+						}
+					}
+				}
+			} 
+		return $GLOBALS['TYPO3_DB']->sql_error() ? false : true;
+		}
+
+	public static function getColumns()
+		{
+		$tableColumnHash = array('pid' => 'int','uid' => 'int','data_title' => 'tinytext','data_category' => 'int','category_name' => 'tinytext');
 		# get list of datafield names
-		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,datafield_name,datafield_type',
+		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('datafield_name,datafield_type',
 								'tx_generaldatadisplay_datafields',
-								$this->restrictFields
+								'pid='.PID
 								);
 
 		if ($dataSet) 
@@ -123,56 +204,50 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 			# Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
-				# build datafield hash to map names
-				$datafieldHash[$row['uid']] = addslashes($row['datafield_name']);
-				$fieldArr[] = $this->addBackTicks($datafieldHash[$row['uid']])." text";
+				# build column hash from datafields
+				$tableColumnHash[$row['datafield_name']] = "text";
 				}
 			}	
-		$createFields = implode(",",$fieldArr);
+		return $tableColumnHash;
+		}
+	}
 
-		$query = "CREATE TEMPORARY TABLE ".$this->tempTable." (".$createFields.")";
-		$GLOBALS['TYPO3_DB']->sql_query($query);
+class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi1_queryList
+	{
+	# vars
+	protected $table = "tx_generaldatadisplay_datacontent";
+	protected $objType = "tx_generaldatadisplay_pi1_datacontent";
+	protected $orderField = "tx_generaldatadisplay_datafields.display_sequence";
 
-		if (! $GLOBALS['TYPO3_DB']->sql_error())
+	public function getDS($clause="")
+		{
+		$table = $this->table;
+		
+		$whereClause = 'pid='.PID.($clause ? " AND ":"").$clause;
+
+		$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datafields.datafield_type,tx_generaldatadisplay_datacontent.uid,tx_generaldatadisplay_datacontent.datacontent',
+								'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
+								ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
+								'tx_generaldatadisplay_datacontent.'.$whereClause,
+								'',
+       								$this->orderField
+								);
+
+		if ($dataSet) 
 			{
-			$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_data.*,tx_generaldatadisplay_categories.category_name',
-									'tx_generaldatadisplay_data LEFT JOIN tx_generaldatadisplay_categories 
-									 ON  tx_generaldatadisplay_data.pid = tx_generaldatadisplay_categories.pid
-									 AND tx_generaldatadisplay_data.data_category = tx_generaldatadisplay_categories.uid',
-									'tx_generaldatadisplay_data.pid='.PID
-									);
-			
-			if ($dataSet) 
-				{
-				# Content
-				while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
-					{
-					# first unset possibly existing datacontent array
-					unset($dataContent);
-					# get unmapped data
-					$unmappedDataContent = unserialize(base64_decode($row['data_field_content']));
-					if ($unmappedDataContent)
-						{
-						# only defined fields -> map data
-						foreach ($unmappedDataContent as $key => $value)
-							{
-							if ($datafieldHash[$key])
-								$dataContent[$datafieldHash[$key]] = $value;
-							}
-						}
-					# additional fields
-					$dataContent['pid'] = PID;
-					$dataContent['uid'] = $row['uid'];
-					$dataContent['data_title'] = $row['data_title'];
-					$dataContent['data_category'] = $row['data_category'];
-					$dataContent['category_name'] = $row['category_name'];
-					$dataContent = $this->addBackTicks($dataContent);
-	
-					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->tempTable,$dataContent);
-					}
+			# delete former result	
+			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
+
+			# Content
+			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
+				{ 
+				$data = t3lib_div::makeInstance($this->objType);
+				$uid = $data->setProperty("uid",$row['uid']);
+				$data->setProperty("objVars",$row);
+				$this->objArr[$uid] = $data;
 				}
-			} 
-		return $GLOBALS['TYPO3_DB']->sql_error();
+			}
+		return $this->objArr;	
 		}
 	}
 
@@ -204,6 +279,16 @@ class tx_generaldatadisplay_pi1_datafieldList extends tx_generaldatadisplay_pi1_
 	protected $table = "tx_generaldatadisplay_datafields";
 	protected $objType = "tx_generaldatadisplay_pi1_datafield";
 	protected $orderField = "display_sequence";
+
+	public function getUidFromDatafield($datafieldName)
+		{
+		foreach($this->objArr as $key => $obj)
+			{
+			$objVars = $obj->getProperty('objVars');
+			if ($objVars['datafield_name'] == $datafieldName) return $objVars['uid'];
+			}
+		return false;
+		}
 	}
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/general_data_display/pi1/class.tx_generaldatadisplay_pi1_queryList.php'])        {
