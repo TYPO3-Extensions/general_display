@@ -81,9 +81,9 @@
 		###INPUT_DATAFIELDS###
 	</div>
         <div>
-	<br>
-        <input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###"></input>
-        <input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###"></input>
+		<br>
+		<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###"></input>
+		<input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###"></input>
         </div>
 </form>
 </div>
@@ -103,9 +103,9 @@
 	###HEADING_SUBCATEGORY###
 	<select name="###PI_BASE###[category_progenitor]">###DATA_SUBCATEGORY_OPTIONS###</select>
         <div>
-        <br>
-        <input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###"></input>
-        <input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###"></input>
+		<br>
+		<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###"></input>
+		<input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###"></input>
         </div>
 </form>
 </div>
@@ -125,16 +125,12 @@
         <input type="text" name="###PI_BASE###[datafield_name]" size="40"  value="###DATAFIELD_NAME###"></input>
 	###HEADING_TYPE###
 	###DATAFIELD_TYPE_ERROR###
-        <select name="###PI_BASE###[datafield_type]">###DATAFIELD_TYPE_OPTIONS###</select>
-	<input type="checkbox" name="###PI_BASE###[datafield_required]" value="yes" ###DATAFIELD_REQUIRED###>###HEADING_REQUIRED###</input>
-        <input type="checkbox" name="###PI_BASE###[datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE###>###HEADING_SEARCHABLE###</input>
-	<input type="checkbox" name="###PI_BASE###[content_visible]" value="yes" ###CONTENT_VISIBLE###>###HEADING_CONTENT_VISIBLE###</input>
+        <select onchange="this.form.submit()" name="###PI_BASE###[datafield_type]">###DATAFIELD_TYPE_OPTIONS###</select>
+	###HEADING_DATAFIELD_CONFIG###
+	###DATAFIELD_CONFIG###
+	<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###"></input>
+	<input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###"></input>
 	
-        <div>
-        <br>
-        <input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###"></input>
-        <input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###"></input>
-        </div>
 </form>
 </div>
 <!-- ###EDIT_DATAFIELD### -->
@@ -150,6 +146,14 @@
 	###DATAFIELD_CONTENT_ERROR###
 	<textarea name="###PI_BASE###[###DATAFIELD_NAME###]" cols="60" rows="10">###DATAFIELD_CONTENT###</textarea>
 <!-- ###TEXTAREA_INPUT### -->
+
+<!-- ###IMAGE_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###" readonly></input><br>
+	<input name="###PI_BASE###[###DATAFIELD_NAME###][select]" type="file" size="20"></input>
+	<input type="submit" name="###PI_BASE###[###DATAFIELD_NAME###][delete]" value="x"></input>
+<!-- ###IMAGE_INPUT### -->
 
 <!-- ###INT_INPUT### -->
 	###HEADING_DATAFIELD###
@@ -191,14 +195,23 @@
 	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###"></input>
 <!-- ###URL_INPUT### -->
 
-<!-- ###UPLOAD_IMAGE### -->
-	###HEADING_DATAFIELD###
-	###DATAFIELD_CONTENT_ERROR###
-	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###" readonly></input><br>
-	<input name="###PI_BASE###[###DATAFIELD_NAME###SELECT]" type="file" size="20"></input>
-	
-<!-- ###UPLOAD_IMAGE### -->
+<!-- ###METADATA_INPUT### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE###>###HEADING_CONTENT_VISIBLE###</input>
+        <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE###>###HEADING_SEARCHABLE###</input>
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED###>###HEADING_REQUIRED###</input>
+<!-- ###METADATA_INPUT### -->
 
+<!-- ###METADATA_IMAGE### -->
+	<div>
+		###HEADING_IMGSIZE###
+		<input type="text" name="###PI_BASE###[meta][img_size_x]" size="3" maxlength="3" value="###CONTENT_IMGSIZE_X###"></input>x
+		<input type="text" name="###PI_BASE###[meta][img_size_y]" size="3" maxlength="3" value="###CONTENT_IMGSIZE_Y###"></input>
+	</div>
+	<div>
+		###HEADING_IMGALIGN###
+		<select name="###PI_BASE###[meta][img_align]">###IMGALIGN_OPTIONS###</select>
+	</div>
+<!-- ###METADATA_IMAGE### -->
 
 <!-- ###DELETE_REQUEST### -->
 <div class="###PLUGINNAME###deleteRequest">
@@ -212,8 +225,8 @@
 	###HEADING_DELETE_REQUEST###
 	###DETAILS###
 	</div>
-			<input type="submit" name="###PI_BASE###[submit]" value="###YES###"></input>
-    			<input type="submit" name="###PI_BASE###[cancel]" value="###NO###"></input>
+		<input type="submit" name="###PI_BASE###[submit]" value="###YES###"></input>
+		<input type="submit" name="###PI_BASE###[cancel]" value="###NO###"></input>
         </div>
 </form>
 </div>	

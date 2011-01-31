@@ -7,9 +7,9 @@ CREATE TABLE tx_generaldatadisplay_data (
 	tstamp int(11) DEFAULT '0' NOT NULL,
 	crdate int(11) DEFAULT '0' NOT NULL,
 	cruser_id int(11) DEFAULT '0' NOT NULL,
+	deleted tinyint(3) unsigned DEFAULT '0' NOT NULL,
 	data_title tinytext,
-	data_category int(11) DEFAULT '',
-	data_field_content mediumtext,
+	data_category int(11) DEFAULT '0' NOT NULL,
 	
 	PRIMARY KEY (uid),
 	KEY parent (pid)
@@ -26,9 +26,10 @@ CREATE TABLE tx_generaldatadisplay_datacontent (
 	tstamp int(11) DEFAULT '0' NOT NULL,
 	crdate int(11) DEFAULT '0' NOT NULL,
 	cruser_id int(11) DEFAULT '0' NOT NULL,
+	deleted tinyint(3) unsigned DEFAULT '0' NOT NULL,
 	data_uid int(11) DEFAULT '0' NOT NULL,
 	datafields_uid int(11) DEFAULT '0' NOT NULL,
-	datacontent text,  
+	datacontent text,
 
 	PRIMARY KEY (uid),
 	KEY parent (pid)
@@ -45,6 +46,7 @@ CREATE TABLE tx_generaldatadisplay_categories (
 	tstamp int(11) DEFAULT '0' NOT NULL,
 	crdate int(11) DEFAULT '0' NOT NULL,
 	cruser_id int(11) DEFAULT '0' NOT NULL,
+	deleted tinyint(3) unsigned DEFAULT '0' NOT NULL,
 	category_progenitor int(11) DEFAULT '0' NOT NULL,
 	category_name tinytext,
 
@@ -63,12 +65,11 @@ CREATE TABLE tx_generaldatadisplay_datafields (
 	tstamp int(11) DEFAULT '0' NOT NULL,
 	crdate int(11) DEFAULT '0' NOT NULL,
 	cruser_id int(11) DEFAULT '0' NOT NULL,
+	deleted tinyint(3) unsigned DEFAULT '0' NOT NULL,
 	datafield_name tinytext,
-	datafield_type enum('tinytext','text','int','bool','date','time','email','url','img') NOT NULL,
-	datafield_required enum('yes','no') DEFAULT 'no',
-	datafield_searchable enum('yes','no') DEFAULT 'yes',
-	content_visible enum('yes','no') DEFAULT 'yes',
-	display_sequence int(11) DEFAULT '0' NOT NULL,	
+	datafield_type enum('tinytext','text','img','int','bool','date','time','email','url') NOT NULL,
+	display_sequence int(11) DEFAULT '0' NOT NULL,
+	metadata tinytext,
 
 	PRIMARY KEY (uid),
 	KEY parent (pid)

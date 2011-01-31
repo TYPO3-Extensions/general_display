@@ -33,9 +33,14 @@
 abstract class tx_generaldatadisplay_pi1_queryList
 	{
 	# vars
-	protected $prefixId = 'tx_generaldatadisplay_pi1';
 	protected $objArr = array();
+	protected $restrictQuery;
 	
+	public function __construct()
+		{
+		$this->restrictQuery = "pid=".PID." AND NOT deleted";
+		}
+
 	public function __destruct()
 		{
 		foreach ($this->objArr AS $key => $value) unset($value);
@@ -66,7 +71,7 @@ abstract class tx_generaldatadisplay_pi1_queryList
 
 	public function getDS($clause="",$range="")
 		{
-		$whereClause = 'pid='.PID.('pid='.PID && $clause ? " AND ":"").$clause;
+		$whereClause = $this->restrictQuery.($clause ? " AND ":"").$clause;
 
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
 								$this->table,
@@ -99,12 +104,17 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 	protected $table = "tx_generaldatadisplay_temptable";
 	protected $objType = "tx_generaldatadisplay_pi1_data";
 	protected $orderField = "category_name,data_title";
+	
+	public function __construct()
+		{
+		$this->restrictQuery = "pid=".PID;
+		}
 
 	public function getDS($clause="",$range="")
 		{
 		$this->createTempTable();
 	
-		$whereClause = 'pid='.PID.($clause ? " AND ":"").$clause;
+		$whereClause = $this->restrictQuery.($clause ? " AND ":"").$clause;
 		
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
 								$this->table,
@@ -152,7 +162,8 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 									  'tx_generaldatadisplay_data LEFT JOIN tx_generaldatadisplay_categories 
 									   ON  tx_generaldatadisplay_data.pid = tx_generaldatadisplay_categories.pid
 									   AND tx_generaldatadisplay_data.data_category = tx_generaldatadisplay_categories.uid',
-									  'tx_generaldatadisplay_data.pid='.PID
+									  'tx_generaldatadisplay_data.pid='.PID.
+									  ' AND NOT tx_generaldatadisplay_data.deleted AND NOT tx_generaldatadisplay_categories.deleted'
 									  );
 			
 			if ($dataSet) 
@@ -166,7 +177,9 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 					$dataContentSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datacontent.datacontent',
 												 'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
 												  ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
-												 'tx_generaldatadisplay_datacontent.pid='.PID.' AND tx_generaldatadisplay_datacontent.data_uid='.$dataRow['uid']
+												 'tx_generaldatadisplay_datacontent.pid='.PID.
+												 ' AND tx_generaldatadisplay_datacontent.data_uid='.$dataRow['uid'].
+												 ' AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted'
 												 );
 					if (! $GLOBALS['TYPO3_DB']->sql_error())
 						{
@@ -219,13 +232,18 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 	protected $objType = "tx_generaldatadisplay_pi1_datacontent";
 	protected $orderField = "tx_generaldatadisplay_datafields.display_sequence";
 
+	public function __construct()
+		{
+		$this->restrictQuery = "pid=".PID." AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted";
+		}
+
 	public function getDS($clause="")
 		{
 		$table = $this->table;
-		
-		$whereClause = 'pid='.PID.($clause ? " AND ":"").$clause;
 
-		$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datafields.datafield_type,tx_generaldatadisplay_datacontent.uid,tx_generaldatadisplay_datacontent.datacontent',
+		$whereClause = $this->restrictQuery.($clause ? " AND ":"").$clause;
+
+		$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datafields.datafield_type,tx_generaldatadisplay_datacontent.uid,tx_generaldatadisplay_datacontent.datacontent,tx_generaldatadisplay_datacontent.datafields_uid',
 								'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
 								ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
 								'tx_generaldatadisplay_datacontent.'.$whereClause,

@@ -103,7 +103,7 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 		{
 		if ($this->havePerm())
 			{
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->table,'uid='.$this->uid);
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->table,'uid='.$this->uid,array('deleted' => 1));
 			return true;
 			}
 		return false;
@@ -178,7 +178,7 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 			# build and insert datasets
 			foreach($savedObjVars as $name => $value)
 				{
-				if ($value && $dataContent['datafields_uid'] = $dataFieldList->getUidFromDatafield($name))
+				if ($dataContent['datafields_uid'] = $dataFieldList->getUidFromDatafield($name))
 					{
 					$dataContent['data_uid'] = $uid;
 					$dataContent['datacontent'] = $value;
@@ -237,20 +237,20 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 			$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid',
 									'tx_generaldatadisplay_datacontent',
 									 $where='uid='.$this->uid);
-
-			if ($dataset)
+			if ($dataSet)
 				{
-				$query = "DELETE tx_generaldatadisplay_data,tx_generaldatadisplay_datacontent 
-					  FROM tx_generaldatadisplay_data,tx_generaldatadisplay_datacontent 
-					  WHERE tx_generaldatadisplay_data.uid = tx_generaldatadisplay_datacontent.data_uid 
-					  AND tx_generaldatadisplay_data.uid=".$this->uid;
-				
-				$GLOBALS['TYPO3_DB']->sql_query($query);
+				$GLOBALS['TYPO3_DB']->exec_UPDATEquery("tx_generaldatadisplay_data,tx_generaldatadisplay_datacontent",
+								       "tx_generaldatadisplay_data.uid=tx_generaldatadisplay_datacontent.data_uid 
+									AND tx_generaldatadisplay_data.uid=".$this->uid,
+									array('tx_generaldatadisplay_data.deleted' => 1,'tx_generaldatadisplay_datacontent.deleted' => 1)
+								      );
+
 				$dberror = $GLOBALS['TYPO3_DB']->sql_error();
+
 				} else parent::deleteDS();
 
 			# delete entry from temptable
-			if (!$dberror && PREFIX_ID.'_tempdata::$tempTable'); 
+			if (!$dberror && 'tx_generaldatadisplay_pi1_datacontent_tempdata::$tempTable'); 
 				{
 				$tempData = t3lib_div::makeInstance(PREFIX_ID.'_tempdata');
 				$tempData->setProperty("uid",$this->uid);
@@ -268,7 +268,7 @@ class tx_generaldatadisplay_pi1_datacontent extends tx_generaldatadisplay_pi1_da
 	# vars
 	protected $type = "datacontent";
 	protected $table = "tx_generaldatadisplay_datacontent";
-	protected $fields = array('data_title'=>1,'datacontent'=>1,'data_uid'=>1,'datafields_uid'=>1);
+	protected $fields = array('data_uid'=>1,'datafields_uid'=>1,'datacontent'=>1);
 	}
 
 class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataSet
@@ -305,13 +305,12 @@ class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataS
 		}
 	}
 
-
 class tx_generaldatadisplay_pi1_datafield extends tx_generaldatadisplay_pi1_dataSet
 	{
 	# vars
 	protected $type = "datafield";
 	protected $table = "tx_generaldatadisplay_datafields";
-	protected $fields = array('datafield_name'=>1,'datafield_type'=>1,'datafield_required'=>1,'datafield_searchable'=>1,'content_visible'=>1, 'display_sequence'=>1);
+	protected $fields = array('datafield_name'=>1,'datafield_type'=>1,'display_sequence'=>1,'metadata'=>1);
 	}
 
 class tx_generaldatadisplay_pi1_tempdata extends tx_generaldatadisplay_pi1_dataSet
@@ -327,6 +326,11 @@ class tx_generaldatadisplay_pi1_tempdata extends tx_generaldatadisplay_pi1_dataS
 		$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->table,$this->objVars);
 
 		return $GLOBALS['TYPO3_DB']->sql_insert_id();
+		}
+
+	public function deleteDS()
+		{
+		$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->table,'uid='.$this->uid);
 		}
 
 	public function createTable($createFields)
