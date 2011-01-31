@@ -6,11 +6,11 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
-			<label index="tx_generaldatadisplay_data">General data display-data</label>
+			<label index="tx_generaldatadisplay_data">General data display-title</label>
 			<label index="tx_generaldatadisplay_data.title">Title</label>
 			<label index="tx_generaldatadisplay_data.category">Category</label>
-			<label index="tx_generaldatadisplay_data.data_field_content">General data display-data field content</label>
-			<label index="tx_generaldatadisplay_categories">General data display-categories</label>
+			<label index="tx_generaldatadisplay_datacontent">General data display-datacontent</label>
+			<label index="tx_generaldatadisplay_datacontent.datacontent">Datacontent</label>
 			<label index="tx_generaldatadisplay_categories.name">Category</label>
 			<label index="tx_generaldatadisplay_categories.progenitor">Subcategory of</label>
 			<label index="tx_generaldatadisplay_datafields">General data display-data fields</label>
@@ -36,17 +36,18 @@
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_template">User template</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_stylesheet">User stylesheet</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults">Entries per page</label>
-				<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults_all">all</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults_all">all</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrMaxPages">Display Pagelinks</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration">FE user administration</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_users">Allowed users</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_groups">Allowed groups</label>
 		</languageKey>
 		<languageKey index="de" type="array">
-			<label index="tx_generaldatadisplay_data">Allgemeine Datenanzeige-Daten</label>
+			<label index="tx_generaldatadisplay_data">Allgemeine Datenanzeige-Titel</label>
 			<label index="tx_generaldatadisplay_data.title">Titel</label>
 			<label index="tx_generaldatadisplay_data.category">Kategorie</label>
-			<label index="tx_generaldatadisplay_data.data_field_content">Datenfelder Inhalt</label>
+			<label index="tx_generaldatadisplay_datacontent">Allgemeine Datenanzeige-Dateninhalt</label>
+			<label index="tx_generaldatadisplay_datacontent.datacontent">Dateninhalt</label>
 			<label index="tx_generaldatadisplay_categories">Allgemeine Datenanzeige-Kategorien</label>
 			<label index="tx_generaldatadisplay_categories.name">Kategorie</label>
 			<label index="tx_generaldatadisplay_categories.progenitor">Unterkategorie von</label>
@@ -73,7 +74,7 @@
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_template">Benutzerdefiniertes Template</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_stylesheet">Benutzerdefiniertes Stylesheet</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults">Einträge pro Seite</label>
-				<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults_all">alle</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults_all">alle</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrMaxPages">Anzeige Seitenlinks</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration">FE Benutzer Administration</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_users">Berechtigte Benutzer</label>
