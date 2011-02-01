@@ -1,0 +1,14 @@
+Version	Changes
+-------	-------
+1.0.0:	Initial release
+1.0.2:	New input datatypes & verifications added
+	Required flag for input fields
+1.0.3:	Security fix & minor changes
+1.0.4:	Bugfix - wrong function call produced log warnings
+1.1.0:	Subcategories are now implemented
+1.1.1:	Normal BE user access to the FE administration interface, minor fixes  & documentation added
+1.2.0:	Content is now base64 encoded to prevent data corruption through charset change
+	Replaced deprecated eregi-function  
+1.3.0:	New image datatype added
+	New table design makes base64 encoding obsolete
+	A lot of bugfixes & code cleaning
