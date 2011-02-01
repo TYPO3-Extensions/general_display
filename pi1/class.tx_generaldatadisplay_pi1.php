@@ -577,8 +577,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					# & fill template
 					foreach($dataContentObjArr as $key => $obj) 
 						{
-						
-						# t3lib_div::debug($obj,'obj');
 						$fieldName = $obj->getObjVar('datafield_name');
 						$value = $this->formatContentType($obj);
 						# get metadata
