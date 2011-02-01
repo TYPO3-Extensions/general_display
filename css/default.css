@@ -101,6 +101,8 @@
 	margin-left: 36px;
 	}
 
+/* If you need higher levels of indentation (categorylvl4..n) - you can define it here */
+
 .tx-generaldatadisplay-pi1-editView-heading_title, .tx-generaldatadisplay-pi1-editView-heading_category, .tx-generaldatadisplay-pi1-editView-heading_subcategory, .tx-generaldatadisplay-pi1-editView-dataHeading, .tx-generaldatadisplay-pi1-editView-heading_input_datafields, .tx-generaldatadisplay-pi1-editView-heading_fieldname, .tx-generaldatadisplay-pi1-editView-heading_type, .tx-generaldatadisplay-pi1-editView-heading_datafield_config {
 	font-weight: bold;
 	margin-top: 12px;
