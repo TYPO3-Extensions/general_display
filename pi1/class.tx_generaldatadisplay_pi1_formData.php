@@ -138,11 +138,8 @@ abstract class tx_generaldatadisplay_pi1_formData
 		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->type.'List');
 		$objArr = $typeList->getDS();
 		foreach($objArr as $key => $obj)
-			{
-			# get objVars
-			$objVars = $obj->getProperty('objVars');
-			if ($objVars[$field] == $value) return $objVars['uid'];
-			}
+			if ($obj->getObjVar($field) == $value) return $obj->getObjVar('uid');
+
 		return 0;
 		}
 
@@ -302,14 +299,16 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 			# now check if datafieldname is unique
 			$dataListClass = PREFIX_ID.'_dataList';
 			$tableColumnHash = $dataListClass::getColumns();
+			t3lib_div::debug($tableColumnHash,'columns');
 			$charEncoding = mb_detect_encoding($this->dataArr['datafield_name']);
 			foreach(array_keys($tableColumnHash) as $key) 
 				{
 				$key = mb_strtolower($key,$charEncoding);
 				$dataFieldName = mb_strtolower($this->dataArr['datafield_name'],$charEncoding);
-				if ($key == $dataFieldName && 
-				$this->valueExist('datafield_name',$this->dataArr['datafield_name']) != $this->dataArr['uid']) 
-				$this->formError['datafield_name'] = 'isUnique';
+				$datafieldUid = $this->valueExist('datafield_name',$this->dataArr['datafield_name']);
+				
+				if ($key == $dataFieldName && (!$datafieldUid || $datafieldUid != $this->dataArr['uid']))
+					$this->formError['datafield_name'] = 'isUnique';
 				}
 			}
 

@@ -32,7 +32,7 @@
 abstract class tx_generaldatadisplay_pi1_dataFields
 	{
 	protected static $table = "tx_generaldatadisplay_datafields";
-	protected $tmplArr = array('PI_BASE' => PREFIX_ID);
+	protected $tmplArr = array();
 	protected $config = array();
 
 	public function getProperty($property)
@@ -40,6 +40,10 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 		return isset($this->$property) ? $this->$property : null;
 		}
 
+	public function setTmplArr(&$tmplArr)
+		{
+		$this->tmplArr = $tmplArr;
+		}
 
 	public function getTmplVar($property)
 		{
@@ -56,11 +60,8 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 		{
 		$cObj = t3lib_div::makeInstance('tslib_cObj');
 		$subpart = $cObj->getSubpart(TEMPLATE,$this->config['subpartType'][$type]);
-		
-		foreach ($this->tmplArr as $key => $value)
-			$contentArray['###'.strtoupper($key).'###'] = $value;
 
-		return $cObj->substituteMarkerArrayCached($subpart,$contentArray);
+		return $cObj->substituteMarkerArrayCached($subpart,$this->tmplArr);
 		}
 
 	public static function getMetadata($uid)
@@ -110,6 +111,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 			break;
 			}
 		}
+
 	}
 
 class tx_generaldatadisplay_pi1_tinytext extends tx_generaldatadisplay_pi1_dataFields
@@ -131,7 +133,7 @@ class tx_generaldatadisplay_pi1_img extends tx_generaldatadisplay_pi1_dataFields
 	# vars
 	protected $type = "img";
 	protected $config = array('subpartType' => array('edit' => '###IMAGE_INPUT###', 'config' => '###METADATA_IMAGE###'),
-					      'imgAlign' => array('left' => 'left','center' => 'center','right' => 'right')
+				  'imgAlign' => array('left' => 'left','center' => 'center','right' => 'right')
 				 );
 	}
 
@@ -147,6 +149,16 @@ class tx_generaldatadisplay_pi1_bool extends tx_generaldatadisplay_pi1_dataField
 	# vars
 	protected $type = "bool";
 	protected $config = array('subpartType' => array('edit' => '###BOOL_INPUT###', 'config' => '###METADATA_INPUT###'));
+
+	public function HTML($type='edit')
+		{
+		$this->tmplArr['###VALUE_DATAFIELD_NO###'] = 'no';
+		$this->tmplArr['###VALUE_DATAFIELD_YES###'] = 'yes';
+		$this->tmplArr['###DATAFIELD_SELECTED_YES###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='yes' ? "selected" : "";
+		$this->tmplArr['###DATAFIELD_SELECTED_NO###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='no' ? "selected" : "";
+	
+		return parent::HTML($type);
+		}
 	}
 
 class tx_generaldatadisplay_pi1_date extends tx_generaldatadisplay_pi1_dataFields
@@ -176,4 +188,8 @@ class tx_generaldatadisplay_pi1_url extends tx_generaldatadisplay_pi1_dataFields
 	protected $type = "url";
 	protected $config = array('subpartType' => array('edit' => '###URL_INPUT###', 'config' => '###METADATA_INPUT###'));
 	}
+
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/general_data_display/pi1/class.tx_generaldatadisplay_pi1_dataFields.php'])        {
+        include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/general_data_display/pi1/class.tx_generaldatadisplay_pi1_dataFields.php']);
+}
 ?>

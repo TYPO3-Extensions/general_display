@@ -146,7 +146,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		$tempDataClass = PREFIX_ID.'_tempdata';
 		if ($tempDataClass::tempTableExist()) return true;
 
-		$tableColumnHash = $this->getColumns();
+		$tableColumnHash = self::getColumns();
 		foreach($tableColumnHash as $key => $value)
 			$fieldArr[] = $this->addBackTicks($key)." ".$value;
 
@@ -209,7 +209,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		# get list of datafield names
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('datafield_name,datafield_type',
 								'tx_generaldatadisplay_datafields',
-								'pid='.PID
+								'pid='.PID.' AND NOT deleted'
 								);
 
 		if ($dataSet) 

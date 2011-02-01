@@ -83,7 +83,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		define(ADM_PERM,$this->isAdmin());
 
 		define(IMGUPLOADPATH,$this->uploadPath."/".PID);
-		define(MAXIMGSIZE,$this->conf['maxImageSize'] ? $this->conf['maxImageSize'] : 100000);
+		define(MAXIMGSIZE,isset($this->conf['maxImageSize']) ? (int)$this->conf['maxImageSize'] : 100000);
 
 		# use configured css, if none is given use standard stylesheet
 		$userStyleFile = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "userStyleSheet","general");
@@ -659,13 +659,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					# get datafield
 					$objVars = $obj->getProperty('objVars');
 					$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$objVars['datafield_type']);
-					$dataField->setTmplVar('DATAFIELD_NAME',$objVars['datafield_name']);
-					$dataField->setTmplVar('HEADING_DATAFIELD',$this->wrapInDiv($objVars['datafield_name'],__FUNCTION__."-dataHeading"));
-					$dataField->setTmplVar('DATAFIELD_CONTENT',$formValues[$objVars['datafield_name']]);
-					$dataField->setTmplVar('DATAFIELD_CONTENT_ERROR',$formError[$objVars['datafield_name']] ? $this->wrapInDiv($this->pi_getLL('error_'. $formError[$objVars['datafield_name']]),'editView-Formerror') : "");
+					$dataField->setTmplArr($contentArray);
+					$dataField->setTmplVar('###DATAFIELD_NAME###',$objVars['datafield_name']);
+					$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInDiv($objVars['datafield_name'],__FUNCTION__."-dataHeading"));
+					$dataField->setTmplVar('###DATAFIELD_CONTENT###',$formValues[$objVars['datafield_name']]);
+					$dataField->setTmplVar('###DATAFIELD_CONTENT_ERROR###',$formError[$objVars['datafield_name']] ? $this->wrapInDiv($this->pi_getLL('error_'. $formError[$objVars['datafield_name']]),'editView-Formerror') : "");
 
 					$contentArray['###INPUT_DATAFIELDS###'].= $dataField->HTML();
 					}
+				
 				}
 			break;
 			
@@ -691,28 +693,30 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$contentArray['###DATAFIELD_TYPE_OPTIONS###'] = $this->getOptionsFromArr($types,$formValues['datafield_type'],true);
 
 				$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$datafieldType);
+				$dataField->setTmplArr($contentArray);
+
 				# select datafield configuration
 				switch ($formValues['datafield_type'])
 					{	
 					case 'img':
 						{
-						$dataField->setTmplVar('HEADING_IMGSIZE',$this->pi_getLL('img_size'));
-						$dataField->setTmplVar('HEADING_IMGALIGN',$this->pi_getLL('img_align'));
-						$dataField->setTmplVar('CONTENT_IMGSIZE_X',$formValues['meta']['img_size_x']);
-						$dataField->setTmplVar('CONTENT_IMGSIZE_Y',$formValues['meta']['img_size_y']);
+						$dataField->setTmplVar('###HEADING_IMGSIZE###',$this->pi_getLL('img_size'));
+						$dataField->setTmplVar('###HEADING_IMGALIGN###',$this->pi_getLL('img_align'));
+						$dataField->setTmplVar('###CONTENT_IMGSIZE_X###',$formValues['meta']['img_size_x']);
+						$dataField->setTmplVar('###CONTENT_IMGSIZE_Y###',$formValues['meta']['img_size_y']);
 						$configArr = $dataField->getProperty('config');
-						$dataField->setTmplVar('IMGALIGN_OPTIONS',$this->getOptionsFromArr($configArr['imgAlign'],$formValues['meta']['img_align'],true));
+						$dataField->setTmplVar('###IMGALIGN_OPTIONS###',$this->getOptionsFromArr($configArr['imgAlign'],$formValues['meta']['img_align'],true));
 						}
 					break;
 					
 					default:
 						{
-						$dataField->setTmplVar('HEADING_REQUIRED',$this->pi_getLL('required'));
-						$dataField->setTmplVar('HEADING_SEARCHABLE',$this->pi_getLL('searchable'));
-						$dataField->setTmplVar('HEADING_CONTENT_VISIBLE',$this->pi_getLL('visible'));
-						$dataField->setTmplVar('DATAFIELD_REQUIRED',$formValues['meta']['datafield_required']=='yes' ? 'checked="checked"' : '');
-						$dataField->setTmplVar('DATAFIELD_SEARCHABLE',$formValues['meta']['datafield_searchable']=='yes' ? 'checked="checked"' : '');
-						$dataField->setTmplVar('CONTENT_VISIBLE',$formValues['meta']['content_visible']=='yes' ? 'checked="checked"' : '');
+						$dataField->setTmplVar('###HEADING_REQUIRED###',$this->pi_getLL('required'));
+						$dataField->setTmplVar('###HEADING_SEARCHABLE###',$this->pi_getLL('searchable'));
+						$dataField->setTmplVar('###HEADING_CONTENT_VISIBLE###',$this->pi_getLL('visible'));
+						$dataField->setTmplVar('###DATAFIELD_REQUIRED###',$formValues['meta']['datafield_required']=='yes' ? 'checked="checked"' : '');
+						$dataField->setTmplVar('###DATAFIELD_SEARCHABLE###',$formValues['meta']['datafield_searchable']=='yes' ? 'checked="checked"' : '');
+						$dataField->setTmplVar('###CONTENT_VISIBLE###',$formValues['meta']['content_visible']=='yes' ? 'checked="checked"' : '');
 						}
 					break;
 					}
