@@ -143,9 +143,10 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 	private function createTempTable()
 		{
-		$tempDataClass = PREFIX_ID.'_tempdata';
-		if ($tempDataClass::tempTableExist()) return true;
+		# if temptable is already existing nothing has to be done
+		if (tx_generaldatadisplay_pi1_tempdata::tempTableExist()) return true;
 
+		$tempDataClass = PREFIX_ID.'_tempdata';
 		$tableColumnHash = self::getColumns();
 		foreach($tableColumnHash as $key => $value)
 			$fieldArr[] = $this->addBackTicks($key)." ".$value;

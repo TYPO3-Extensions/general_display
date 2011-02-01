@@ -122,8 +122,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		foreach($objArr as $key => $obj)
 			{
 			# create hash
-			$datafieldClass = PREFIX_ID.'_'.$obj->getObjVar('datafield_type');
-			$metadata = $datafieldClass::getMetadata($key);
+			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($key);
 			$datafieldHash[$obj->getObjVar('uid')] = array('name' => $obj->getObjVar('datafield_name'),'searchable' => ($metadata['datafield_searchable']=="yes" ? 'yes' : 'no'));
 			}
 
@@ -580,8 +579,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$fieldName = $obj->getObjVar('datafield_name');
 						$value = $this->formatContentType($obj);
 						# get metadata
-						$datafieldClass = PREFIX_ID.'_'.$obj->getObjVar('datafield_type');
-						$metadata = $datafieldClass::getMetadata($obj->getObjVar('datafields_uid'));
+						$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('datafields_uid'));
 
 						if ($value && $metadata['content_visible']!="no")
 							{
@@ -684,8 +682,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$contentArray['###DATAFIELD_NAME###']=$formValues['datafield_name'];
 				$contentArray['###DISPLAY_SEQUENCE###'] = $formValues['display_sequence'] ? $formValues['display_sequence'] : time();
 				# get all datafieldtypes 
-				$datafieldClass = PREFIX_ID.'_dataFields';
-				$types = $datafieldClass::getTypes();
+				$types = tx_generaldatadisplay_pi1_dataFields::getTypes();
+
 				# choose type - if not submitted use first available
 				$datafieldType = $formValues['datafield_type'] ? $formValues['datafield_type'] : $types[key($types)];
 				$contentArray['###DATAFIELD_TYPE_OPTIONS###'] = $this->getOptionsFromArr($types,$formValues['datafield_type'],true);
@@ -986,9 +984,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;
 
 			case 'img':
-			$imgClass = PREFIX_ID.'_'.$type;
-			$metadata = $imgClass::getMetadata($obj->getObjVar('datafields_uid'));
-		
+			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('datafields_uid'));
+			
 			if ($metadata['img_size_x']) $imgSizeArr[] = 'width="'.$metadata['img_size_x'].'"';
 			if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
@@ -1044,8 +1041,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		foreach($datafieldArr as $key => $obj)
 			{
 			# get metadata of datafield
-			$datafieldClass = PREFIX_ID.'_'.$obj->getObjVar('datafield_type');
-			$metadata = $datafieldClass::getMetadata($key);
+			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($key);
 			if ($metadata['datafield_searchable']=="yes") $datafieldOptionArr[$key] = $obj->getObjVar('datafield_name'); 
 			}
 		$optionArray['###SELECTED_ITEM_OPTIONS###'] = $this->getOptionsFromArr($datafieldOptionArr,$this->piVars['selected_item']);
@@ -1056,7 +1052,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		$optionArray['###SEARCHPHRASE###'] = $this->piVars['searchphrase']; 
 
-		# $optionArray['###CATEGORY_OPTIONS###'] = "<option value=0>".$this->pi_getLL('all_categories')."</option>". $this->getOptionsFromArr($this->getUsedCategoryValues('category_name'),$this->piVars['selected_category'] ? $this->piVars['selected_category'] : 0);
 		$optionArray['###FE-ADMINLINKS###']=$this->wrapInDiv($this->makeAdminLinks(),'optionField-adminLinks');
 		$optionArray['###SUBMIT_SEARCH###']=$this->pi_getLL('show');
 	

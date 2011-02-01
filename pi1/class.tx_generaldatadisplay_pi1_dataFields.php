@@ -29,7 +29,7 @@
  * @package	TYPO3
  * @subpackage	tx_generaldatadisplay
  */
-abstract class tx_generaldatadisplay_pi1_dataFields
+class tx_generaldatadisplay_pi1_dataFields
 	{
 	protected static $table = "tx_generaldatadisplay_datafields";
 	protected $tmplArr = array();

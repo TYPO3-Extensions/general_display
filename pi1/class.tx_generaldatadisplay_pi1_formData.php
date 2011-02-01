@@ -120,8 +120,7 @@ abstract class tx_generaldatadisplay_pi1_formData
 				break;	
 
 			case 'isType':
-				$dataFieldClass = PREFIX_ID.'_dataFields';
-				$types = implode('|',$dataFieldClass::getTypes());
+				$types = implode('|',tx_generaldatadisplay_pi1_dataFields::getTypes());
 				$error=preg_match('/^('.$types.')$/',$value) ? 0 : $check;
 			break;
 
@@ -185,8 +184,8 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 		foreach($objArr as $key => $obj) 
 			{
 			# first check required flag
-			$datafieldClass = PREFIX_ID.'_'.$obj->getObjVar('datafield_type');
-			$metadata = $datafieldClass::getMetadata($obj->getObjVar('uid'));
+			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('uid'));
+
 			if ($metadata['datafield_required'] == "yes")
 				$this->formError[$obj->getObjVar('datafield_name')] = $this->checkValue($this->dataArr[$obj->getObjVar('datafield_name')],'notEmpty');
 
@@ -297,8 +296,8 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 			$this->dataArr['datafield_name'] = str_replace($searchArr,$replaceArr,$this->dataArr['datafield_name']);
 
 			# now check if datafieldname is unique
-			$dataListClass = PREFIX_ID.'_dataList';
-			$tableColumnHash = $dataListClass::getColumns();
+			$tableColumnHash = tx_generaldatadisplay_pi1_dataList::getColumns();
+
 			$charEncoding = mb_detect_encoding($this->dataArr['datafield_name']);
 			foreach(array_keys($tableColumnHash) as $key) 
 				{
