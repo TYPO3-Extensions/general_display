@@ -46,7 +46,7 @@ class ext_update
 									'data_field_content !=""'
 									);
 
-			if (!$this->sqlError = $this->dbError() && $dataSet) 
+			if (!$this->dbError() && $dataSet) 
 				{
 				# Content
 				while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
@@ -55,26 +55,29 @@ class ext_update
 					$dataContent = base64_decode($row['data_field_content'],true) ? base64_decode($row['data_field_content']) : $row['data_field_content'];
 					$unserializedData = unserialize($dataContent);
 					# go through hash
-					if (is_array($unserializedData)) foreach($unserializedData as $key => $value)
+					if (is_array($unserializedData))
 						{
-						$insertData['pid'] = $row['pid'];
-						$insertData['tstamp'] = $row['tstamp'];
-						$insertData['crdate'] = $row['crdate'];
-						$insertData['cruser_id'] = $row['cruser_id'];
-						$insertData['data_uid'] = $row['uid'];
-						$insertData['datafields_uid'] = $key;
-						$insertData['datacontent'] = $value;
-						$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_generaldatadisplay_datacontent',$insertData);
-						
-						if (!$this->sqlError = $this->dbError())
+						foreach($unserializedData as $key => $value)
 							{
-							$GLOBALS['TYPO3_DB']->exec_UPDATEquery( 'tx_generaldatadisplay_data',
-												'uid='.$row['uid'],
-												array('data_field_content' => NULL)
-												);
-							$this->sqlError = $this->dbError();
+							$insertData['pid'] = $row['pid'];
+							$insertData['tstamp'] = $row['tstamp'];
+							$insertData['crdate'] = $row['crdate'];
+							$insertData['cruser_id'] = $row['cruser_id'];
+							$insertData['data_uid'] = $row['uid'];
+							$insertData['datafields_uid'] = $key;
+							$insertData['datacontent'] = $value;
+							$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_generaldatadisplay_datacontent',$insertData);
+						
+							if (!$this->dbError())
+								{
+								$GLOBALS['TYPO3_DB']->exec_UPDATEquery( 'tx_generaldatadisplay_data',
+													'uid='.$row['uid'],
+													array('data_field_content' => NULL)
+													);
+								$this->dbError();
+								}
 							}
-						}
+						} else $this->sqlError = true;
 						
 					}
 				}
@@ -86,7 +89,7 @@ class ext_update
 									);
 			;
 
-			if (!$this->sqlError = $this->dbError() && $dataSet) 
+			if (!$this->dbError() && $dataSet) 
 				{
 				while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 					{
@@ -96,8 +99,27 @@ class ext_update
 
 					$serializedData['metadata'] = serialize($metadata);
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_generaldatadisplay_datafields','uid='.$row['uid'],$serializedData);
-					if ($this->sqlError = $this->dbError()) break;
+					if ($this->dbError()) break;
 					}
+				}
+
+			# now drop all non used table fields
+			if (!$this->sqlError)
+				{
+				$obsoleteTableFields = array('tx_generaldatadisplay_data' => array('data_field_content'),
+							     'tx_generaldatadisplay_datafields' => array('datafield_searchable','content_visible','datafield_required')
+							    );
+
+				foreach ($obsoleteTableFields as $table => $fieldArr)
+					{
+					foreach ($fieldArr as $field)
+						{
+						$sql = "ALTER TABLE ".$table." DROP ".$field;
+						$GLOBALS['TYPO3_DB']->admin_query($sql);
+						$this->dbError();
+						}
+					}
+					
 				}
 
 			$content = $this->sqlError ? "<p>Something went wrong during the database content update!</p>" : "<p>Database content update successful!</p>";
@@ -125,7 +147,8 @@ class ext_update
 
 	private function dbError()
 		{
-		return $this->sqlError || $GLOBALS['TYPO3_DB']->sql_error();
+		$this->sqlError = $this->sqlError || $GLOBALS['TYPO3_DB']->sql_error();
+		return $this->sqlError;
 		}
 	}
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/general_data_display/class.ext_update.php']) {
