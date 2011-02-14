@@ -230,7 +230,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 		if ($_FILES[PREFIX_ID]['tmp_name'])
 			{
 			# create imguploaddir if necessary
-			if (!is_dir(IMGUPLOADPATH)) mkdir(IMGUPLOADPATH, 0750, true);
+			if (!is_dir(IMGUPLOADPATH)) mkdir(IMGUPLOADPATH, 0755, true);
 
 			foreach ($_FILES[PREFIX_ID]['tmp_name'] as $key => $value)
 				{
