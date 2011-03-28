@@ -83,49 +83,49 @@ abstract class tx_generaldatadisplay_pi1_formData
 		switch ($check)
 			{
 			case 'notEmpty':
-				$error=$value ? 0 : $check;
+			$error=$value ? 0 : $check;
 			break;
 		
 			case 'isInt':
-				$cmpval = $value;
-				settype($cmpval,'integer');
-				$error=(strcmp($cmpval,$value)) ? $check : 0;
+			$cmpval = $value;
+			settype($cmpval,'integer');
+			$error=(strcmp($cmpval,$value)) ? $check : 0;
 			break;
 	
 			case 'isBool':
-				$error=preg_match('/^(0|1|yes|no)$/',$value) ? 0 : $check;
+			$error=preg_match('/^(0|1|yes|no)$/',$value) ? 0 : $check;
 			break;
 
 			case 'isDate':
-				preg_match('/^([0-9]{1,2})\D([0-9]{1,2})\D([0-9]{1,4})$/',$value,$matches);
-				$error = checkdate($matches[2],$matches[1],$matches[3]) ? 0 : $check;
+			preg_match('/^([0-9]{1,2})\D([0-9]{1,2})\D([0-9]{1,4})$/',$value,$matches);
+			$error = checkdate($matches[2],$matches[1],$matches[3]) ? 0 : $check;
 			break;
 
 			case 'isTime':
-				preg_match('/^([0-9]{1,2}):([0-9]{2})(:([0-9]{2}))?$/',$value,$matches);
-				$matches[1] = strlen($matches[1])==1 ? "0".$matches[1] : $matches[1];	
-				$matches[1] = $matches[1]=="24" ? "00" : $matches[1];
-				$cmpval1 = $matches[1].":".$matches[2].($matches[4] ? ":".$matches[4] : ":00");
-				$cmpval2 = date("H:i:s",mktime($matches[1],$matches[2],$matches[4]));
-				$error=strcmp($cmpval1,$cmpval2) ? $check : 0;
+			preg_match('/^([0-9]{1,2}):([0-9]{2})(:([0-9]{2}))?$/',$value,$matches);
+			$matches[1] = strlen($matches[1])==1 ? "0".$matches[1] : $matches[1];	
+			$matches[1] = $matches[1]=="24" ? "00" : $matches[1];
+			$cmpval1 = $matches[1].":".$matches[2].($matches[4] ? ":".$matches[4] : ":00");
+			$cmpval2 = date("H:i:s",mktime($matches[1],$matches[2],$matches[4]));
+			$error=strcmp($cmpval1,$cmpval2) ? $check : 0;
 			break;	
 
 			case 'isEmail':
-				$error=t3lib_div::validEmail($value) ? 0 : $check; 
+			$error=t3lib_div::validEmail($value) ? 0 : $check; 
 			break;
 
 			case 'isURL':
-				preg_match('/^(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,4}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&amp;?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?/',$value,$matches);
-				$error=($matches[0] || !$value) ? 0 : $check;	
-				break;	
+			preg_match('/^(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,4}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&amp;?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?/',$value,$matches);
+			$error=($matches[0] || !$value) ? 0 : $check;	
+			break;	
 
 			case 'isType':
-				$types = implode('|',tx_generaldatadisplay_pi1_dataFields::getTypes());
-				$error=preg_match('/^('.$types.')$/',$value) ? 0 : $check;
+			$types = implode('|',tx_generaldatadisplay_pi1_dataFields::getTypes());
+			$error=preg_match('/^('.$types.')$/',$value) ? 0 : $check;
 			break;
 
 			case 'existing':
-				$error = 0;
+			$error = 0;
 			break;
 			}
 		return $error;
@@ -220,7 +220,6 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 
 					default:
 					$checkMethod = 'existing';
-					break;
 					}
 				}
 			$this->checkHash[$obj->getObjVar('datafield_name')] = $checkMethod;
