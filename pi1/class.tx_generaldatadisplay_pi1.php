@@ -957,7 +957,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $usedHashArr; 
 		}
 
-	private function formatContentType($obj)
+	private function formatContentType(&$obj)
 		{
 		$content = $obj->getObjVar('datacontent');
 		$type = $obj->getObjVar('datafield_type');
@@ -976,7 +976,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;
 
 			case 'url':
-			$content = $this->cObj->typolink($content,array('parameter' => $content,'extTarget' => '_blank'));
+			$content = $this->cObj->typoLink($content,array('parameter' => $content,'extTarget' => '_blank'));
 			break;	
 
 			case 'bool':
@@ -990,6 +990,38 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
 			$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ',$imgSizeArr).'></div>';
+			break;
+
+			case 'text':
+			$regArr = array			(
+							      '/\n/' => '<br>', # linebreak
+							      '/\*{2}(([^\*]|\*[^\*])*)\*{2}/' => '<b>$1</b>', # bold
+							      '/\/{2}(([^\/]|\/[^\/])*)\/{2}/' => '<i>$1</i>', # italic
+							      '/_{2}(([^_]|_[^_])*)_{2}/' => '<u>$1</u>' , # underline
+							      '/\'{2}(([^\']|\'[^\'])*)\'{2}/' => '<tt>$1</tt>', # teletyper
+							      '/\^{2}(([^\^]|\^[^\^])*)\^{2}/' => '<sup>$1</sup>', # superscript
+							      '/\,{2}(([^\,]|\,[^\,])*)\,{2}/' => '<sub>$1</sub>', # subscript
+							      '/\[{2}(([^\[]|\[[^\[])*)\|(([^\[]|\[[^\[])*)\]{2}/' => 'link', # normal link
+							      '/\[{2}(([^\[]|\[[^\[])*)\]{2}/' =>'link' # short link
+							);
+
+			foreach($regArr as $regex => $replace)
+				{
+				while (preg_match($regex,$content,$matches))
+					{
+					switch ($regex)
+						{
+						case '/\[{2}(([^\[]|\[[^\[])*)\|(([^\[]|\[[^\[])*)\]{2}/':
+						$replace = $this->cObj->typoLink($matches[3],array('parameter' => $matches[1],'extTarget' => '_blank'));
+						break;
+
+						case '/\[{2}(([^\[]|\[[^\[])*)\]{2}/':
+						$replace = $this->cObj->typoLink($matches[1],array('parameter' => $matches[1],'extTarget' => '_blank'));
+						break;
+						}
+					$content = preg_replace($regex,$replace,$content,1);
+					}
+				}
 			break;
 			}
 
