@@ -59,7 +59,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		
-		#t3lib_div::debug($this->piVars,'piVars');
+		# t3lib_div::debug($GLOBALS['TSFE']->fe_user,'sessionData');
 
 		if (!$this->piVars) $this->piVars = array();
 		
@@ -99,7 +99,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		define(TEMPLATE,$this->cObj->fileResource($templateFile));
 
 		# get scope
-		if ($this->piVars['scope']) $this->scopeArr = unserialize(base64_decode($this->piVars['scope']));
+		$this->scopeArr = unserialize($this->sessionData('scope'));
 
 		# get values from scope if no search is given
 		if ($this->piVars['action']!='search') 
@@ -110,11 +110,13 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			}
 		if (!isset($this->piVars['offset'])) $this->piVars['offset'] = $this->scopeArr['offset'];
 		
-		# set scopeArray from piVars
+		# set scopeArray
 		$this->scopeArr['selected_item'] = $this->piVars['selected_item'];
 		$this->scopeArr['selected_category'] = $this->piVars['selected_category'];
 		$this->scopeArr['searchphrase'] = $this->piVars['searchphrase'];
 		$this->scopeArr['offset'] = $this->piVars['offset'];
+		# save scopeArray in session
+		$this->sessionData('scope',serialize($this->scopeArr),'true');
 
 		# get all datafields & create hash
 		$datafields = $this->getTypeListFromTable('datafield');
@@ -133,14 +135,26 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		if ($this->piVars['selected_item']) 
 			{
 			if ($this->piVars['searchphrase'])
-				$searchClause['searchphrase'][]=array($datafieldHash[$this->piVars['selected_item']]['name'] => array('value' =>$this->piVars['searchphrase'],'operator'=> 'rlike'));
-			} 
+				{
+				# explode searchstring to get AND terms
+				$searchphraseArr = preg_split('/\s+/',$this->piVars['searchphrase']);
+			
+				foreach ($searchphraseArr as $key => $searchphrase)
+					$searchClause['searchphrase'][]=array($datafieldHash[$this->piVars['selected_item']]['name'] => array('value' =>$searchphrase,'operator'=> 'rlike'));
+				}
+			}
 		elseif ($this->piVars['searchphrase']) 
 			{
-			# search over all searchable fields (depending on their searchable flag)
+			# explode searchstring to get AND terms
+			$searchphraseArr = preg_split('/\s+/',$this->piVars['searchphrase']);
+			
+			# search over all searchable fields (depending   on their searchable flag)
 			foreach ($datafieldHash as $key => $arr)
 				if ($arr['searchable']=="yes")
-					$searchClause['searchphrase'][]=array($arr['name'] => array('value' => $this->piVars['searchphrase'],'operator'=> 'rlike'));	
+					{
+					foreach ($searchphraseArr as $key => $searchphrase)
+						$searchClause['searchphrase'][]=array($arr['name'] => array('value' => $searchphrase,'operator'=> 'rlike'));	
+					}
 			}
 
 		if ($this->piVars['selected_category']) 
@@ -311,7 +325,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 			default:
 				$content = $this->view();
-			break;
 			}
 		return $this->pi_wrapInBaseClass($content);
 		}
@@ -337,7 +350,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 			default:
 			$content = $this->listView();
-			break;
 			}
 		return $content;
 		}
@@ -455,16 +467,16 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$index = intval($offset / ($nrPageResults * $nrMaxPages));
 					$from = $index*$nrMaxPages*$nrPageResults;
 					$to = ($from + $nrMaxPages*$nrPageResults) > $nrResults ? $nrResults : $from + $nrMaxPages*$nrPageResults;
-					if ($from > 0) $contentArray['###PAGELINKS###'] = $this->wrapInSpan($this->pi_linkTP_keepPIvars("<<",array('offset' => $from-$nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
-					if ($offset) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("<",array('offset' => $offset - $nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
+					if ($from > 0) $contentArray['###PAGELINKS###'] = $this->wrapInSpan($this->pi_linkTP_keepPIvars("<<",array('offset' => $from-$nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink");
+					if ($offset) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("<",array('offset' => $offset - $nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink");
 					for ($i=$from; $i < $to; $i=$i+$nrPageResults)
 						{
 						$index1 = $i;
 						$index2 = ($i+$nrPageResults-1) >= $nrResults ? $nrResults-1 : $i+$nrPageResults-1;
-						$contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("[".($index1==$index2 ? ($index1+1) : ($index1+1)."-".($index2+1))."]",array('offset' => $index1, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__.($this->piVars['offset']==$index1 ? "-pageLinkActive" : "-pageLink"));
+						$contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("[".($index1==$index2 ? ($index1+1) : ($index1+1)."-".($index2+1))."]",array('offset' => $index1, 'type' =>'data'),'1','1'),__FUNCTION__.($this->piVars['offset']==$index1 ? "-pageLinkActive" : "-pageLink"));
 						}
-					if (($offset + $nrPageResults) < $nrResults) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">",array('offset' => $offset + $nrPageResults, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink");
-					if ($index2 < $nrResults-1) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">>",array('offset' => $index2+1, 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-pageLink"); 
+					if (($offset + $nrPageResults) < $nrResults) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">",array('offset' => $offset + $nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink");
+					if ($index2 < $nrResults-1) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">>",array('offset' => $index2+1, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink"); 
 					} else $contentArray['###PAGELINKS###'] = "";
 					
 				# get list of all categories
@@ -503,7 +515,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				foreach($objArr as $key => $obj)
 						{
 						$dataCategory = $catObjArr[$obj->getObjVar('data_category')] ? $obj->getObjVar('data_category') : 0;
-						$orderedList[$dataCategory] .=  $this->wrapInDiv($this->pi_linkTP_keepPIvars($obj->getObjVar('data_title'),array('uid' => $key, 'view' => '2', 'type' =>'data','scope' => base64_encode(serialize($this->scopeArr))),'0','1'),__FUNCTION__."-title");	
+						$orderedList[$dataCategory] .=  $this->wrapInDiv($this->pi_linkTP_keepPIvars($obj->getObjVar('data_title'),array('uid' => $key, 'view' => '2', 'type' =>'data'),'1','1'),__FUNCTION__."-title");	
 						# set all progenitors if nescessary
 						foreach($categoryList->getAllProgenitors($dataCategory) as $catProgenitor) 
 							$progenitorList[$catProgenitor] = 1;
@@ -714,7 +726,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$dataField->setTmplVar('###DATAFIELD_SEARCHABLE###',$formValues['meta']['datafield_searchable']=='yes' ? 'checked="checked"' : '');
 						$dataField->setTmplVar('###CONTENT_VISIBLE###',$formValues['meta']['content_visible']=='yes' ? 'checked="checked"' : '');
 						}
-					break;
 					}
 
 				$datafieldConf = $this->cObj->getSubpart(TEMPLATE,$datafieldConfPart);
@@ -870,10 +881,40 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		{
 		foreach($searchClauseArr as $index => $hashArr)
 			{
-			if ($hashArr[key($hashArr)]['value'])
-				$searchClause.=($searchClause ? " ".$concat." ":"")."`".addslashes(key($hashArr))."` ".$hashArr[key($hashArr)]['operator']."'".addslashes($hashArr[key($hashArr)]['value'])."'";
+			$termArr[key($hashArr)]['value'][] = $hashArr[key($hashArr)]['value'];
+			$termArr[key($hashArr)]['operator'] = $hashArr[key($hashArr)]['operator'];
 			}
+
+		foreach($termArr as $key => $term)
+			{
+			if (is_array($term['value']))
+				{
+				foreach($term['value'] as $index => $value)
+					$expression = $expression ? 
+					$expression." AND `".addslashes($key)."` ".$term['operator']." '".addslashes($value)."'" : 
+					"`".addslashes($key)."` ".$term['operator']." '".addslashes($value)."'";
+				$termArr[$key]['expression'] = "(".$expression.")";
+				}
+			unset($expression);
+			}
+
+		foreach($termArr as $key => $value)
+			{
+			$searchClause.=($searchClause ? " ".$concat." ":"").$value['expression'];
+			 }
+
 		return $searchClause ? "(".$searchClause.")" : "";	
+		}
+
+	private function sessionData($varName,$varContent='',$set=false)
+		{
+		if (!$varName) return false;
+
+		if ($set && $varContent)
+			{
+			$GLOBALS['TSFE']->fe_user->setKey('ses',$this->extKey.'-'.PID.'-'.$varName,$varContent);
+			return true;
+			} else return $GLOBALS['TSFE']->fe_user->getKey('ses',$this->extKey.'-'.PID.'-'.$varName);
 		}
 
 	private function getTypeListFromTable($type,$whereClause='')
@@ -989,12 +1030,12 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if ($metadata['img_size_x']) $imgSizeArr[] = 'width="'.$metadata['img_size_x'].'"';
 			if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
-			$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ',$imgSizeArr).'></div>';
+			$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ',$imgSizeArr).' /></div>';
 			break;
 
 			case 'text':
 			$regArr = array			(
-							      '/\n/' => '<br>', # linebreak
+							      '/\n/' => '<br />', # linebreak
 							      '/\*{2}(([^\*]|\*[^\*])*)\*{2}/' => '<b>$1</b>', # bold
 							      '/\/{2}(([^\/]|\/[^\/])*)\/{2}/' => '<i>$1</i>', # italic
 							      '/_{2}(([^_]|_[^_])*)_{2}/' => '<u>$1</u>' , # underline
@@ -1032,9 +1073,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		{
 		$commonsArray['###PI_BASE###']= PREFIX_ID;
 		$commonsArray['###PLUGINNAME###'] = $this->pi_getClassName('');
-		$commonsArray['###SCOPE###']=base64_encode(serialize($this->scopeArr));
 		$commonsArray['###ACTION_URL###']=$this->pi_getPageLink($GLOBALS['TSFE']->id);
-		$commonsArray['###BACK###']=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'return.png" align="top" title="'.$this->pi_getLL('back').'" alt="['.$this->pi_getLL('back').']">',array('scope' => $this->piVars['scope']),'0','1');
+		$commonsArray['###BACK###']=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'return.png" align="top" title="'.$this->pi_getLL('back').'" alt="['.$this->pi_getLL('back').']" />','1','1');
 		$commonsArray['###CANCEL###']=$this->pi_getLL('cancel');
 		$commonsArray['###SUBMIT###']=$this->pi_getLL('submit');
 		$commonsArray['###YES###']=$this->pi_getLL('yes');
@@ -1094,15 +1134,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		{
 		if (ADM_PERM && $uid)
 			{		
-			$stuff =$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'edit.png" align="top" title="'.$this->pi_getLL('modify').'" alt="['.$this->pi_getLL('modify').']">',array('uid' => $uid, 'action' => 'update', 'type' => $type, 'scope' => base64_encode(serialize($this->scopeArr))),'0','1');
+			$stuff =$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'edit.png" align="top" title="'.$this->pi_getLL('modify').'" alt="['.$this->pi_getLL('modify').']" />',array('uid' => $uid, 'action' => 'update', 'type' => $type),'1','1');
 			
 			if ($type=='datafield')
 				{
-				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'button_down.gif" align="top" title="'.$this->pi_getLL('entry_down').'" alt="['.$this->pi_getLL('entry_down').']">',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'down', 'scope' => base64_encode(serialize($this->scopeArr))),'0','1');
-				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'button_up.gif" align="top" title="'.$this->pi_getLL('entry_up').'" alt="['.$this->pi_getLL('entry_up').']">',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'up', 'scope' => base64_encode(serialize($this->scopeArr))),'0','1');
+				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'button_down.gif" align="top" title="'.$this->pi_getLL('entry_down').'" alt="['.$this->pi_getLL('entry_down').']" />',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'down'),'1','1');
+				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'button_up.gif" align="top" title="'.$this->pi_getLL('entry_up').'" alt="['.$this->pi_getLL('entry_up').']" />',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'up'),'1','1');
 				}	
 			
-			$stuff.=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'trash.png" align="top" title="'.$this->pi_getLL('delete').'" alt="['.$this->pi_getLL('delete').']">',array('uid' => $uid,'action' => 'delete-request', 'type' => $type, 'scope' => base64_encode(serialize($this->scopeArr))),'0','1');
+			$stuff.=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'trash.png" align="top" title="'.$this->pi_getLL('delete').'" alt="['.$this->pi_getLL('delete').']" />',array('uid' => $uid,'action' => 'delete-request', 'type' => $type),'1','1');
 
 			return $stuff;
 			} else return;
@@ -1114,11 +1154,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			{
 			$subpart=$this->cObj->getSubpart(TEMPLATE,'###ADMINLINKS###');
 
-			$contentArray['###NEW_DATA###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_data').']',array('action' => 'update', 'type' => 'data', 'scope' => base64_encode(serialize($this->scopeArr))),'1','1');
-			$contentArray['###NEW_CATEGORY###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_category').']',array('action' => 'update', 'type' => 'category','scope' => base64_encode(serialize($this->scopeArr))),'1','1');
-			$contentArray['###NEW_DATAFIELD###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_datafield').']',array('action' => 'update', 'type' => 'datafield','scope' => base64_encode(serialize($this->scopeArr))),'1','1');
-			$contentArray['###SHOW_CATEGORIES###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('show_categories').']',array('type' => 'category','view'=>'3','scope' => base64_encode(serialize($this->scopeArr))),'1','1');
-			$contentArray['###SHOW_DATAFIELDS###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('show_datafields').']',array('type' => 'datafield','view'=>'3','scope' => base64_encode(serialize($this->scopeArr))),'1','1');
+			$contentArray['###NEW_DATA###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_data').']',array('action' => 'update', 'type' => 'data'),'1','1');
+			$contentArray['###NEW_CATEGORY###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_category').']',array('action' => 'update', 'type' => 'category'),'1','1');
+			$contentArray['###NEW_DATAFIELD###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_datafield').']',array('action' => 'update', 'type' => 'datafield'),'1','1');
+			$contentArray['###SHOW_CATEGORIES###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('show_categories').']',array('type' => 'category','view'=>'3'),'1','1');
+			$contentArray['###SHOW_DATAFIELDS###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('show_datafields').']',array('type' => 'datafield','view'=>'3'),'1','1');
 
 			return $this->cObj->substituteMarkerArrayCached($subpart,$contentArray);
 			} else return;
