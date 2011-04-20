@@ -130,7 +130,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 			# Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
-				{ 
+				{
 				$data = t3lib_div::makeInstance($this->objType);
 				$uid = $data->setProperty("uid",$row['uid']);
 				$data->setProperty("objVars",$row);
@@ -159,45 +159,46 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 		if (!$dberror)
 			{
-			$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_data.*,tx_generaldatadisplay_categories.category_name',
-									  'tx_generaldatadisplay_data LEFT JOIN tx_generaldatadisplay_categories 
-									   ON  tx_generaldatadisplay_data.pid = tx_generaldatadisplay_categories.pid
-									   AND tx_generaldatadisplay_data.data_category = tx_generaldatadisplay_categories.uid',
-									  'tx_generaldatadisplay_data.pid='.PID.
-									  ' AND NOT tx_generaldatadisplay_data.deleted AND NOT tx_generaldatadisplay_categories.deleted'
-									  );
-			
-			if ($dataSet) 
+			 # get all non deleted entrys from page
+			$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataOnlyList');
+			$dataObjArr = $dataList->getDS();
+
+			# get categoryList
+			$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+			$categoryObjArr = $categoryList->getDS();
+			# make category hash
+			foreach($categoryObjArr as $key => $obj)
+				$categoryHash[$key] = $obj->getObjVar('category_name');
+
+			# go and get the data
+			foreach ($dataObjArr as $key => $obj)
 				{
-				# Content
-				while ($dataRow=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
+				# Content	
+				# first unset possibly existing datacontent array
+				unset($dataContent);
+				# get dataContent
+				$dataContentSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datacontent.datacontent',
+											 'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
+											  ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
+											 'tx_generaldatadisplay_datacontent.pid='.PID.
+											 ' AND tx_generaldatadisplay_datacontent.data_uid='.$obj->getObjVar('uid').
+											 ' AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted'
+											 );
+				if (! $GLOBALS['TYPO3_DB']->sql_error())
 					{
-					# first unset possibly existing datacontent array
-					unset($dataContent);
-					# get dataContent
-					$dataContentSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datacontent.datacontent',
-												 'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
-												  ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
-												 'tx_generaldatadisplay_datacontent.pid='.PID.
-												 ' AND tx_generaldatadisplay_datacontent.data_uid='.$dataRow['uid'].
-												 ' AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted'
-												 );
-					if (! $GLOBALS['TYPO3_DB']->sql_error())
-						{
-						while ($dataContentRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataContentSet))
-							if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
+					while ($dataContentRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataContentSet))
+						if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
 
-						# additional fields
-						$dataContent['pid'] = PID;
-						$dataContent['uid'] = $dataRow['uid'];
-						$dataContent['data_title'] = $dataRow['data_title'];
-						$dataContent['data_category'] = $dataRow['data_category'];
-						$dataContent['category_name'] = $dataRow['category_name'];
-						$dataContent = $this->addBackTicks($dataContent);
-
-						$tempData->setProperty("objVars",$dataContent);
-						$tempData->newDS();
-						}
+					# additional fields
+					$dataContent['pid'] = PID;
+					$dataContent['uid'] = $obj->getObjVar('uid');
+					$dataContent['data_title'] = $obj->getObjVar('data_title');
+					$dataContent['data_category'] = $obj->getObjVar('data_category');
+					$dataContent['category_name'] = $categoryHash[$dataContent['data_category']];
+					$dataContent = $this->addBackTicks($dataContent);
+					# set DS in tempTable
+					$tempData->setProperty("objVars",$dataContent);
+					$tempData->newDS();
 					}
 				}
 			} 
@@ -224,6 +225,14 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 			}	
 		return $tableColumnHash;
 		}
+	}
+
+class tx_generaldatadisplay_pi1_dataOnlyList extends tx_generaldatadisplay_pi1_queryList
+	{
+	# vars
+	protected $table = "tx_generaldatadisplay_data";
+	protected $objType = "tx_generaldatadisplay_pi1_data";
+	protected $orderField = "data_title";
 	}
 
 class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi1_queryList
