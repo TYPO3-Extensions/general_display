@@ -96,6 +96,16 @@ abstract class tx_generaldatadisplay_pi1_queryList
 			}
 		return $this->objArr;	
 		}
+
+	public function getHash($valueField)
+		{
+		$hash = array();
+
+		foreach ($this->objArr as $key => $obj)
+			$hash[$key] = $obj->getObjVar($valueField);
+
+		return $hash;
+		}
 	}	
 
 class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_queryList
@@ -165,10 +175,9 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 			# get categoryList
 			$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
-			$categoryObjArr = $categoryList->getDS();
+			$categoryList->getDS();
 			# make category hash
-			foreach($categoryObjArr as $key => $obj)
-				$categoryHash[$key] = $obj->getObjVar('category_name');
+			$categoryHash = $categoryList->getHash('category_name');
 
 			# go and get the data
 			foreach ($dataObjArr as $key => $obj)

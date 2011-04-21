@@ -119,8 +119,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->sessionData('scope',serialize($this->scopeArr),'true');
 
 		# get all datafields & create hash
-		$datafields = $this->getTypeListFromTable('datafield');
-		$objArr = $datafields->getProperty('objArr');
+		$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
+		$objArr = $datafieldList->getDS();
+
 		foreach($objArr as $key => $obj)
 			{
 			# create hash
@@ -162,7 +163,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			# first add this category
 			$searchClause['category'][]=array('data_category' => array('value' =>$this->piVars['selected_category'],'operator'=> '='));
 			# find all dependend categories
-			$categoryList = $this->getTypeListFromTable('category');
+			$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+			$categoryList->getDS();
+
 			$usedCategoryProgenitor = $this->getUsedCategoryValues('category_progenitor');
 			
 			foreach($usedCategoryProgenitor as $key => $value)
@@ -183,20 +186,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		# unset action if cancel is pressed
 		if ($this->piVars['cancel']) unset($this->piVars['action']);
 		
-		# check piVars - unset piVar if test fails
+		# check some piVars
 		foreach ($this->piVars as $key => $value)
 			{ 
 			switch ($key)
 				{
 				case 'type':
 					{
-					switch ($value)
-						{
-						case 'data': break;
-						case 'category': break;
-						case 'datafield': break;
-						default: unset($this->piVars[$key]);
-						}
+					if (! preg_match('/^(data|category|datafield)$/',$this->piVars['type']))
+						$this->piVars['type'] = 'data';
 					}
 				break;
 
@@ -364,11 +362,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$headingsArrayCSS = $this->wrapTemplateArrayInClass($this->makeHeadingsArray(),__FUNCTION__);	
 		$commons = array_merge($commons,$headingsArrayCSS);
 
-		# instantiate typelist
-		$typeList = $this->getTypeListFromTable($type);
-
-		# get typelist
-		$objArr = $typeList->getProperty('objArr');
+		# get data from typelist
+		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
+		$objArr = $typeList->getDS();
 	
 		# Use subpart
 		$subpart=$this->cObj->getSubpart(TEMPLATE,'###TABLE-VIEW###');
@@ -448,9 +444,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$subpart=$this->cObj->getSubpart(TEMPLATE,'###LIST-DATAVIEW###');
 				$subsubpart=$this->cObj->getSubpart(TEMPLATE,'###LIST-DATA###');
 
-				# instantiate typelist
-				$typeList = $this->getTypeListFromTable($type,$this->searchClause);
-				$objArr = $typeList->getProperty('objArr');
+				# instantiate datalist
+				$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
+				$objArr = $dataList->getDS($this->searchClause);
 
 				# count results
 				$nrResults = count($objArr);
@@ -462,7 +458,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					$offset = intval($this->piVars['offset']);
 					$range =  $offset ? ($offset.",".($offset + $nrPageResults)) : $nrPageResults;
-					$objArr = $typeList->getDS($this->searchClause,$range);
+					$objArr = $dataList->getDS($this->searchClause,$range);
 
 					$index = intval($offset / ($nrPageResults * $nrMaxPages));
 					$from = $index*$nrMaxPages*$nrPageResults;
@@ -480,8 +476,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					} else $contentArray['###PAGELINKS###'] = "";
 					
 				# get list of all categories
-				$categoryList = $this->getTypeListFromTable('category');
-				$catObjArr = $categoryList->getProperty('objArr');	
+				$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+				$catObjArr = $categoryList->getDS();
 
 				# get a list of all used categories and progenitors of this view			
 				foreach($objArr as $key => $obj)
@@ -563,15 +559,13 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$subpart=$this->cObj->getSubpart(TEMPLATE,'###DETAIL-DATAVIEW###');
 				$subsubpart=$this->cObj->getSubpart(TEMPLATE,'###DETAIL-DATA###');
 
-				# instantiate typelist
-				$typeList = $this->getTypeListFromTable($type,'uid='.$uid);
+				# instantiate datalist and get DS
+				$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
+				$objArr = $dataList->getDS('uid='.$uid);
 
-				# get typelist
-				$objArr = $typeList->getProperty('objArr');
-
-				# get list of categories
-				$categoryList = $this->getTypeListFromTable('category');
-				$catObjArr = $categoryList->getProperty('objArr');
+				# get list of all categories
+				$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+				$catObjArr = $categoryList->getDS();
 
 				if ($objArr[$uid])
 					{
@@ -582,8 +576,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$contentArray['###DETAILDATA###'] ="";
 
 					# get data fields ...
-					$dataContentList = $this->getTypeListFromTable('datacontent','tx_generaldatadisplay_datacontent.data_uid='.$uid);
-					$dataContentObjArr = $dataContentList->getProperty('objArr');
+					$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
+					$dataContentObjArr = $dataContentList->getDS('tx_generaldatadisplay_datacontent.data_uid='.$uid);
 					
 					# & fill template
 					foreach($dataContentObjArr as $key => $obj) 
@@ -651,8 +645,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			case 'data':
 				{
 				# get datafields
-				$typeList = $this->getTypeListFromTable('datafield');
-				$objArr = $typeList->getProperty('objArr');
+				$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
+				$objArr = $datafieldList->getDS();
+				$datafieldTypesArr = tx_generaldatadisplay_pi1_dataFields::getTypes();
 
 				$subpart = "###EDIT_DATA###";				
 				# set contentArray
@@ -666,14 +661,18 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					# get datafield
 					$objVars = $obj->getProperty('objVars');
-					$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$objVars['datafield_type']);
-					$dataField->setTmplArr($contentArray);
-					$dataField->setTmplVar('###DATAFIELD_NAME###',$objVars['datafield_name']);
-					$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInDiv($objVars['datafield_name'],__FUNCTION__."-dataHeading"));
-					$dataField->setTmplVar('###DATAFIELD_CONTENT###',$formValues[$objVars['datafield_name']]);
-					$dataField->setTmplVar('###DATAFIELD_CONTENT_ERROR###',$formError[$objVars['datafield_name']] ? $this->wrapInDiv($this->pi_getLL('error_'. $formError[$objVars['datafield_name']]),'editView-Formerror') : "");
+					# check if datafield type is defined
+					if ($datafieldTypesArr[$objVars['datafield_type']])
+						{
+						$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$objVars['datafield_type']);
+						$dataField->setTmplArr($contentArray);
+						$dataField->setTmplVar('###DATAFIELD_NAME###',$objVars['datafield_name']);
+						$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInDiv($objVars['datafield_name'],__FUNCTION__."-dataHeading"));
+						$dataField->setTmplVar('###DATAFIELD_CONTENT###',$formValues[$objVars['datafield_name']]);
+						$dataField->setTmplVar('###DATAFIELD_CONTENT_ERROR###',$formError[$objVars['datafield_name']] ? $this->wrapInDiv($this->pi_getLL('error_'. $formError[$objVars['datafield_name']]),'editView-Formerror') : "");
 
-					$contentArray['###INPUT_DATAFIELDS###'].= $dataField->HTML();
+						$contentArray['###INPUT_DATAFIELDS###'].= $dataField->HTML();
+						}
 					}
 				
 				}
@@ -694,11 +693,12 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$contentArray['###DATAFIELD_NAME###']=$formValues['datafield_name'];
 				$contentArray['###DISPLAY_SEQUENCE###'] = $formValues['display_sequence'] ? $formValues['display_sequence'] : time();
 				# get all datafieldtypes 
-				$types = tx_generaldatadisplay_pi1_dataFields::getTypes();
+				$datafieldTypesArr = tx_generaldatadisplay_pi1_dataFields::getTypes();
 
 				# choose type - if not submitted use first available
-				$datafieldType = $formValues['datafield_type'] ? $formValues['datafield_type'] : $types[key($types)];
-				$contentArray['###DATAFIELD_TYPE_OPTIONS###'] = $this->getOptionsFromArr($types,$formValues['datafield_type'],true);
+				$datafieldType = $datafieldTypesArr[$formValues['datafield_type']] ? $formValues['datafield_type'] : $datafieldTypesArr[key($datafieldTypesArr)];
+
+				$contentArray['###DATAFIELD_TYPE_OPTIONS###'] = $this->getOptionsFromArr($datafieldTypesArr,$formValues['datafield_type'],true);
 
 				$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$datafieldType);
 				$dataField->setTmplArr($contentArray);
@@ -766,12 +766,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				{
 				$details='###DELETE_REQUEST_DETAILS_DATA###';
 				$contentArray['###TITLE###'] = $objVars['data_title'];
-			
-				# get datafield hash
-				$datafieldHash = $this->getHashFromTable("datafield","datafield_name");
+
 				# get dataContent
-				$dataContentList = $this->getTypeListFromTable('datacontent','tx_generaldatadisplay_datacontent.data_uid='.$this->piVars['uid']);
-				$dataContentObjArr = $dataContentList->getProperty('objArr');
+				$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
+				$dataContentObjArr = $dataContentList->getDS('tx_generaldatadisplay_datacontent.data_uid='.$this->piVars['uid']);
 					
 				foreach($dataContentObjArr as $key => $obj) $dataContent[$obj->getObjVar('datafield_name')] = $obj->getObjVar('datacontent');
 
@@ -917,34 +915,12 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			} else return $GLOBALS['TSFE']->fe_user->getKey('ses',$this->extKey.'-'.PID.'-'.$varName);
 		}
 
-	private function getTypeListFromTable($type,$whereClause='')
-		{
-		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
-		$typeList->getDS($whereClause);
-
-		return $typeList;
-		}
-
-	private function getHashFromTable($type,$value,$key='uid',$whereClause='')
-		{
-		$hash = array();
-
-		$typeList = $this->getTypeListFromTable($type,$whereClause);
-		$objArr = $typeList->getProperty('objArr');
-		# build hash
-		foreach ($objArr as $key => $obj)
-			$hash[$key] = $obj->getObjVar($value);
-			
-		return $hash;
-		}
-
 	private function getOptionsFromTable($type,$field,$selected='',$checkfield='uid',$whereClause='')
 		{
 		$options="";
 
-		$typeList = $this->getTypeListFromTable($type,$whereClause);
-		# get objArr
-		$objArr = $typeList->getProperty('objArr');
+		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
+		$objArr = $typeList->getDS($whereClause);
 
 		# Get options
 		foreach($objArr as $key => $obj)
@@ -975,11 +951,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$usedHashArr = array();
 		
 		# get all relevant data
-		$dataList = $this->getTypeListFromTable('data');
-		$dataObjArr = $dataList->getProperty('objArr');
+		$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
+		$dataObjArr = $dataList->getDS();
 
-		$catList = $this->getTypeListFromTable('category');		
-		$catObjArr = $catList->getProperty('objArr');
+		$catList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+		$catObjArr = $catList->getDS();
 
 		foreach($dataObjArr as $key => $obj)
 			{
@@ -1107,10 +1083,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		# first elements which are not in table
 		$datafieldOptionArr = array('0' => $this->pi_getLL('all_items'),'data_title' => $this->pi_getLL('title'));
 
-		$datafields = $this->getTypeListFromTable('datafield');
-		$datafieldArr = $datafields->getProperty('objArr');
+		$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
+		$datafieldObjArr = $datafieldList->getDS();
 
-		foreach($datafieldArr as $key => $obj)
+		foreach($datafieldObjArr as $key => $obj)
 			{
 			# get metadata of datafield
 			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($key);
