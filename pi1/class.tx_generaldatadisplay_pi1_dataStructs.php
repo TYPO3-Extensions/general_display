@@ -68,8 +68,12 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 
 	public function cleanedObjVars()
 		{
+		# unset false fields & remove possible HTML tags
 		foreach ($this->objVars as $key => $value)
+			{
 			if (! $this->fields[$key]) unset($this->objVars[$key]);
+			else $this->objVars[$key] = strip_tags($value);
+			}
 		return $this->objVars;
 		}
 
