@@ -178,8 +178,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 
 		# get list of datafield names
 		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
-		$typeList->getDS();
-		$objArr = $typeList->getProperty('objArr');
+		$objArr = $typeList->getDS();
 
 		foreach($objArr as $key => $obj) 
 			{
@@ -199,7 +198,8 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 					break;
 
 					case 'bool':
-					$checkMethod = 'isBool';# preg_match('/^(.+)SELECT$/',$key,$postVarMatch);
+					$checkMethod = 'isBool';
+
 					break;
 
 					case 'date':

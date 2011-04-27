@@ -236,7 +236,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						{
 						$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->piVars['type'].'List');
 						$objArr = $dataSet->getDS('uid='.$this->piVars['uid']);
-						$formData->importValues($objArr[$this->piVars['uid']]->getProperty('objVars'),$this->piVars);
+						 if (count($objArr))
+							$formData->importValues($objArr[$this->piVars['uid']]->getProperty('objVars'),$this->piVars);
 						} else 
 						{
 						# new dataset
