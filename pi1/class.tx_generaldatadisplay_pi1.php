@@ -588,7 +588,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						# get metadata
 						$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('datafields_uid'));
 
-						if ($value && $metadata['content_visible']!="no")
+						if ($value && $metadata['content_visible']=="yes")
 							{
 							# standard template uses Detaildata - but you can also use your own template & "real" names
 							$contentArray['###HEADING_'.strtoupper($fieldName).'###'] = $this->wrapInDiv($fieldName,__FUNCTION__."-dataHeading");
