@@ -353,7 +353,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $content;
 		}
 
-	private function tableView($type='data')
+	private function tableView($type)
 		{	
 		# commons
 		$commonsArray = $this->makeCommonsArray();
@@ -386,7 +386,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						{
 						# get objVars
 						$objVars = $obj->getProperty('objVars');
-						$contentArray['###TABLE_ROW###'] = $objVars['category_name'];
+						$contentArray['###TABLE_ROW###'] = htmlspecialchars($objVars['category_name'],ENT_QUOTES);
 						$contentArray['###ADMINSTUFF###'] = $this->makeAdminStuff($key,$type);
 						$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);
 						$contentAll['###TABLE_CONTENT###'].= $this->cObj->substituteMarkerArrayCached($singlerow,$contentArrayCSS);
@@ -405,7 +405,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						{
 						# get objVars
 						$objVars = $obj->getProperty('objVars');
-						$contentArray['###TABLE_ROW###'] = $objVars['datafield_name'];
+						$contentArray['###TABLE_ROW###'] = htmlspecialchars($objVars['datafield_name'],ENT_QUOTES);
 						$contentArray['###ADMINSTUFF###'] = $this->makeAdminStuff($key,$type);
 						$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);
 						$contentAll['###TABLE_CONTENT###'].= $this->cObj->substituteMarkerArrayCached($singlerow,$contentArrayCSS);
@@ -512,7 +512,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				foreach($objArr as $key => $obj)
 						{
 						$dataCategory = $catObjArr[$obj->getObjVar('data_category')] ? $obj->getObjVar('data_category') : 0;
-						$orderedList[$dataCategory] .=  $this->wrapInDiv($this->pi_linkTP_keepPIvars($obj->getObjVar('data_title'),array('uid' => $key, 'view' => '2', 'type' =>'data'),'1','1'),__FUNCTION__."-title");	
+						$orderedList[$dataCategory] .=  $this->wrapInDiv($this->pi_linkTP_keepPIvars(htmlspecialchars($obj->getObjVar('data_title'),ENT_QUOTES),array('uid' => $key, 'view' => '2', 'type' =>'data'),'1','1'),__FUNCTION__."-title");	
 						# set all progenitors if nescessary
 						foreach($categoryList->getAllProgenitors($dataCategory) as $catProgenitor) 
 							$progenitorList[$catProgenitor] = 1;
@@ -523,7 +523,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					if ($orderedList[$dataCategory] || $progenitorList[$dataCategory])
 						{
-						$contentArray['###CATEGORY-NAME###'] = $this->wrapInDiv($catObjArr[$dataCategory] ? $catObjArr[$dataCategory]->getObjVar('category_name') : $this->pi_getLL('no_category'),__FUNCTION__."-category-name");
+						$contentArray['###CATEGORY-NAME###'] = $this->wrapInDiv($catObjArr[$dataCategory] ? htmlspecialchars($catObjArr[$dataCategory]->getObjVar('category_name'),ENT_QUOTES) : $this->pi_getLL('no_category'),__FUNCTION__."-category-name");
 						$contentArray['###DATA-TITLE###'] = $orderedList[$dataCategory];
 						$contentArray['###LISTDATA###'] .= $this->wrapInDiv($this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray),__FUNCTION__."-categorylvl".$categoryLvlHash[$dataCategory]);
 						}
@@ -572,8 +572,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					$objVars =  $objArr[$uid]->getProperty('objVars');
 					$contentArray['###ADMINSTUFF###'] = $this->makeAdminStuff($uid);
-					$contentArray['###CATEGORY-NAME###'] = is_object($catObjArr[$objVars['data_category']]) ?  $catObjArr[$objVars['data_category']]->getObjVar('category_name') : "";
-					$contentArray['###DATA_TITLE###']=$objVars['data_title'];
+					$contentArray['###CATEGORY-NAME###'] = is_object($catObjArr[$objVars['data_category']]) ?  htmlspecialchars($catObjArr[$objVars['data_category']]->getObjVar('category_name'),ENT_QUOTES) : "";
+					$contentArray['###DATA_TITLE###']=htmlspecialchars($objVars['data_title'],ENT_QUOTES);
 					$contentArray['###DETAILDATA###'] ="";
 
 					# get data fields ...
@@ -583,7 +583,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					# & fill template
 					foreach($dataContentObjArr as $key => $obj) 
 						{
-						$fieldName = $obj->getObjVar('datafield_name');
+						$fieldName = htmlspecialchars($obj->getObjVar('datafield_name'),ENT_QUOTES);
 						$value = $this->formatContentType($obj);
 						# get metadata
 						$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('datafields_uid'));
@@ -977,7 +977,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function formatContentType(&$obj)
 		{
-		$content = $obj->getObjVar('datacontent');
+		$content = htmlspecialchars($obj->getObjVar('datacontent'),ENT_QUOTES);
 		$type = $obj->getObjVar('datafield_type');
 
 		if (! $content) return;
@@ -1099,7 +1099,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$categoryOptionArr = array('0' => $this->pi_getLL('all_categories')) + $this->getUsedCategoryValues('category_name');
 		$optionArray['###CATEGORY_OPTIONS###'] = $this->getOptionsFromArr($categoryOptionArr,$this->piVars['selected_category']);
 
-		$optionArray['###SEARCHPHRASE###'] = $this->piVars['searchphrase']; 
+		$optionArray['###SEARCHPHRASE###'] = htmlspecialchars($this->piVars['searchphrase'],ENT_QUOTES); 
 
 		$optionArray['###FE-ADMINLINKS###']=$this->wrapInDiv($this->makeAdminLinks(),'optionField-adminLinks');
 		$optionArray['###SUBMIT_SEARCH###']=$this->pi_getLL('show');

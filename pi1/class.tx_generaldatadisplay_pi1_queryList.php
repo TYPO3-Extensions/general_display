@@ -53,7 +53,7 @@ abstract class tx_generaldatadisplay_pi1_queryList
 
 	public function setProperty($property,$value)
 		{
-		$this->$property = $value; 
+		$this->$property = $value;
 		return $this->getProperty($property);
 		}
 
@@ -256,7 +256,7 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 		$this->restrictQuery = "pid=".PID." AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted";
 		}
 
-	public function getDS($clause="")
+	public function getDS($clause="",$range="")
 		{
 		$table = $this->table;
 
@@ -267,7 +267,8 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 								ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
 								'tx_generaldatadisplay_datacontent.'.$whereClause,
 								'',
-       								$this->orderField
+								$orderBy=$this->orderField,
+								$limit=$range
 								);
 
 		if ($dataSet) 

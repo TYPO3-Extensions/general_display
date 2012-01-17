@@ -292,6 +292,7 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 			# convert / remove some special chars
 			$searchArr = array("/","\\","\"","'","`","<",">","+");
 			$replaceArr = array("|","|");
+			$this->dataArr['datafield_name'] = strip_tags(trim(substr($this->dataArr['datafield_name'],0,63)));
 			$this->dataArr['datafield_name'] = str_replace($searchArr,$replaceArr,$this->dataArr['datafield_name']);
 
 			# now check if datafieldname is unique
