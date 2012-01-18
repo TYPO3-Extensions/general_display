@@ -573,8 +573,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$objVars =  $objArr[$uid]->getProperty('objVars');
 					$contentArray['###ADMINSTUFF###'] = $this->makeAdminStuff($uid);
 					$contentArray['###CATEGORY-NAME###'] = is_object($catObjArr[$objVars['data_category']]) ?  htmlspecialchars($catObjArr[$objVars['data_category']]->getObjVar('category_name'),ENT_QUOTES) : "";
-					$contentArray['###DATA_TITLE###']=htmlspecialchars($objVars['data_title'],ENT_QUOTES);
-					$contentArray['###DETAILDATA###'] ="";
+					$contentArray['###DATA_TITLE###'] = htmlspecialchars($objVars['data_title'],ENT_QUOTES);
+					$contentArray['###DETAILDATA###'] = "";
 
 					# get data fields ...
 					$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
@@ -652,7 +652,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 				$subpart = "###EDIT_DATA###";				
 				# set contentArray
-				$contentArray['###DATA_TITLE###']=$formValues['data_title'];	
+				$contentArray['###DATA_TITLE###'] = htmlspecialchars($formValues['data_title'],ENT_QUOTES);
 				$categoryOptions = $this->getOptionsFromTable('category','category_name',$formValues['data_category']);
 				$contentArray['###DATA_CATEGORY_OPTIONS###'] = $categoryOptions ? $categoryOptions : '<option value="">'.$this->pi_getLL('empty_category').'</option>';
 				
@@ -667,9 +667,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						{
 						$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$objVars['datafield_type']);
 						$dataField->setTmplArr($contentArray);
-						$dataField->setTmplVar('###DATAFIELD_NAME###',$objVars['datafield_name']);
-						$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInDiv($objVars['datafield_name'],__FUNCTION__."-dataHeading"));
-						$dataField->setTmplVar('###DATAFIELD_CONTENT###',$formValues[$objVars['datafield_name']]);
+						$dataField->setTmplVar('###DATAFIELD_NAME###',htmlspecialchars($objVars['datafield_name'],ENT_QUOTES));
+						$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInDiv(htmlspecialchars($objVars['datafield_name'],ENT_QUOTES),__FUNCTION__."-dataHeading"));
+						$dataField->setTmplVar('###DATAFIELD_CONTENT###',htmlspecialchars($formValues[$objVars['datafield_name']],ENT_QUOTES));
 						$dataField->setTmplVar('###DATAFIELD_CONTENT_ERROR###',$formError[$objVars['datafield_name']] ? $this->wrapInDiv($this->pi_getLL('error_'. $formError[$objVars['datafield_name']]),'editView-Formerror') : "");
 
 						$contentArray['###INPUT_DATAFIELDS###'].= $dataField->HTML();
@@ -682,7 +682,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			case 'category':
 				{
 				$subpart = "###EDIT_CATEGORY###";
-				$contentArray['###CATEGORY_NAME###']=$formValues['category_name'];
+				$contentArray['###CATEGORY_NAME###'] = htmlspecialchars($formValues['category_name'],ENT_QUOTES);
 				$contentArray['###DATA_SUBCATEGORY_OPTIONS###']="<option value='0'></option>".$this->getOptionsFromTable('category','category_name',$formValues['category_progenitor']);
 				}
 			break;
@@ -691,7 +691,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				{
 				$subpart = "###EDIT_DATAFIELD###";
 			
-				$contentArray['###DATAFIELD_NAME###']=$formValues['datafield_name'];
+				$contentArray['###DATAFIELD_NAME###'] = htmlspecialchars($formValues['datafield_name'],ENT_QUOTES);
 				$contentArray['###DISPLAY_SEQUENCE###'] = $formValues['display_sequence'] ? $formValues['display_sequence'] : time();
 				# get all datafieldtypes 
 				$datafieldTypesArr = tx_generaldatadisplay_pi1_dataFields::getTypes();
@@ -766,7 +766,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			case 'data':
 				{
 				$details='###DELETE_REQUEST_DETAILS_DATA###';
-				$contentArray['###TITLE###'] = $objVars['data_title'];
+				$contentArray['###TITLE###'] = htmlspecialchars($objVars['data_title'],ENT_QUOTES);
 
 				# get dataContent
 				$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
@@ -780,8 +780,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$dataSub=$this->cObj->getSubpart(TEMPLATE,'###DELETE_REQUEST_DETAILS_DATAROW###');
 					foreach($dataContent as $key => $value) 
 						{
-						$contentDataArr['###HEADING_DATA_CONTENT###'] = $this->wrapInDiv($key,__FUNCTION__."-dataHeading");
-						$contentDataArr['###DATA_CONTENT###'] = $value;
+						$contentDataArr['###HEADING_DATA_CONTENT###'] = $this->wrapInDiv(htmlspecialchars($key,ENT_QUOTES),__FUNCTION__."-dataHeading");
+						$contentDataArr['###DATA_CONTENT###'] = htmlspecialchars($value,ENT_QUOTES);
 						$contentArray['###DATAROWS###'] .= $this->cObj->substituteMarkerArrayCached($dataSub,$contentDataArr);
 						}
 					} else $contentArray['###DATAROWS###'] = "";
@@ -791,14 +791,14 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			case 'category':
 				{
 				$details='###DELETE_REQUEST_DETAILS_CATEGORY###';
-				$contentArray['###CATEGORY###'] = $objVars['category_name'];
+				$contentArray['###CATEGORY###'] = htmlspecialchars($objVars['category_name'],ENT_QUOTES);
 				}
 			break;
 
 			case 'datafield':
 				{
 				$details='###DELETE_REQUEST_DETAILS_DATAFIELD###';
-				$contentArray['###DATAFIELD###'] = $objVars['datafield_name'];
+				$contentArray['###DATAFIELD###'] = htmlspecialchars($objVars['datafield_name'],ENT_QUOTES);
 				$contentArray['###DATAFIELD_TYPE###'] = $this->pi_getLL($objVars['datafield_type']);
 				}
 			break;
@@ -927,7 +927,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		foreach($objArr as $key => $obj)
 			{
 			$objVars = $obj->getObjVar($checkfield);
-			$options.='<option value="'.$obj->getObjVar($checkfield).(($obj->getObjVar($checkfield)==$selected) ? '" selected>' : '">').$obj->getObjVar($field).'</option>';
+			$options.='<option value="'.$obj->getObjVar($checkfield).(($obj->getObjVar($checkfield)==$selected) ? '" selected>' : '">').htmlspecialchars($obj->getObjVar($field),ENT_QUOTES).'</option>';
 			}
 		return $options;
 		}
@@ -940,7 +940,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			{
 			$value = $locale ? $this->pi_getLL($value) : $value;
 			if ($value) 
-				$options.='<option value="'.$key.(($key==$selected) ? '" selected>' : '">').$value.'</option>';
+				$options.='<option value="'.$key.(($key==$selected) ? '" selected>' : '">').htmlspecialchars($value,ENT_QUOTES).'</option>';
 			}
 
 		return $options;
