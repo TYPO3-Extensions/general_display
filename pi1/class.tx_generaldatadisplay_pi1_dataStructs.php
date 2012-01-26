@@ -34,7 +34,7 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 	{
 	# vars
 	protected $uid;
-	protected $objVars = array();
+	protected $objVars;
 	protected $formError = array();
 	protected $fields = array();
 	protected $commonFields = array('uid'=>1,'pid'=>1,'tstamp'=>1,'crdate'=>1,'cruser_id'=>1);
@@ -42,6 +42,12 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 	public function __construct()
 		{
 		$this->fields = array_merge($this->commonFields,$this->fields);
+		$this->objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
+		}
+
+	public function __destruct()
+		{
+		unset($this->objVars);
 		}
 
 	public function getProperty($property)
@@ -55,36 +61,36 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 		return $this->getProperty($property);
 		}
 
-	public function getObjVar($property)
+	public function getObjVar($key,$plain=false)
 		{
-		return isset($this->objVars[$property]) ? $this->objVars[$property] : null;
+		return $plain ? $this->objVars->getplain($key) : $this->objVars->get($key);
 		}
 
-	public function setObjVar($property,$value)
+	public function setObjVar($key,$value)
 		{
-		$this->objVars[$property] = $value;
-		return isset($this->objVars[$property]) ? $this->objVars[$property] : null;
+		return $this->objVars->setValue($key,$value);
 		}
 
-	public function cleanedObjVars()
+	protected function cleanedObjVars($checkpiVars=true)
 		{
 		# unset false fields & remove possible HTML tags
-		foreach ($this->objVars as $key => $value)
-			{
-			if (! $this->fields[$key]) unset($this->objVars[$key]);
-			else $this->objVars[$key] = strip_tags($value);
+		foreach ($this->objVars->getplain() as $key => $value)
+			{ 
+			if ($checkpiVars && !$this->fields[$key]) $this->objVars->delKey($key);
+			else $this->setObjVar($key,trim($value));
 			}
-		return $this->objVars;
+
+		return $this->objVars->getplain();
 		}
 
 	public function newDS()
 		{
 		if ($this->havePerm())
 			{
-			$this->objVars['pid'] = PID; 
-			$this->objVars['tstamp'] = time();
-			$this->objVars['crdate'] = time();
-			$this->objVars['cruser_id'] = $GLOBALS['BE_USER']->user['uid'] ? $GLOBALS['BE_USER']->user['uid'] : $GLOBALS['TSFE']->fe_user->user['uid'];
+			$this->setObjVar('pid',PID); 
+			$this->setObjVar('tstamp',time());
+			$this->setObjVar('crdate',time());
+			$this->setObjVar('cruser_id',$GLOBALS['BE_USER']->user['uid'] ? $GLOBALS['BE_USER']->user['uid'] : $GLOBALS['TSFE']->fe_user->user['uid']);
 
 			$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->table,$this->cleanedObjVars());
 			return $GLOBALS['TYPO3_DB']->sql_insert_id();
@@ -96,7 +102,7 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 		{
 		if ($this->havePerm())
 			{	
-			$this->objVars['tstamp'] = time();
+			$this->setObjVar('tstamp',time());
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->table,'uid='.$this->uid,$this->cleanedObjVars());
 			return true;
 			} 
@@ -118,7 +124,7 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 		$templateArray = array();
 
 		# make generic template out of DS
-		foreach ($this->objVars as $key => $value) 
+		foreach ($this->objVars->get() as $key => $value) 
 			$templateArray["###".strtoupper($key)."###"] = $value;
 
 		return $templateArray;
@@ -168,7 +174,7 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 	public function newDS()
 		{
 		# save objVars (TODO sql error handling)
-		$savedObjVars = $this->objVars;
+		$savedObjVars = $this->cleanedObjVars(false);
 
 		if ($this->havePerm() && $uid = parent::newDS())
 			{
@@ -182,11 +188,12 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 			# build and insert datasets
 			foreach($savedObjVars as $name => $value)
 				{
-				if ($dataContent['datafields_uid'] = $dataFieldList->getUidFromDatafield($name))
+				$datafieldUid = $dataFieldList->getUidFromDatafield($name);
+				if ($datafieldUid)
 					{
-					$dataContent['data_uid'] = $uid;
-					$dataContent['datacontent'] = $value;
-					$dataContentObj->setProperty("objVars",$dataContent);
+					$dataContentObj->setObjVar('datafields_uid',$datafieldUid);
+					$dataContentObj->setObjVar('data_uid',$uid);
+					$dataContentObj->setObjVar('datacontent',$value);
 					$dataContentObj->newDS();
 					}
 				}
@@ -198,7 +205,7 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 	public function updateDS()
 		{
 		# save objVars (TODO sql error handling)
-		$savedObjVars = $this->objVars;
+		$savedObjVars = $this->cleanedObjVars(false);
 
 		if ($this->havePerm() && parent::updateDS())
 			{
@@ -220,11 +227,11 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 					# there should be maximum one DS
 					if ( count($objArr) <= 1)
 						{
-						$dataContent['datafields_uid'] =$datafieldsUid;
-						$dataContent['data_uid'] = $this->uid;
-						$dataContent['datacontent'] = $value;
-						$dataContentObj->setProperty("uid",key($objArr));
-						$dataContentObj->setProperty("objVars",$dataContent);
+						$dataContentObj->setObjVar('datafields_uid',$datafieldsUid);
+						$dataContentObj->setObjVar('data_uid',$this->uid);
+						$dataContentObj->setObjVar('datacontent',$value);
+						$dataContentObj->setProperty('uid',key($objArr));
+
 						$objArr  ? $dataContentObj->updateDS() : $dataContentObj->newDS();
 						} else return false;
 					}
@@ -327,8 +334,7 @@ class tx_generaldatadisplay_pi1_tempdata extends tx_generaldatadisplay_pi1_dataS
 
 	public function newDS()
 		{
-		$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->table,$this->objVars);
-
+		$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->table,$this->cleanedObjVars(false));
 		return $GLOBALS['TYPO3_DB']->sql_insert_id();
 		}
 
