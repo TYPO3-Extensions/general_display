@@ -1,0 +1,152 @@
+<T3DataStructure>
+	<meta>
+		<langDisable>1</langDisable>
+	</meta>
+	<sheets>
+		<general>
+			<ROOT>
+				<TCEforms>
+					<sheetTitle>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general</sheetTitle>
+				</TCEforms>
+				<type>array</type>
+				<el>
+					<pages>
+						<TCEforms>
+							<exclude>1</exclude>
+							<label>LLL:EXT:lang/locallang_general.php:LGL.startingpoint</label>
+							<config>
+								<type>group</type>
+								<internal_type>db</internal_type>
+								<allowed>pages</allowed>
+								<size>3</size>
+								<maxitems>22</maxitems>
+								<minitems>0</minitems>
+								<show_thumbs>1</show_thumbs>
+							</config>
+						</TCEforms>
+					</pages>
+					<nrPageResults>
+						<TCEforms>
+							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_nrPageResults</label>
+							<config>
+								<type>select</type>
+								<items type="array">
+									<numIndex index="1" type="array">
+										<numIndex index="0">LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_nrPageResults_all</numIndex>
+										<numIndex index="1">0</numIndex>
+									</numIndex>
+									<numIndex index="2" type="array">
+										<numIndex index="0">10</numIndex>
+										<numIndex index="1">10</numIndex>
+									</numIndex>
+									<numIndex index="3" type="array">
+										<numIndex index="0">20</numIndex>
+										<numIndex index="1">20</numIndex>
+									</numIndex>
+									<numIndex index="4" type="array">
+										<numIndex index="0">30</numIndex>
+										<numIndex index="1">30</numIndex>
+									</numIndex>
+								</items>
+								<minitems>0</minitems>
+								<maxitems>1</maxitems>
+								<size>1</size>
+							</config>
+						</TCEforms>
+					</nrPageResults>
+					<nrMaxPages>
+						<TCEforms>
+							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_nrMaxPages</label>
+							<config>
+								<type>select</type>
+								<items type="array">
+									<numIndex index="1" type="array">
+										<numIndex index="0">5</numIndex>
+										<numIndex index="1">5</numIndex>
+									</numIndex>
+									<numIndex index="2" type="array">
+										<numIndex index="0">10</numIndex>
+										<numIndex index="1">10</numIndex>
+									</numIndex>
+									<numIndex index="3" type="array">
+										<numIndex index="0">15</numIndex>
+										<numIndex index="1">15</numIndex>
+									</numIndex>
+								</items>
+								<minitems>0</minitems>
+								<maxitems>1</maxitems>
+								<size>1</size>
+							</config>
+						</TCEforms>
+					</nrMaxPages>
+					<userStyleSheet>
+						<TCEforms>
+							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_user_stylesheet</label>
+							<config>
+								<type>group</type>
+								<internal_type>file</internal_type>
+								<allowed>css</allowed>
+								<max_size>100</max_size>
+								<uploadfolder>uploads/tx_generaldatadisplay</uploadfolder>
+								<maxitems>1</maxitems>
+								<size>1</size>
+								<selectedliststyle>Width:180px</selectedliststyle>
+							</config>		    
+						</TCEforms>	     
+					</userStyleSheet> 
+					<userTemplateFile>
+						<TCEforms>
+							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_user_template</label>
+							<config>
+								<type>group</type>
+								<internal_type>file</internal_type>
+								<allowed>tmpl,html,htm</allowed>
+								<max_size>100</max_size>
+								<uploadfolder>uploads/tx_generaldatadisplay</uploadfolder>
+								<maxitems>1</maxitems>
+								<size>1</size>
+								<selectedliststyle>Width:180px</selectedliststyle>
+							</config>		    
+						</TCEforms>	     
+					</userTemplateFile>
+				</el>
+			</ROOT>
+		</general>
+		<administration>
+			<ROOT>
+				<TCEforms>
+					<sheetTitle>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_administration</sheetTitle>
+				</TCEforms>
+				<type>array</type>
+				<el>
+					<users>
+						<TCEforms>
+							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_administration_users</label>
+							<config>
+								<type>select</type>
+								<foreign_table>fe_users</foreign_table>
+								<size>15</size>
+								<autoSizeMax>100</autoSizeMax>
+								<maxitems>999</maxitems>
+								<foreign_table_where>ORDER BY fe_users.name</foreign_table_where>
+							</config>
+						</TCEforms>
+					</users>
+					<groups>
+						<TCEforms>
+							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_administration_groups</label>
+							<config>
+								<type>select</type>
+								<foreign_table>fe_groups</foreign_table>
+								<size>15</size>
+								<autoSizeMax>100</autoSizeMax>
+								<maxitems>999</maxitems>
+								<foreign_table_where>ORDER BY fe_groups.title</foreign_table_where>
+							</config>
+						</TCEforms>
+					</groups>
+				</el>
+			</ROOT>
+		</administration>
+	</sheets>
+</T3DataStructure>
