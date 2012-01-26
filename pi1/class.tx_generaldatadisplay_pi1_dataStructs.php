@@ -73,7 +73,7 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 
 	protected function cleanedObjVars($checkpiVars=true)
 		{
-		# unset false fields & remove possible HTML tags
+		# unset false fields
 		foreach ($this->objVars->getplain() as $key => $value)
 			{ 
 			if ($checkpiVars && !$this->fields[$key]) $this->objVars->delKey($key);
