@@ -312,9 +312,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$objVars2 = $objArr[$savedUid]->getProperty('objVars');
 
 						# swap sequence
-						$saveValue = $objVars1['display_sequence'];
-						$objVars1['display_sequence'] = $objVars2['display_sequence'];
-						$objVars2['display_sequence'] = $saveValue;
+						$saveValue = $objVars1->get('display_sequence');
+						$objVars1->setValue('display_sequence',$objVars2->get('display_sequence'));
+						$objVars2->setValue('display_sequence',$saveValue);
 						$objArr[$this->secPiVars->get('uid')]->setProperty('objVars',$objVars1);
 						$objArr[$savedUid]->setProperty('objVars',$objVars2);
 
