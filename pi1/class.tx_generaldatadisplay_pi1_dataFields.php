@@ -29,7 +29,7 @@
  * @package	TYPO3
  * @subpackage	tx_generaldatadisplay
  */
-class tx_generaldatadisplay_pi1_dataFields
+abstract class tx_generaldatadisplay_pi1_dataFields
 	{
 	protected static $table = "tx_generaldatadisplay_datafields";
 	protected $tmplArr = array();
@@ -69,9 +69,9 @@ class tx_generaldatadisplay_pi1_dataFields
 		# get metadata from datafield table
 		$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 		$objArr = $datafieldList->getDS('uid='.$uid);
-		
+
 		if (key($objArr))
-			$tmplArr = unserialize($objArr[key($objArr)]->getObjVar('metadata'));
+			$tmplArr = unserialize($objArr[key($objArr)]->getProperty('objVars')->getplain('metadata'));
 
 		return $tmplArr ? $tmplArr : array();
 		}
@@ -85,7 +85,7 @@ class tx_generaldatadisplay_pi1_dataFields
 		return $typeArr;
 		}
 
-	public function checkMetadata(&$metadata)
+	public function cleanMetadata(&$metadata)
 		{
 		switch ($this->type)
 			{
