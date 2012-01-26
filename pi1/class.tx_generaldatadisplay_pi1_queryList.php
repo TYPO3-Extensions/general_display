@@ -198,7 +198,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 					# additional fields
 					$dataContent['pid'] = PID;
 					$dataContent['uid'] = $obj->getObjVar('uid');
-					$dataContent['data_title'] = $obj->getObjVar('data_title');
+					$dataContent['data_title'] = $obj->getObjVar('data_title',true);
 					$dataContent['data_category'] = $obj->getObjVar('data_category');
 					$dataContent['category_name'] = $categoryHash[$dataContent['data_category']];
 					$dataContent = $this->addBackTicks($dataContent);
