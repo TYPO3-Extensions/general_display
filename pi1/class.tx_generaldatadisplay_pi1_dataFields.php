@@ -40,7 +40,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 		return isset($this->$property) ? $this->$property : null;
 		}
 
-	public function setTmplArr(&$tmplArr)
+	public function setTmplArr(array &$tmplArr)
 		{
 		$this->tmplArr = $tmplArr;
 		}
@@ -85,7 +85,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 		return $typeArr;
 		}
 
-	public function cleanMetadata(&$metadata)
+	public function cleanMetadata(array &$metadata)
 		{
 		switch ($this->type)
 			{

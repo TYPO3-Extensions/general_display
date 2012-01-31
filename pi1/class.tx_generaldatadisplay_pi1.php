@@ -194,40 +194,19 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		# check some piVars
 		foreach ($this->secPiVars->get() as $key => $value)
 			{
-			switch ($key)
+			switch (true)
 				{
-				case 'type':
+				case $key=='type':
 					{
 					if (! preg_match('/^(data|category|datafield)$/',$this->secPiVars->get('type')))
 						$this->secPiVars->setValue('type','data');
 					}
 				break;
 
-				case 'uid':
+				case preg_match('/^(uid|selected_item|selected_category|offset)$/',$key):
 					{
 					if (is_numeric($value)) $this->secPiVars->setValue($key,intval($this->secPiVars->get($key)));
-						else $this->secPiVars->delKey($key);
-					}
-				break;
-
-				case 'selected_item':
-					{
-					if (is_numeric($value)) $this->secPiVars->setValue($key,intval($this->secPiVars->get($key)));
-						else $this->secPiVars->delKey($key);
-					}
-				break;
-
-				case 'selected_category':
-					{
-					if (is_numeric($value)) $this->secPiVars->setValue($key,intval($this->secPiVars->get($key)));
-						else $this->secPiVars->delKey($key);
-					}
-				break;
-
-				case 'offset':
-					{
-					if (is_numeric($value)) $this->secPiVars->setValue($key,intval($this->secPiVars->get($key)));
-						else $this->secPiVars->delKey($key);
+					else $this->secPiVars->delKey($key);
 					}
 				break;
 				}
@@ -263,7 +242,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->secPiVars->get('type').'List');
 						$objArr = $dataSet->getDS('uid='.$this->secPiVars->get('uid'));
 	
-						 if (count($objArr))
+						if (count($objArr))
 							$formData->importValues($objArr[$this->secPiVars->get('uid')]->getProperty('objVars'),$this->secPiVars);
 						} else 
 						{
@@ -635,7 +614,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $content;
 		}
 
-	private function editView($formData)
+	private function editView(tx_generaldatadisplay_pi1_formData $formData)
 		{
 		# commons
 		$commonsArray = $this->makeCommonsArray();
@@ -914,7 +893,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return 0;
 		}
 
-	private function createSearchClause($searchClauseArr = array(),$concat='AND')
+	private function createSearchClause(array $searchClauseArr,$concat='AND')
 		{
 		foreach($searchClauseArr as $index => $hashArr)
 			{
@@ -970,7 +949,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $options;
 		}
 
-	private function getOptionsFromArr($optionArr = array(),$selected='',$locale=false)
+	private function getOptionsFromArr(array $optionArr,$selected='',$locale=false)
 		{
 		$options="";
 
@@ -1013,7 +992,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $usedHashArr; 
 		}
 
-	private function formatContentType(&$obj)
+	private function formatContentType(tx_generaldatadisplay_pi1_dataSet &$obj)
 		{
 		$content = $obj->getObjVar('datacontent');
 		$type = $obj->getObjVar('datafield_type');
@@ -1179,7 +1158,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			} else return;
 		}	
 
-	private function wrapTemplateArrayInClass($arr = array(),$callingFunction='')
+	private function wrapTemplateArrayInClass(array $arr,$callingFunction='')
 		{
 		foreach($arr as $key => $value)
 			{

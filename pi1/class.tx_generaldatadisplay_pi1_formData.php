@@ -79,14 +79,14 @@ abstract class tx_generaldatadisplay_pi1_formData
 		return 0;
 		}
 
-	protected function importValues($formData,$secPiVars=null)
+	protected function importValues(tx_generaldatadisplay_pi1_objVar $formData,tx_generaldatadisplay_pi1_objVar $secPiVars=null)
 		{
 		$piVars = $secPiVars ? $secPiVars->get() : array();
 		$data = $formData->getplain();
 
 		foreach ($data as $key => $value)
-			$dataArr[$key] = (is_scalar($piVars[$key]) && $piVars[$key]) ? $piVars[$key] : $value;
-		
+			$dataArr[$key] = (is_scalar($piVars[$key]) && isset($piVars[$key])) ? $piVars[$key] : $value;
+	
 		return $this->formData->set($dataArr);
 		}
 
@@ -202,10 +202,10 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 	# vars
 	protected $type='data';
 
-	public function importValues($formData,$piVars=array())
+	public function importValues(tx_generaldatadisplay_pi1_objVar $formData,tx_generaldatadisplay_pi1_objVar $secPiVars=null)
 		{
 		# first set $this->formData with formData
-		$this->formData = parent::importValues($formData,$piVars);
+		$this->formData = parent::importValues($formData,$secPiVars);
 
 		$this->checkHash['uid'] = 'isInt';
 		$this->checkHash['data_title'] = 'notEmpty';
@@ -283,8 +283,12 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 						# if ($this->formData[$key]) unlink(IMGUPLOADPATH."/".$this->formData[$key]);
 						$this->setFormValue($key,$newFilename);
 						} else $this->formError[$key] = "imgUpload";
-					} elseif (is_array($piVars[$key]) && isset($piVars[$key]['delete'])) $this->formData[$key] = "";
-				
+					}
+				else 
+					{
+					$imgvalue = $secPiVars ? $secPiVars->getplain($key) : null;
+					if (is_array($imgvalue) && isset($imgvalue['delete'])) $this->formData->delKey($key);
+					}
 				}
 			}
 		# validate and save formData
@@ -299,7 +303,7 @@ class tx_generaldatadisplay_pi1_categoryForm extends tx_generaldatadisplay_pi1_f
 	# vars
 	protected $type='category';
 
-	public function importValues($formData,$piVars=array())
+	public function importValues(tx_generaldatadisplay_pi1_objVar $formData,tx_generaldatadisplay_pi1_objVar $secPiVars=null)
 		{
 		$this->formData = parent::importValues($formData,$piVars);
 
@@ -319,9 +323,9 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 	# vars
 	protected $type='datafield';
 
-	public function importValues($formData,$piVars=array())
+	public function importValues(tx_generaldatadisplay_pi1_objVar $formData,tx_generaldatadisplay_pi1_objVar $secPiVars=null)
 		{
-		$this->formData = parent::importValues($formData,$piVars);
+		$this->formData = parent::importValues($formData,$secPiVars);
 
 		if ($datafieldName = $this->getFormValue('datafield_name',true))
 			{
@@ -367,6 +371,9 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 		{
 		$meta = $this->getFormValue('meta',true) ? 
 			$this->getFormValue('meta',true) : unserialize($this->formData->getplain('metadata'));
+
+		if (!$meta) $meta = array();
+
 		return $key ? $meta[$key] : $meta;
 		}
 
