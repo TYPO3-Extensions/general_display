@@ -37,14 +37,14 @@ class tx_generaldatadisplay_pi1_objVar
 
 	public function set($property)
 		{
-		$this->data = $this->htmlspecialcharsDecode($property);
+		$this->data = $this->specialchars($property,false);
 
 		return $this;
 		}
 
 	public function setValue($key,$value)
 		{
-		if (is_array($this->data) || !$this->data) $this->data[$key] = $this->htmlspecialcharsDecode($value);
+		if (is_array($this->data) || !$this->data) $this->data[$key] = $this->specialchars($value,false);
 
 		return $this;
 		}
@@ -54,9 +54,8 @@ class tx_generaldatadisplay_pi1_objVar
 		$data =  $this->data;
 
 		if (is_array($data))
-			return $key ? $this->htmlspecialcharsEncode($data[$key]) : $this->htmlspecialcharsEncode($data);
-				
-		elseif (is_scalar($this->data)) return $this->htmlspecialcharsEncode($data);
+			return $key ? $this->specialchars($data[$key]) : $this->specialchars($data);
+		elseif (is_scalar($this->data)) return $this->specialchars($data);
 
 		return null;
 		}
@@ -79,36 +78,21 @@ class tx_generaldatadisplay_pi1_objVar
 		return $this;
 		}
 
-	private function htmlspecialcharsEncode(&$item)
+	private function specialchars(&$item,$encode=true)
 		{
 		if (is_array($item))
 			{
 			foreach ($item AS $key => &$value) 
 				{
-				if (is_array($value)) $this->htmlspecialcharsEncode($value);
-				elseif(is_scalar($value)) $value = htmlspecialchars($value,ENT_QUOTES);
+				if (is_array($value)) $this->specialchars($value,$encode);
+				elseif(is_scalar($value)) 
+					$value = $encode ? htmlspecialchars($value,ENT_QUOTES) : htmlspecialchars_decode($value,ENT_QUOTES);	
 				}
 			} 
-		elseif (is_scalar($item)) $item = htmlspecialchars($item,ENT_QUOTES);
+		elseif (is_scalar($item)) $item = $encode ? htmlspecialchars($item,ENT_QUOTES) : htmlspecialchars_decode($item,ENT_QUOTES);
 
 		return $item;
 		}
-
-	private function htmlspecialcharsDecode(&$item)
-		{
-		if (is_array($item)) 
-			{
-			foreach ($item AS $key => &$value) 
-				{
-				if (is_array($value)) $this->htmlspecialcharsDecode($value);
-				elseif (is_scalar($value)) $value = htmlspecialchars_decode($value,ENT_QUOTES);
-				}
-			} 
-		elseif (is_scalar($item)) $item = htmlspecialchars_decode($item,ENT_QUOTES);
-
-		return $item;
-		}
-	
 	}
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/general_data_display/pi1/class.tx_generaldatadisplay_pi1_objVar.php'])        {
