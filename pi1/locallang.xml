@@ -72,8 +72,6 @@
 			<label index="error_imgUpload">Upload error</label>
 			<label index="error_imgFilesize">Max filesize exeeded</label>
 			<label index="error_imgType">Wrong filetype</label>
-			<label index="error_invalidDatafieldName">Invalid chars in datafield name</label>
-			
 			<label index="dberror_permission">Permission denied : You are not the owner of this dataset</label>
 			<label index="dberror_no_dataset">Requested dataset not existing</label>
 		</languageKey>
@@ -145,7 +143,6 @@
 			<label index="error_imgUpload">Fehler beim Hochladen</label>
 			<label index="error_imgFilesize">Maximale Dateigröße überschritten</label>
 			<label index="error_imgType">Falscher Dateityp</label>
-			<label index="error_invalidDatafieldName">Unerlaubte Zeichen im Datenfeldnamen</label>
 			
 			<label index="dberror_permission">Zugriff verweigert : Sie sind nicht der Besitzer des Datensatzes</label>
 			<label index="dberror_no_dataset">Der angeforderte Datensatz existiert nicht</label>

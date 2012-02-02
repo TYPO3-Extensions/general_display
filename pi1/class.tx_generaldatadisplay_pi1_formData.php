@@ -30,23 +30,11 @@
  * @subpackage	tx_generaldatadisplay
  */
 
-
-
 abstract class tx_generaldatadisplay_pi1_formData 
 	{
-	protected $formData;
-	protected $checkHash=array();
-	protected $formError=array();
-
-	public function __construct()
-		{
-		$this->formData = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-		}
-
-	public function __destruct()
-		{
-		unset($this->formData);
-		}
+	protected $dataArr = array();
+	protected $checkHash = array();
+	protected $formError = array();
 
 	public function getProperty($property)
 		{
@@ -59,109 +47,86 @@ abstract class tx_generaldatadisplay_pi1_formData
 		return $this->getProperty($property);
 		}
 	
-	public function getFormValue($key,$plain=false)
-		{
-		return $plain ? $this->formData->getplain($key) : $this->formData->get($key);
-		}
-
-	public function setFormValue($key,$value)
-		{
-		return $this->formData->setValue($key,$value);
-		}
-
 	public function formError()
 		{
-		foreach ($this->formError as $key => $hash)
+		foreach ($this->formError as $key => $value)
 			{
-			foreach ($hash as $check => $value)
-				if ($value) return 1;
+			if ($value) return 1;
 			}
 		return 0;
 		}
 
-	protected function importValues($formData,$secPiVars=null)
+	protected function importValues($formData,$piVars=array())
 		{
-		$piVars = $secPiVars ? $secPiVars->get() : array();
-		$data = $formData->getplain();
+		foreach ($formData as $key => $value)
+			$dataArr[$key] = (is_scalar($piVars[$key]) && isset($piVars[$key])) ? $piVars[$key] : $value;
 
-		foreach ($data as $key => $value)
-			$dataArr[$key] = (is_scalar($piVars[$key]) && $piVars[$key]) ? $piVars[$key] : $value;
-		
-		return $this->formData->set($dataArr);
+		return $dataArr;
 		}
 
 	protected function validateData()
 		{
-		foreach($this->formData->get() as $key => $value)
+		foreach($this->dataArr as $key => $value)
 			{
 			# check value if it's not already checked
 			if ($this->checkHash[$key] && !$this->formError[$key])
-				$this->formError[$key] = $this->checkValue($this->getFormValue($key,true),$this->checkHash[$key]);
-			elseif (!$this->checkHash[$key]) $this->formData->delKey($key);
+				$this->formError[$key] = $this->checkValue($this->dataArr[$key],$this->checkHash[$key]);
+			elseif (!$this->checkHash[$key]) unset($this->dataArr[$key]);
 			}
 		}
 
-	protected function checkValue($value,$checkarr)
+	protected function checkValue($value,$check)
 		{
-		if (is_scalar($checkarr)) $checkarr = array($checkarr);
+		# nonexisting value is ok
+		if ($check != 'notEmpty' && !$value) return 0;
 
-		foreach ($checkarr as $key => $check)
+		switch ($check)
 			{
-			switch ($check)
-				{
-				case 'notEmpty': 
-				$error[$check] = $value ? 0 : $check;
-				break;
+			case 'notEmpty':
+			$error=$value ? 0 : $check;
+			break;
 		
-				case 'isInt':
-				$cmpval = $value;
-				settype($cmpval,'integer');
-				$error[$check]=(strcmp($cmpval,$value)) ? $check : 0;
-				break;
+			case 'isInt':
+			$cmpval = $value;
+			settype($cmpval,'integer');
+			$error=(strcmp($cmpval,$value)) ? $check : 0;
+			break;
 	
-				case 'isBool':
-				$error[$check] = preg_match('/^(0|1|yes|no)$/',$value) ? 0 : $check;
-				break;
+			case 'isBool':
+			$error=preg_match('/^(0|1|yes|no)$/',$value) ? 0 : $check;
+			break;
 
-				case 'isDate':
-				preg_match('/^([0-9]{1,2})\D([0-9]{1,2})\D([0-9]{1,4})$/',$value,$matches);
-				$error[$check] = checkdate($matches[2],$matches[1],$matches[3]) ? 0 : $check;
-				break;
+			case 'isDate':
+			preg_match('/^([0-9]{1,2})\D([0-9]{1,2})\D([0-9]{1,4})$/',$value,$matches);
+			$error = checkdate($matches[2],$matches[1],$matches[3]) ? 0 : $check;
+			break;
 
-				case 'isTime':
-				preg_match('/^([0-9]{1,2}):([0-9]{2})(:([0-9]{2}))?$/',$value,$matches);
-				$matches[1] = strlen($matches[1])==1 ? "0".$matches[1] : $matches[1];	
-				$matches[1] = $matches[1]=="24" ? "00" : $matches[1];
-				$cmpval1 = $matches[1].":".$matches[2].($matches[4] ? ":".$matches[4] : ":00");
-				$cmpval2 = date("H:i:s",mktime($matches[1],$matches[2],$matches[4]));
-				$error[$check] = strcmp($cmpval1,$cmpval2) ? $check : 0;
-				break;	
+			case 'isTime':
+			preg_match('/^([0-9]{1,2}):([0-9]{2})(:([0-9]{2}))?$/',$value,$matches);
+			$matches[1] = strlen($matches[1])==1 ? "0".$matches[1] : $matches[1];	
+			$matches[1] = $matches[1]=="24" ? "00" : $matches[1];
+			$cmpval1 = $matches[1].":".$matches[2].($matches[4] ? ":".$matches[4] : ":00");
+			$cmpval2 = date("H:i:s",mktime($matches[1],$matches[2],$matches[4]));
+			$error=strcmp($cmpval1,$cmpval2) ? $check : 0;
+			break;	
 
-				case 'isEmail':
-				$error[$check] = t3lib_div::validEmail($value) ? 0 : $check; 
-				break;
+			case 'isEmail':
+			$error=t3lib_div::validEmail($value) ? 0 : $check; 
+			break;
 
-				case 'isURL':
-				preg_match('/^(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,4}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&amp;?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?/',$value,$matches);
-				$error[$check] = ($matches[0] || !$value) ? 0 : $check;	
-				break;	
+			case 'isURL':
+			preg_match('/^(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,4}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&amp;?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?/',$value,$matches);
+			$error=($matches[0] || !$value) ? 0 : $check;	
+			break;	
 
-				case 'isType':
-				$types = implode('|',tx_generaldatadisplay_pi1_dataFields::getTypes());
-				$error[$check] = preg_match('/^('.$types.')$/',$value) ? 0 : $check;
-				break;
+			case 'isType':
+			$types = implode('|',tx_generaldatadisplay_pi1_dataFields::getTypes());
+			$error=preg_match('/^('.$types.')$/',$value) ? 0 : $check;
+			break;
 
-				case 'existing':
-				$error[$check] = 0;
-				break;
-
-				# all others are treated as regular expressions defined like array('regexname' => '[regex]')
-				default:
-				if (is_array($check)) $error[key($check)] = preg_match($check[key($check)],$value) ? 0 : key($check);
-				break;
-				}
-			# if notEmpty is not set empty values are ok
-			if (!$value && $check != 'notEmpty') $error[$check] = 0;
+			case 'existing':
+			$error = 0;
+			break;
 			}
 		return $error;
 		}
@@ -204,8 +169,8 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 
 	public function importValues($formData,$piVars=array())
 		{
-		# first set $this->formData with formData
-		$this->formData = parent::importValues($formData,$piVars);
+		# first set $this->dataArr with formData
+		$this->dataArr = parent::importValues($formData,$piVars);
 
 		$this->checkHash['uid'] = 'isInt';
 		$this->checkHash['data_title'] = 'notEmpty';
@@ -221,7 +186,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('uid'));
 
 			if ($metadata['datafield_required'] == "yes")
-				$checkMethod[] = 'notEmpty';
+				$this->formError[$obj->getObjVar('datafield_name')] = $this->checkValue($this->dataArr[$obj->getObjVar('datafield_name')],'notEmpty');
 
 			# now check all datafields by type
 			if (!$this->formError[$obj->getObjVar('datafield_name')])  
@@ -229,36 +194,35 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 				switch ($obj->getObjVar('datafield_type'))
 					{
 					case 'int':
-					$checkMethod[] = 'isInt';
+					$checkMethod = 'isInt';
 					break;
 
 					case 'bool':
-					$checkMethod[] = 'isBool';
+					$checkMethod = 'isBool';
 
 					break;
 
 					case 'date':
-					$checkMethod[] = 'isDate';
+					$checkMethod = 'isDate';
 					break;
 
 					case 'time':
-					$checkMethod[] = 'isTime';
+					$checkMethod = 'isTime';
 					break;
 
 					case 'email':
-					$checkMethod[] = 'isEmail';
+					$checkMethod = 'isEmail';
 					break;
 
 					case 'url':
-					$checkMethod[] = 'isURL';
+					$checkMethod = 'isURL';
 					break;
 
 					default:
-					$checkMethod[] = 'existing';
+					$checkMethod = 'existing';
 					}
 				}
 			$this->checkHash[$obj->getObjVar('datafield_name')] = $checkMethod;
-			unset($checkMethod);
 			}
 
 		# if img datafields existing
@@ -280,17 +244,17 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 					if ($succMove)
 						{
 						# check if value was already set
-						# if ($this->formData[$key]) unlink(IMGUPLOADPATH."/".$this->formData[$key]);
-						$this->setFormValue($key,$newFilename);
+						# if ($this->dataArr[$key]) unlink(IMGUPLOADPATH."/".$this->dataArr[$key]);
+						$this->dataArr[$key] = $newFilename;
 						} else $this->formError[$key] = "imgUpload";
-					} elseif (is_array($piVars[$key]) && isset($piVars[$key]['delete'])) $this->formData[$key] = "";
+					} elseif (is_array($piVars[$key]) && isset($piVars[$key]['delete'])) $this->dataArr[$key] = "";
 				
 				}
 			}
 		# validate and save formData
 		$this->validateData();
 		
-		return $this->formData;
+		return $this->dataArr;
 		}
 	}
 
@@ -301,7 +265,7 @@ class tx_generaldatadisplay_pi1_categoryForm extends tx_generaldatadisplay_pi1_f
 
 	public function importValues($formData,$piVars=array())
 		{
-		$this->formData = parent::importValues($formData,$piVars);
+		$this->dataArr = parent::importValues($formData,$piVars);
 
 		$this->checkHash['uid'] = 'isInt';
 		$this->checkHash['category_name'] = 'notEmpty';
@@ -310,7 +274,7 @@ class tx_generaldatadisplay_pi1_categoryForm extends tx_generaldatadisplay_pi1_f
 		# validate and save formData
 		$this->validateData();
 
-		return $this->formData;
+		return $this->dataArr;
 		}
 	}
 
@@ -321,59 +285,49 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 
 	public function importValues($formData,$piVars=array())
 		{
-		$this->formData = parent::importValues($formData,$piVars);
+		$this->dataArr = parent::importValues($formData,$piVars);
 
-		if ($datafieldName = $this->getFormValue('datafield_name',true))
+		if ($this->dataArr['datafield_name'])
 			{
-			# restrict length to max 64 chars
-			$this->setFormValue('datafield_name',substr($datafieldName,0,63));
+			# convert / remove some special chars
+			$searchArr = array("/","\\","\"","'","`","<",">","+");
+			$replaceArr = array("|","|");
+			$this->dataArr['datafield_name'] = str_replace($searchArr,$replaceArr,$this->dataArr['datafield_name']);
 
 			# now check if datafieldname is unique
 			$tableColumnHash = tx_generaldatadisplay_pi1_dataList::getColumns();
 
-			$charEncoding = mb_detect_encoding($this->getFormValue('datafield_name'));
+			$charEncoding = mb_detect_encoding($this->dataArr['datafield_name']);
 			foreach(array_keys($tableColumnHash) as $key) 
 				{
 				$key = mb_strtolower($key,$charEncoding);
-				$dataFieldName = mb_strtolower($this->getFormValue('datafield_name'),$charEncoding);
-				$datafieldUid = $this->valueExist('datafield_name',$this->getFormValue('datafield_name'));
+				$dataFieldName = mb_strtolower($this->dataArr['datafield_name'],$charEncoding);
+				$datafieldUid = $this->valueExist('datafield_name',$this->dataArr['datafield_name']);
 				
-				if ($key == $dataFieldName && (!$datafieldUid || $datafieldUid != $this->getFormValue('uid')))
-					$this->formError['datafield_name'][] = 'isUnique';
+				if ($key == $dataFieldName && (!$datafieldUid || $datafieldUid != $this->dataArr['uid']))
+					$this->formError['datafield_name'] = 'isUnique';
 				}
 			}
 
 		$this->checkHash['uid'] = 'isInt';
-		$this->checkHash['datafield_name'] = array('notEmpty',array('invalidDatafieldName' => '/^[[:alnum:]\ _\-\(\)\:\?\=\%§!@\+|]*$/'));
+		$this->checkHash['datafield_name'] = 'notEmpty';
 		$this->checkHash['datafield_type'] = 'isType';
 		$this->checkHash['display_sequence'] = 'isInt';
 
-		$datafieldType = $this->getFormValue('datafield_type') ? $this->getFormValue('datafield_type') : "tinytext";
+		$this->dataArr['meta'] = unserialize($formData['metadata']);
+		$datafieldType = $this->dataArr['datafield_type'] ? $this->dataArr['datafield_type'] : "tinytext";
 		$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$datafieldType);
+		$dataField->checkMetadata($this->dataArr['meta']);
 
-		$metadata = $this->getMetaData();
-		$dataField->cleanMetadata($metadata);
+		$this->checkHash['meta'] = 'existing';
 
 		# validate and save formData
 		$this->validateData();
-
+		
 		# serialize metadata
-		$this->setMetadata($metadata);
+		$this->dataArr['metadata'] = serialize($formData['meta']);
 
-		return $this->formData;
-		}
-
-	public function getMetadata($key='')
-		{
-		$meta = $this->getFormValue('meta',true) ? 
-			$this->getFormValue('meta',true) : unserialize($this->formData->getplain('metadata'));
-		return $key ? $meta[$key] : $meta;
-		}
-
-	public function setMetadata($metadata)
-		{
-		$this->formData->setValue('metadata',serialize($metadata));
-		return $this->getMetaData();
+		return $this->dataArr;
 		}
 	}
 

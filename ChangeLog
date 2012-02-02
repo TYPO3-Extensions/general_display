@@ -12,9 +12,3 @@ Version	Changes
 1.3.0:	New image datatype added
 	New table design makes base64 encoding obsolete
 	A lot of bugfixes & code cleaning
-1.4.0:	Short HTML tag substitutions for textfields implemented
-	Additional searchterms are treated as AND statements 
-	All content is cacheable now
-	Some bugfixes
-1.4.1:	Bugfix release
-1.4.2:	Security fixes & better form checking

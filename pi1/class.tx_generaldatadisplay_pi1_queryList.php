@@ -35,10 +35,15 @@ abstract class tx_generaldatadisplay_pi1_queryList
 	# vars
 	protected $objArr = array();
 	protected $restrictQuery;
-
+	
 	public function __construct()
 		{
 		$this->restrictQuery = "pid=".PID." AND NOT deleted";
+		}
+
+	public function __destruct()
+		{
+		foreach ($this->objArr AS $key => $value) unset($value);
 		}
 
 	public function getProperty($property)
@@ -82,11 +87,10 @@ abstract class tx_generaldatadisplay_pi1_queryList
 
 			# Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
-				{
+				{ 
 				$data = t3lib_div::makeInstance($this->objType);
 				$uid = $data->setProperty("uid",$row['uid']);
-				$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-				$data->setProperty("objVars",$objVars->set($row));
+				$data->setProperty("objVars",$row);
 				$this->objArr[$uid] = $data;
 				}
 			}
@@ -119,9 +123,9 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 	public function getDS($clause="",$range="")
 		{
 		$this->createTempTable();
-
+	
 		$whereClause = $this->restrictQuery.($clause ? " AND ":"").$clause;
-
+		
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
 								$this->table,
 								$where=$whereClause,
@@ -139,8 +143,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 				{
 				$data = t3lib_div::makeInstance($this->objType);
 				$uid = $data->setProperty("uid",$row['uid']);
-				$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-				$data->setProperty("objVars",$objVars->set($row));
+				$data->setProperty("objVars",$row);
 				$this->objArr[$uid] = $data;
 				}
 			}
@@ -193,19 +196,17 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 				if (! $GLOBALS['TYPO3_DB']->sql_error())
 					{
 					while ($dataContentRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataContentSet))
-					if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
+						if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
 
 					# additional fields
 					$dataContent['pid'] = PID;
 					$dataContent['uid'] = $obj->getObjVar('uid');
-					$dataContent['data_title'] = $obj->getObjVar('data_title',true);
+					$dataContent['data_title'] = $obj->getObjVar('data_title');
 					$dataContent['data_category'] = $obj->getObjVar('data_category');
 					$dataContent['category_name'] = $categoryHash[$dataContent['data_category']];
 					$dataContent = $this->addBackTicks($dataContent);
 					# set DS in tempTable
-					$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-					$tempData->setProperty("objVars",$objVars->set($dataContent));
-
+					$tempData->setProperty("objVars",$dataContent);
 					$tempData->newDS();
 					}
 				}
@@ -230,7 +231,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 				# build column hash from datafields
 				$tableColumnHash[$row['datafield_name']] = "text";
 				}
-			}
+			}	
 		return $tableColumnHash;
 		}
 	}
@@ -279,8 +280,7 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 				{ 
 				$data = t3lib_div::makeInstance($this->objType);
 				$uid = $data->setProperty("uid",$row['uid']);
-				$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-				$data->setProperty("objVars",$objVars->set($row));
+				$data->setProperty("objVars",$row);
 				$this->objArr[$uid] = $data;
 				}
 			}
@@ -299,13 +299,13 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 		{
 		$allProgenitors = array();
 
-		while($this->objArr[$dataCategory] && ! $checkLoop[$dataCategory])
+		$objArr = $this->getProperty('objArr');
+		while($objArr[$dataCategory] && ! $checkLoop[$dataCategory])
 			{
 			$checkLoop[$dataCategory] = 1;
-			$dataCategory = $this->objArr[$dataCategory]->getObjVar('category_progenitor');
+			$dataCategory = $objArr[$dataCategory]->getObjVar('category_progenitor');
 			if ($dataCategory) $allProgenitors[] = $dataCategory;
 			}
-
 		return $allProgenitors;
 		}
 	}
@@ -322,7 +322,7 @@ class tx_generaldatadisplay_pi1_datafieldList extends tx_generaldatadisplay_pi1_
 		foreach($this->objArr as $key => $obj)
 			{
 			$objVars = $obj->getProperty('objVars');
-			if ($objVars->get('datafield_name') == $datafieldName) return $objVars->get('uid');
+			if ($objVars['datafield_name'] == $datafieldName) return $objVars['uid'];
 			}
 		return false;
 		}
