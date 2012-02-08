@@ -23,7 +23,8 @@
 ***************************************************************/
 
 /**
- *Query-Class for the 'general_data_display' extension.
+ * query-Class for the 'general_data_display' extension.
+ * provides methods to query data
  *
  * @author	Roderick Braun <roderick.braun@ph-freiburg.de>
  * @package	TYPO3
@@ -35,6 +36,7 @@ abstract class tx_generaldatadisplay_pi1_queryList
 	# vars
 	protected $objArr = array();
 	protected $restrictQuery;
+	protected $whereClause;
 
 	public function __construct()
 		{
@@ -56,17 +58,11 @@ abstract class tx_generaldatadisplay_pi1_queryList
 		{
 		if (isset($this->$property)) unset($this->$property);
 		} 
-
-	public function addBackTicks($var)
+	
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null,$range="")
 		{
-		if (is_array($var)) foreach ($var as $key => $value) $result["`".$key."`"] = $value;
-			else $result = "`".$var."`";
-		return $result; 
-		}
+		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
-	public function getDS($clause="",$range="")
-		{
-		$whereClause = $this->restrictQuery.($clause ? " AND ":"").$clause;
 
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
 								$this->table,
@@ -93,12 +89,12 @@ abstract class tx_generaldatadisplay_pi1_queryList
 		return $this->objArr;	
 		}
 
-	public function getHash($valueField)
+	public function getHash($valueField,$plain=false)
 		{
 		$hash = array();
 
 		foreach ($this->objArr as $key => $obj)
-			$hash[$key] = $obj->getObjVar($valueField);
+			$hash[$key] = $obj->getObjVar($valueField,$plain);
 
 		return $hash;
 		}
@@ -110,17 +106,19 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 	protected $table = "tx_generaldatadisplay_temptable";
 	protected $objType = "tx_generaldatadisplay_pi1_data";
 	protected $orderField = "category_name,data_title";
-	
+	protected static $tableColumnHash = array();
+
+
 	public function __construct()
 		{
 		$this->restrictQuery = "pid=".PID;
 		}
 
-	public function getDS($clause="",$range="")
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null,$range="")
 		{
 		$this->createTempTable();
 
-		$whereClause = $this->restrictQuery.($clause ? " AND ":"").$clause;
+		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
 								$this->table,
@@ -147,6 +145,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 		return $this->objArr;
 		}
+
 
 	private function createTempTable()
 		{
@@ -209,13 +208,22 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 					$tempData->newDS();
 					}
 				}
-			} 
+			}
 		return $GLOBALS['TYPO3_DB']->sql_error() ? false : true;
+		}
+
+	public function addBackTicks($var)
+		{
+		if (is_array($var)) foreach ($var as $key => $value) $result["`".$key."`"] = $value;
+			else $result = "`".$var."`";
+		return $result; 
 		}
 
 	public static function getColumns()
 		{
-		$tableColumnHash = array('pid' => 'int','uid' => 'int','data_title' => 'tinytext','data_category' => 'int','category_name' => 'tinytext');
+		if (!empty(self::$tableColumnHash)) return self::$tableColumnHash;
+
+		self::$tableColumnHash = array('pid' => 'int','uid' => 'int','data_title' => 'tinytext','data_category' => 'int','category_name' => 'tinytext');
 		# get list of datafield names
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('datafield_name,datafield_type',
 								'tx_generaldatadisplay_datafields',
@@ -228,10 +236,11 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
 				# build column hash from datafields
-				$tableColumnHash[$row['datafield_name']] = "text";
+				self::$tableColumnHash[$row['datafield_name']] = "text";
 				}
 			}
-		return $tableColumnHash;
+
+		return self::$tableColumnHash;
 		}
 	}
 
@@ -255,11 +264,11 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 		$this->restrictQuery = "pid=".PID." AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted";
 		}
 
-	public function getDS($clause="")
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null)
 		{
 		$table = $this->table;
 
-		$whereClause = $this->restrictQuery.($clause ? " AND ":"").$clause;
+		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
 		$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datafields.datafield_type,tx_generaldatadisplay_datacontent.uid,tx_generaldatadisplay_datacontent.datacontent,tx_generaldatadisplay_datacontent.datafields_uid',
 								'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields

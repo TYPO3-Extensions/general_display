@@ -23,14 +23,15 @@
 ***************************************************************/
 
 /**
- *DS-Class for the 'general_data_display' extension.
+ * DS-Class for the 'general_data_display' extension.
+ * insert/update/delete methods for used data/tables
  *
  * @author	Roderick Braun <roderick.braun@ph-freiburg.de>
  * @package	TYPO3
  * @subpackage	tx_generaldatadisplay
  */
 
-abstract class tx_generaldatadisplay_pi1_dataSet
+abstract class tx_generaldatadisplay_pi1_dataStructs
 	{
 	# vars
 	protected $uid;
@@ -164,7 +165,7 @@ abstract class tx_generaldatadisplay_pi1_dataSet
 		}
 	}
 
-class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
+class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataStructs
 	{
 	# vars
 	protected $type = "data";
@@ -223,7 +224,11 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 					{
 					# get uid from datacontent
 					$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
-					$objArr = $dataContentList->getDS('data_uid='.$this->uid.' AND datafields_uid='.$datafieldsUid);
+					# instantiate and set clauseObj
+					$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+					$clauseObj->addAND('data_uid',$this->uid,'=');
+					$clauseObj->addAND('datafields_uid',$datafieldsUid,'=');
+					$objArr = $dataContentList->getDS($clauseObj);
 					# there should be maximum one DS
 					if ( count($objArr) <= 1)
 						{
@@ -274,7 +279,7 @@ class tx_generaldatadisplay_pi1_data extends tx_generaldatadisplay_pi1_dataSet
 		}
 	}
 
-class tx_generaldatadisplay_pi1_datacontent extends tx_generaldatadisplay_pi1_dataSet
+class tx_generaldatadisplay_pi1_datacontent extends tx_generaldatadisplay_pi1_dataStructs
 	{
 	# vars
 	protected $type = "datacontent";
@@ -282,7 +287,7 @@ class tx_generaldatadisplay_pi1_datacontent extends tx_generaldatadisplay_pi1_da
 	protected $fields = array('data_uid'=>1,'datafields_uid'=>1,'datacontent'=>1);
 	}
 
-class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataSet
+class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataStructs
 	{
 	# vars
 	protected $type = "category";
@@ -316,7 +321,7 @@ class tx_generaldatadisplay_pi1_category extends tx_generaldatadisplay_pi1_dataS
 		}
 	}
 
-class tx_generaldatadisplay_pi1_datafield extends tx_generaldatadisplay_pi1_dataSet
+class tx_generaldatadisplay_pi1_datafield extends tx_generaldatadisplay_pi1_dataStructs
 	{
 	# vars
 	protected $type = "datafield";
@@ -324,7 +329,7 @@ class tx_generaldatadisplay_pi1_datafield extends tx_generaldatadisplay_pi1_data
 	protected $fields = array('datafield_name'=>1,'datafield_type'=>1,'display_sequence'=>1,'metadata'=>1);
 	}
 
-class tx_generaldatadisplay_pi1_tempdata extends tx_generaldatadisplay_pi1_dataSet
+class tx_generaldatadisplay_pi1_tempdata extends tx_generaldatadisplay_pi1_dataStructs
 	{
 	# vars
 	protected $type = "tempdata";

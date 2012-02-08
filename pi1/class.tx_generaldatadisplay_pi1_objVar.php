@@ -23,7 +23,8 @@
 ***************************************************************/
 
 /**
- *objVar-Class for the 'general_data_display' extension.
+ * objVar-Class for the 'general_data_display' extension.
+ * should be used for all displayed vars
  *
  * @author	Roderick Braun <roderick.braun@ph-freiburg.de>
  * @package	TYPO3

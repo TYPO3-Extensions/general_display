@@ -23,7 +23,8 @@
 ***************************************************************/
 
 /**
- *formData-Class for the 'general_data_display' extension.
+ * formData-Class for the 'general_data_display' extension.
+ * provides methods to import/validate form data 
  *
  * @author	Roderick Braun <roderick.braun@ph-freiburg.de>
  * @package	TYPO3
@@ -186,9 +187,9 @@ abstract class tx_generaldatadisplay_pi1_formData
 
 		else
 			{
-			if ($_FILES[PREFIX_ID]['error'][$key]['select']) $this->formError[$key] = "imgUpload";
-			if ($_FILES[PREFIX_ID]['size'][$key]['select'] > MAXIMGSIZE) $this->formError[$key] = "imgFilesize";  
-			if (!preg_match('/^image\//',$_FILES[PREFIX_ID]['type'][$key]['select'])) $this->formError[$key] = "imgType";
+			if ($_FILES[PREFIX_ID]['error'][$key]['select']) $this->formError[$key] = array('imgUpload');
+			if ($_FILES[PREFIX_ID]['size'][$key]['select'] > MAXIMGSIZE) $this->formError[$key] = array('imgFilesize');  
+			if (!preg_match('/^image\//',$_FILES[PREFIX_ID]['type'][$key]['select'])) $this->formError[$key] = array('imgType');
 
 			return false;
 			}

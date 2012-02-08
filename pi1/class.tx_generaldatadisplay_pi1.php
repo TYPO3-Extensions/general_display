@@ -29,6 +29,7 @@
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once('class.tx_generaldatadisplay_pi1_objVar.php');
+require_once('class.tx_generaldatadisplay_pi1_objClause.php');
 require_once('class.tx_generaldatadisplay_pi1_dataStructs.php');
 require_once('class.tx_generaldatadisplay_pi1_queryList.php');
 require_once('class.tx_generaldatadisplay_pi1_formData.php');
@@ -138,6 +139,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$datafieldHash['data_title'] = array('name' => 'data_title','searchable' => 'yes');
 
 		# set searchClauseArr with selected values
+		# instantiate objClause
+		$this->searchClause = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+
 		if ($this->secPiVars->get('selected_item')) 
 			{
 			if ($this->secPiVars->get('searchphrase'))
@@ -146,7 +150,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$searchphraseArr = preg_split('/\s+/',$this->secPiVars->getplain('searchphrase'));
 			
 				foreach ($searchphraseArr as $key => $searchphrase)
-					$searchClause['searchphrase'][]=array($datafieldHash[$this->secPiVars->get('selected_item')]['name'] => array('value' =>$searchphrase,'operator'=> 'rlike'));
+					$this->searchClause->addOR($datafieldHash[$this->secPiVars->get('selected_item')]['name'],$searchphrase,'rlike');
 				}
 			}
 		elseif ($this->secPiVars->get('searchphrase')) 
@@ -159,14 +163,14 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				if ($arr['searchable']=="yes")
 					{
 					foreach ($searchphraseArr as $key => $searchphrase)
-						$searchClause['searchphrase'][]=array($arr['name'] => array('value' => $searchphrase,'operator'=> 'rlike'));	
+						$this->searchClause->addOR($arr['name'],$searchphrase,'rlike');
 					}
 			}
 
 		if ($this->secPiVars->get('selected_category')) 
 			{
 			# first add this category
-			$searchClause['category'][]=array('data_category' => array('value' =>$this->secPiVars->get('selected_category'),'operator'=> '='));
+			$this->searchClause->addAND('data_category',$this->secPiVars->get('selected_category'),'=','OR');
 			# find all dependend categories
 			$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
 			$categoryList->getDS();
@@ -178,15 +182,13 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				# get all progenitors from category
 				$allProgenitors = $categoryList->getAllProgenitors($key);
 				foreach($allProgenitors as $progenitor)
-					if ($progenitor == $this->secPiVars->get('selected_category'))
-						$searchClause['category'][]=array('data_category' => array('value' =>$key,'operator'=> '='));	
+					{
+					if ($progenitor == $this->secPiVars->get('selected_category')) 
+						$this->searchClause->addAND('data_category',$key,'=','OR');
+					}
 				}
 			
 			}
-		# now build searchclause
-		if ($searchClause['searchphrase']) $searchPhraseClause = $this->createSearchClause($searchClause['searchphrase'],'OR');
-		if ($searchClause['category']) $categoryClause = $this->createSearchClause($searchClause['category'],'OR');
-		$this->searchClause = $searchPhraseClause.($searchPhraseClause && $categoryClause ? " AND " : "").($categoryClause ? $categoryClause : "");  
 
 		# unset action if cancel is pressed
 		if ($this->secPiVars->get('cancel')) $this->secPiVars->delKey('action');
@@ -239,8 +241,12 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					if ($this->secPiVars->get('uid')) # existing DS
 						{
+						# instantiate data list
 						$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->secPiVars->get('type').'List');
-						$objArr = $dataSet->getDS('uid='.$this->secPiVars->get('uid'));
+						# instantiate an set clauseObj
+						$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+						$clauseObj->addAND('uid',$this->secPiVars->get('uid'),'=');
+						$objArr = $dataSet->getDS($clauseObj);
 	
 						if (count($objArr))
 							$formData->importValues($objArr[$this->secPiVars->get('uid')]->getProperty('objVars'),$this->secPiVars);
@@ -317,7 +323,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				if ($this->secPiVars->get('uid'))
 					{
 					$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$this->secPiVars->get('type').'List');
-					$objArr = $dataSet->getDS('uid='.$this->secPiVars->get('uid'));
+					# instantiate an set clauseObj
+					$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+					$clauseObj->addAND('uid',$this->secPiVars->get('uid'),'=');
+					$objArr = $dataSet->getDS($clauseObj);
 
 					if ($objArr)
 						{
@@ -566,7 +575,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 				# instantiate datalist and get DS
 				$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
-				$objArr = $dataList->getDS('uid='.$uid);
+
+				# instantiate and set clauseObj
+				$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+				$clauseObj->addAND('uid',$uid,'=');
+				$objArr = $dataList->getDS($clauseObj);
 
 				# get list of all categories
 				$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
@@ -582,8 +595,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 					# get data fields ...
 					$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
-					$dataContentObjArr = $dataContentList->getDS('tx_generaldatadisplay_datacontent.data_uid='.$uid);
-					
+					# instantiate and set clauseObj
+					$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+					$clauseObj->addAND('data_uid',$uid,'=');
+					$dataContentObjArr = $dataContentList->getDS($clauseObj);
+
 					# & fill template
 					foreach($dataContentObjArr as $key => $obj) 
 						{
@@ -760,7 +776,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 	private function deleteRequest($type='data')
 		{
 		$dataSet = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
-		$objArr = $dataSet->getDS('uid='.$this->secPiVars->get('uid'));
+		# instantiate and set clauseObj
+		$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+		$clauseObj->addAND('uid',$this->secPiVars->get('uid'),'=');
+		$objArr = $dataSet->getDS($clauseObj);
 
 		$obj = $objArr[$this->secPiVars->get('uid')];
 			
@@ -787,7 +806,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 				# get dataContent
 				$dataContentList = t3lib_div::makeInstance(PREFIX_ID.'_datacontentList');
-				$dataContentObjArr = $dataContentList->getDS('tx_generaldatadisplay_datacontent.data_uid='.$this->secPiVars->get('uid'));
+				# instantiate and set clauseObj
+				$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+				$clauseObj->addAND('data_uid',$this->secPiVars->get('uid'),'=');
+				$dataContentObjArr = $dataContentList->getDS($clauseObj);
 					
 				foreach($dataContentObjArr as $key => $obj) $dataContent[$obj->getObjVar('datafield_name')] = $obj->getObjVar('datacontent');
 
@@ -892,36 +914,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			}
 		return 0;
 		}
-
-	private function createSearchClause(array $searchClauseArr,$concat='AND')
-		{
-		foreach($searchClauseArr as $index => $hashArr)
-			{
-			$termArr[key($hashArr)]['value'][] = $hashArr[key($hashArr)]['value'];
-			$termArr[key($hashArr)]['operator'] = $hashArr[key($hashArr)]['operator'];
-			}
-
-		foreach($termArr as $key => $term)
-			{
-			if (is_array($term['value']))
-				{
-				foreach($term['value'] as $index => $value)
-					$expression = $expression ? 
-					$expression." AND `".addslashes($key)."` ".$term['operator']." '".addslashes($value)."'" : 
-					"`".addslashes($key)."` ".$term['operator']." '".addslashes($value)."'";
-				$termArr[$key]['expression'] = "(".$expression.")";
-				}
-			unset($expression);
-			}
-
-		foreach($termArr as $key => $value)
-			{
-			$searchClause.=($searchClause ? " ".$concat." ":"").$value['expression'];
-			 }
-
-		return $searchClause ? "(".$searchClause.")" : "";	
-		}
-
+	
 	private function sessionData($varName,$varContent='',$set=false)
 		{
 		if (!$varName) return false;
@@ -933,12 +926,12 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			} else return $GLOBALS['TSFE']->fe_user->getKey('ses',$this->extKey.'-'.PID.'-'.$varName);
 		}
 
-	private function getOptionsFromTable($type,$field,$selected='',$checkfield='uid',$whereClause='')
+	private function getOptionsFromTable($type,$field,$selected='',$checkfield='uid',tx_generaldatadisplay_pi1_objClause $clauseObj=null)
 		{
 		$options="";
 
 		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
-		$objArr = $typeList->getDS($whereClause);
+		$objArr = $typeList->getDS($clauseObj);
 
 		# Get options
 		foreach($objArr as $key => $obj)
@@ -992,7 +985,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $usedHashArr; 
 		}
 
-	private function formatContentType(tx_generaldatadisplay_pi1_dataSet &$obj)
+	private function formatContentType(tx_generaldatadisplay_pi1_dataStructs &$obj)
 		{
 		$content = $obj->getObjVar('datacontent');
 		$type = $obj->getObjVar('datafield_type');

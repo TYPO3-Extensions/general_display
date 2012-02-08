@@ -23,7 +23,8 @@
 ***************************************************************/
 
 /**
- *dataFields-Class for the 'general_data_display' extension.
+ * dataFields-Class for the 'general_data_display' extension.
+ * provides helper methods for the different datafields 
  *
  * @author	Roderick Braun <roderick.braun@ph-freiburg.de>
  * @package	TYPO3
@@ -32,6 +33,7 @@
 abstract class tx_generaldatadisplay_pi1_dataFields
 	{
 	protected static $table = "tx_generaldatadisplay_datafields";
+	protected static $metaDataHash = array();
 	protected $tmplArr = array();
 	protected $config = array();
 
@@ -66,12 +68,16 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 
 	public static function getMetadata($uid)
 		{
-		# get metadata from datafield table
-		$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
-		$objArr = $datafieldList->getDS('uid='.$uid);
+		if (empty(self::$metaDataHash)) 
+			{
+			# get metadata from datafield table
+			$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
+			$datafieldList->getDS();
+			self::$metaDataHash = $datafieldList->getHash('metadata',true);
+			}
 
-		if (key($objArr))
-			$tmplArr = unserialize($objArr[key($objArr)]->getProperty('objVars')->getplain('metadata'));
+		if (self::$metaDataHash[$uid])
+			$tmplArr = unserialize(self::$metaDataHash[$uid]);
 
 		return $tmplArr ? $tmplArr : array();
 		}

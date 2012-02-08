@@ -18,3 +18,4 @@ Version	Changes
 	Some bugfixes
 1.4.1:	Bugfix release
 1.4.2:	Security fixes & better form checking
+1.4.3:	SQL injection fix
