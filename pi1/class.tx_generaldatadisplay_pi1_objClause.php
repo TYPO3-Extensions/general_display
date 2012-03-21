@@ -34,8 +34,6 @@
 class tx_generaldatadisplay_pi1_objClause
 	{
 	protected $ruleArr = array();
-	protected $andClause = array();
-	protected $orClause = array();
 
 	public function addAND($key,$value,$operator,$concat='AND')
 		{
@@ -51,13 +49,13 @@ class tx_generaldatadisplay_pi1_objClause
 		{
 		# derive and/or inner clauses
 		foreach($this->ruleArr['AND'] as $key => $value)
-			$this->andClause[$key] = $this->innerExpression($this->ruleArr['AND'],$key);
+			$andClause[$key] = $this->innerExpression($this->ruleArr['AND'],$key,$table);
 
 		foreach($this->ruleArr['OR'] as $key => $value)
-			$this->orClause[$key] = $this->innerExpression($this->ruleArr['OR'],$key);
+			$orClause[$key] = $this->innerExpression($this->ruleArr['OR'],$key,$table);
 
-		if ($this->andClause) $clauses[] = '('.implode(' AND ',$this->andClause).')';
-		if ($this->orClause) $clauses[] = '('.implode(' OR ',$this->orClause).')';
+		if ($andClause) $clauses[] = '('.implode(' AND ',$andClause).')';
+		if ($orClause) $clauses[] = '('.implode(' OR ',$orClause).')';
 		
 		# now merge all clauses
 		return implode(' AND ',$clauses);
@@ -72,11 +70,17 @@ class tx_generaldatadisplay_pi1_objClause
 		{
 		foreach($ruleArr[$key] as $index => $rule)
 			{
-			$clause .= 
-				($clause ? " ".$rule['concat']." " : "")
-				."`".$GLOBALS['TYPO3_DB']->quoteStr($key,$table)."`"
-				." ".$rule['operator']." "
-				.$GLOBALS['TYPO3_DB']->fullQuoteStr($rule['value'],$table);
+			# check columname against whitelist
+			$error = tx_generaldatadisplay_pi1_formData::checkValue($key,'plainColumn');
+
+			if (!$error['plainColumn'])
+				{
+				$clause .= 
+					($clause ? " ".$rule['concat']." " : "")
+					."`".$key."`"
+					." ".$rule['operator']." "
+					.$GLOBALS['TYPO3_DB']->fullQuoteStr($rule['value'],$table);
+				}
 			}
 		return '('.$clause.')';
 		}

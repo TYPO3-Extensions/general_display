@@ -102,7 +102,7 @@ abstract class tx_generaldatadisplay_pi1_formData
 			}
 		}
 
-	protected function checkValue($value,$checkarr)
+	static public function checkValue($value,$checkarr)
 		{
 		if (is_scalar($checkarr)) $checkarr = array($checkarr);
 
@@ -150,6 +150,11 @@ abstract class tx_generaldatadisplay_pi1_formData
 				case 'isType':
 				$types = implode('|',tx_generaldatadisplay_pi1_dataFields::getTypes());
 				$error[$check] = preg_match('/^('.$types.')$/',$value) ? 0 : $check;
+				break;
+
+				case 'plainColumn':
+				$charset = mb_detect_encoding($value) ? mb_detect_encoding($value) : 'UTF-8';
+				$error[$check] = preg_match('/^[\wÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØŒÙÚÛÜŸàáâãäåæçèéêëìíîïñòóôõöøœùúûüÿ\ _\-\(\)\:\?\=\%§!@\+|\d]*$/u',iconv($charset,'UTF-8',$value)) ? 0 : $check;
 				break;
 
 				case 'existing':
@@ -349,7 +354,7 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 			}
 
 		$this->checkHash['uid'] = 'isInt';
-		$this->checkHash['datafield_name'] = array('notEmpty',array('invalidDatafieldName' => '/^[[:alnum:]\ _\-\(\)\:\?\=\%§!@\+|]*$/'));
+		$this->checkHash['datafield_name'] = array('notEmpty','plainColumn');
 		$this->checkHash['datafield_type'] = 'isType';
 		$this->checkHash['display_sequence'] = 'isInt';
 
