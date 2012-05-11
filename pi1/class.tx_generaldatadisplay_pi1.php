@@ -100,6 +100,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		# if no piVars set -> set to empty array
 		if (!$this->piVars) $this->piVars = array();
+
+		# trim searchphrase
+		$this->piVars['searchphrase'] = trim($this->piVars['searchphrase']);
+
 		# save piVars as secureable objVars
 		$this->secPiVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
 		$this->secPiVars->set($this->piVars);
@@ -150,7 +154,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$searchphraseArr = preg_split('/\s+/',$this->secPiVars->getplain('searchphrase'));
 			
 				foreach ($searchphraseArr as $key => $searchphrase)
-					$this->searchClause->addOR($datafieldHash[$this->secPiVars->get('selected_item')]['name'],$searchphrase,'rlike');
+					if ($searchphrase)
+						$this->searchClause->addOR($datafieldHash[$this->secPiVars->get('selected_item')]['name'],$searchphrase,'rlike');
 				}
 			}
 		elseif ($this->secPiVars->get('searchphrase')) 
@@ -493,7 +498,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
 				$catObjArr = $categoryList->getDS();
 
-				# get a list of all used categories and progenitors of this view			
+				# get a list of all used categories and progenitors of this view
+				$category = array();
 				foreach($objArr as $key => $obj)
 						{
 						$dataCategory = $obj->getObjVar('data_category');
@@ -693,9 +699,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$dataField->setTmplVar('###DATAFIELD_NAME###',$objVars->get('datafield_name'));
 						$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInDiv($objVars->get('datafield_name'),__FUNCTION__."-dataHeading"));
 						$dataField->setTmplVar('###DATAFIELD_CONTENT###',$formData->getFormValue($objVars->get('datafield_name')));
+
 						# get errors
 						$formErrorDatafield="";
-						foreach ($formError[$objVars->get('datafield_name')] as $key => $value)
+						$ferror = $formError[$objVars->get('datafield_name')] ? $formError[$objVars->get('datafield_name')] : array();
+						foreach ($ferror as $key => $value)
 							{
 							if ($value) 
 								{
@@ -708,7 +716,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$contentArray['###INPUT_DATAFIELDS###'].= $dataField->HTML();
 						}
 					}
-				
 				}
 			break;
 			

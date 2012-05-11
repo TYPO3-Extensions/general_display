@@ -48,17 +48,20 @@ class tx_generaldatadisplay_pi1_objClause
 	public function get($table)
 		{
 		# derive and/or inner clauses
-		foreach($this->ruleArr['AND'] as $key => $value)
+		$ruleArrAND = $this->ruleArr['AND'] ? $this->ruleArr['AND'] : array();
+		$ruleArrOR = $this->ruleArr['OR'] ? $this->ruleArr['OR'] : array();
+
+		foreach($ruleArrAND as $key => $value)
 			$andClause[$key] = $this->innerExpression($this->ruleArr['AND'],$key,$table);
 
-		foreach($this->ruleArr['OR'] as $key => $value)
+		foreach($ruleArrOR as $key => $value)
 			$orClause[$key] = $this->innerExpression($this->ruleArr['OR'],$key,$table);
 
 		if ($andClause) $clauses[] = '('.implode(' AND ',$andClause).')';
 		if ($orClause) $clauses[] = '('.implode(' OR ',$orClause).')';
 		
 		# now merge all clauses
-		return implode(' AND ',$clauses);
+		return $clauses ? implode(' AND ',$clauses) : '';
 		}
 	
 	public function notEmpty()
