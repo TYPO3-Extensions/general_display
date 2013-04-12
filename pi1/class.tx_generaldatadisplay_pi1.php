@@ -1068,7 +1068,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$commonsArray['###PI_BASE###']= PREFIX_ID;
 		$commonsArray['###PLUGINNAME###'] = $this->pi_getClassName('');
 		$commonsArray['###ACTION_URL###']=$this->pi_getPageLink($GLOBALS['TSFE']->id);
-		$commonsArray['###BACK###']=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'return.png" align="top" title="'.$this->pi_getLL('back').'" alt="['.$this->pi_getLL('back').']" />','1','1');
+		$commonsArray['###BACK###']=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'return.png" align="top" title="'.$this->pi_getLL('back').'" alt="['.$this->pi_getLL('back').']" />',array(),'1','1',CURRENT_PID);
 		$commonsArray['###CANCEL###']=$this->pi_getLL('cancel');
 		$commonsArray['###SUBMIT###']=$this->pi_getLL('submit');
 		$commonsArray['###YES###']=$this->pi_getLL('yes');
