@@ -61,7 +61,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		
-		# t3lib_div::debug($this->piVars,'piVars');
+		# t3lib_div::debug($this->piVars,'piVars'); # deprecated in 4.7
+		# t3lib_utility_Debug::debug($this->piVars,'piVars'); # >= 4.7
 		
 		# Init Flex form
 		$this->pi_initPIflexForm();
@@ -210,7 +211,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					}
 				break;
 
-				case preg_match('/^(uid|selected_item|selected_category|offset)$/',$key):
+				case $key=='selected_item':
+					{
+					if (is_numeric($value) || $value == 'data_title') 
+						$this->secPiVars->setValue($key,is_numeric($value) ? intval($this->secPiVars->get($key)) : $this->secPiVars->get($key));
+					else $this->secPiVars->delKey($key);
+					}
+				break;
+
+				case preg_match('/^(uid|selected_category|offset)$/',$key):
 					{
 					if (is_numeric($value)) $this->secPiVars->setValue($key,intval($this->secPiVars->get($key)));
 					else $this->secPiVars->delKey($key);
