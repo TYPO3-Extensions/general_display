@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'This plugin can be used to display any categorizable data. It creates a link list out of your titles and categories which points to detail views of your defined data fields.',
 	'category' => 'plugin',
 	'shy' => 0,
-	'version' => '1.4.3',
+	'version' => '1.4.4',
 	'dependencies' => '',
 	'conflicts' => '',
 	'priority' => '',
@@ -34,6 +34,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'CGLcompliance_note' => '',
 	'constraints' => array(
 		'depends' => array(
+			'typo3' => '4.3.0-4.7.999',
 		),
 		'conflicts' => array(
 		),
