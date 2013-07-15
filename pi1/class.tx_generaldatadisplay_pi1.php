@@ -61,74 +61,76 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		
-		# t3lib_div::debug($this->piVars,'piVars'); # deprecated in 4.7
-		# t3lib_utility_Debug::debug($this->piVars,'piVars'); # >= 4.7
+		# t3lib_utility_Debug::debug($this->piVars,'piVars'); 
 		
 		# Init Flex form
 		$this->pi_initPIflexForm();
 
-		# define picturePath
-		$this->picturePath = t3lib_extMgm::siteRelPath($this->extKey).'images/';
-
 		# globalize some values
-		# prefixId
 		define(PREFIX_ID,$this->prefixId);
-		# get PID from current page	
+		# define PID of current page	
 		define(CURRENT_PID,$GLOBALS['TSFE']->id);
-		# get pid from FlexForm if one is given
-		$pid = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "pages", "general");
-		if (!$pid) $pid = CURRENT_PID;
-		define(PID,$pid);
-		
+		define(DATA_PID,$this->getConfigValue('dataPID','int',CURRENT_PID,'general'));
+		define(LIST_PID,$this->getConfigValue('listViewPID','int',CURRENT_PID,'general'));
+		define(DETAIL_PID,$this->getConfigValue('detailViewPID','int',CURRENT_PID,'general'));
+
 		# get & store permission
 		define(ADM_PERM,$this->isAdmin());
 
-		define(IMGUPLOADPATH,$this->uploadPath."/".PID);
-		define(MAXIMGSIZE,isset($this->conf['maxImageSize']) ? (int)$this->conf['maxImageSize'] : 100000);
-
-		# use configured css, if none is given use standard stylesheet
-		$userStyleFile = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "userStyleSheet","general");
-		$cssFile = $userStyleFile ? $this->uploadPath."/".$userStyleFile : t3lib_extMgm::siteRelPath($this->extKey).'css/default.css';
-		# put stylesheet in Header
-		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '<link rel="stylesheet" href="'.$cssFile.'" type="text/css" />';
-
 		# use configured templates, if none is given use standard template
-		$userTmplFile = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "userTemplateFile","general");
+		$userTmplFile = $this->getConfigValue('userTemplateFile','string','','general');
 		$templateFile = $userTmplFile ? $this->uploadPath."/".$userTmplFile : "EXT:".$this->extKey."/templates/template.html"; 
 
 		# define template
 		define(TEMPLATE,$this->cObj->fileResource($templateFile));
 
+		# set img upload path
+		define(IMGUPLOADPATH,$this->uploadPath."/".DATA_PID);
+
+		# max upload image size
+		define(MAXIMGSIZE,$this->getConfigValue('maxImageSize','int',500000));
+
+		# define picturePath
+		define(PICTURE_PATH,t3lib_extMgm::siteRelPath($this->extKey).'images/');
+
+		# set some other config vars
+		$this->conf['viewMode'] = $this->getConfigValue('viewMode','int',0,'general');
+		$this->conf['initialNoResults'] = $this->getConfigValue('initialNoResults','int',0,'listview');
+		$this->conf['withoutBrowseList'] = $this->getConfigValue('withoutBrowseList','bool',false,'listview');
+
+		# use configured css, if none is given use standard stylesheet
+		$userStyleFile = $this->getConfigValue('userStyleSheet','string','','general');
+		$cssFile = $userStyleFile ? $this->uploadPath."/".$userStyleFile : t3lib_extMgm::siteRelPath($this->extKey).'css/default.css';
+
+		# put stylesheet in Header
+		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '<link rel="stylesheet" href="'.$cssFile.'" type="text/css" />';
+
 		# if no piVars set -> set to empty array
 		if (!$this->piVars) $this->piVars = array();
-
-		# trim searchphrase
-		$this->piVars['searchphrase'] = trim($this->piVars['searchphrase']);
 
 		# save piVars as secureable objVars
 		$this->secPiVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
 		$this->secPiVars->set($this->piVars);
-
 		# get scope
-		$this->scopeArr = unserialize($this->sessionData('scope'));
+		$scopeArr = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
+		$scopeArr->set(unserialize($this->sessionData('scope')));
 
 		# get values from scope if no search is given
-		if ($this->secPiVars->get('action')!='search') 
+		if ($this->secPiVars->get('action') != 'search')
 			{
-			$this->secPiVars->setValue('selected_item',$this->scopeArr['selected_item']);
-			$this->secPiVars->setValue('selected_category',$this->scopeArr['selected_category']);
-			$this->secPiVars->setValue('searchphrase',$this->scopeArr['searchphrase']);
+			$this->secPiVars->setValue('selected_item',$scopeArr->get('selected_item'));
+			$this->secPiVars->setValue('searchphrase',$scopeArr->get('searchphrase'));
+			$this->secPiVars->setValue('selected_category',$scopeArr->get('selected_category'));
 			}
-		if ($this->secPiVars->get('offset')==null) $this->secPiVars->setValue('offset',$this->scopeArr['offset']);
-		
-		# set scopeArray
-		$this->scopeArr['selected_item'] = $this->secPiVars->get('selected_item');
-		$this->scopeArr['selected_category'] = $this->secPiVars->get('selected_category');
-		$this->scopeArr['searchphrase'] = $this->secPiVars->getplain('searchphrase');
-		$this->scopeArr['offset'] = $this->secPiVars->get('offset');
-		# save scopeArray in session
-		$this->sessionData('scope',serialize($this->scopeArr),'true');
+		if ($this->secPiVars->get('offset') == null) $this->secPiVars->setValue('offset',$scopeArr->get('offset'));
+		if ($this->secPiVars->get('selected_letter') == null) $this->secPiVars->setValue('selected_letter',$scopeArr->get('selected_letter'));
 
+		# set scopeArray
+		$scopeArr->setValue('selected_item', $this->secPiVars->get('selected_item'));
+		$scopeArr->setValue('selected_category', $this->secPiVars->get('selected_category'));
+		$scopeArr->setValue('selected_letter', $this->secPiVars->get('selected_letter'));
+		$scopeArr->setValue('searchphrase', $this->secPiVars->getplain('searchphrase'));
+		$scopeArr->setValue('offset', $this->secPiVars->get('offset'));
 		# get all datafields & create hash
 		$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 		$objArr = $datafieldList->getDS();
@@ -181,7 +183,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
 			$categoryList->getDS();
 
-			$usedCategoryProgenitor = $this->getUsedCategoryValues('category_progenitor');
+			$usedCategoryProgenitor = $categoryList->getUsedCategoryValues('category_progenitor');
 			
 			foreach($usedCategoryProgenitor as $key => $value)
 				{
@@ -196,6 +198,33 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			
 			}
 
+		if ($this->secPiVars->get('selected_letter'))
+			{
+			switch($this->secPiVars->get('selected_letter'))
+				{
+				case 'all':
+				break;
+
+				case '0-9':
+				$this->searchClause->addAND('data_title','^[0-9].*','rlike','AND');
+				break;
+
+				default:
+				$this->searchClause->addAND('data_title','^'.$this->secPiVars->get('selected_letter').'.*','rlike','AND');
+				}
+			}
+
+		if ($this->secPiVars->get('search_reset'))
+			{
+			$this->secPiVars->reset();
+			$scopeArr->reset();
+			$this->searchClause->reset();
+			}
+
+		# save scopeArray in session
+		$this->sessionData('scope',serialize($scopeArr->get()),'true');
+
+
 		# unset action if cancel is pressed
 		if ($this->secPiVars->get('cancel')) $this->secPiVars->delKey('action');
 
@@ -206,8 +235,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				{
 				case $key=='type':
 					{
-					if (! preg_match('/^(data|category|datafield)$/',$this->secPiVars->get('type')))
-						$this->secPiVars->setValue('type','data');
+					if (! preg_match('/^(data|category|datafield)$/',$this->secPiVars->get($key)))
+						$this->secPiVars->setValue($key,'data');
 					}
 				break;
 
@@ -216,6 +245,13 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					if (is_numeric($value) || $value == 'data_title') 
 						$this->secPiVars->setValue($key,is_numeric($value) ? intval($this->secPiVars->get($key)) : $this->secPiVars->get($key));
 					else $this->secPiVars->delKey($key);
+					}
+				break;
+
+				case $key=='selected_letter':
+					{
+					if (!preg_match('/^([A-Z]|0\-9|all|)$/',$this->secPiVars->get($key)))
+						$this->searchClause->reset();
 					}
 				break;
 
@@ -261,7 +297,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$clauseObj = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
 						$clauseObj->addAND('uid',$this->secPiVars->get('uid'),'=');
 						$objArr = $dataSet->getDS($clauseObj);
-	
+
 						if (count($objArr))
 							$formData->importValues($objArr[$this->secPiVars->get('uid')]->getProperty('objVars'),$this->secPiVars);
 						} else 
@@ -276,7 +312,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 			case 'update-sequence':
 				{
-				if (ADM_PERM && $this->secPiVars->get('uid'))
+				if ($this->secPiVars->get('uid'))
 					{
 					$datafields = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 					$objArr = $datafields->getDS();
@@ -361,7 +397,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function view()
 		{
-		# get view from piVars
+		if (!$this->secPiVars->get('view') && $this->conf['viewMode'] <= 2) $this->secPiVars->setValue('view',$this->conf['viewMode']);
+		# get view
 		switch ($this->secPiVars->get('view'))
 			{
 			case 1: # listview
@@ -383,7 +420,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		}
 
 	private function tableView($type='data')
-		{	
+		{
 		# commons
 		$commonsArray = $this->makeCommonsArray();
 		$optionArray = $this->makeOptionArray();
@@ -414,13 +451,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					foreach($objArr as $key => $obj)
 						{
 						# get objVars
-						$contentArray['###TABLE_ROW###'] = $obj->getObjVar('category_name');
+						$contentArray['###TABLE_ROW###'] = $this->wrapInTag($obj->getObjVar('category_name'),__FUNCTION__."-categorylvl".$obj->getObjVar('level'),'span');
 						$contentArray['###ADMINSTUFF###'] = $this->makeAdminStuff($key,$type);
 						$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);
 						$contentAll['###TABLE_CONTENT###'].= $this->cObj->substituteMarkerArrayCached($singlerow,$contentArrayCSS);
 						}
 					} else $contentAll['###TABLE_CONTENT###']="";
-				$contentAll['###TABLE_HEADING###'] = $this->pi_getLL('all_categories');
+				$contentAll['###TABLE_HEADING###'] = $this->wrapInTag($this->getLL('categories'),__FUNCTION__.'-heading');
+				$createLink = $this->wrapInTag($this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'create.png" title="'.$this->getLL('new_category').'" alt="['.$this->getLL('new_category').']" />',array('action' => 'update', 'type' => 'category'),'1','1'),__FUNCTION__.'-admincreate');
+				$contentAll['###ADMIN_CREATE###'] = ADM_PERM ? $createLink : '';
 				}
 			break;
 
@@ -438,7 +477,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$contentAll['###TABLE_CONTENT###'].= $this->cObj->substituteMarkerArrayCached($singlerow,$contentArrayCSS);
 						}
 					} else $contentAll['###TABLE_CONTENT###']="";
-				$contentAll['###TABLE_HEADING###'] = $this->pi_getLL('all_items');		
+				$contentAll['###TABLE_HEADING###'] = $this->wrapInTag($this->getLL('datafields'),__FUNCTION__.'-heading');	
+				$createLink = $this->wrapInTag($this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'create.png" title="'.$this->getLL('new_datafield').'" alt="['.$this->getLL('new_datafield').']" />',array('action' => 'update', 'type' => 'datafield'),'1','1'),__FUNCTION__.'-admincreate');
+				$contentAll['###ADMIN_CREATE###'] = ADM_PERM ? $createLink : '';
 				}
 			break;
 			}
@@ -457,16 +498,35 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$headingsArrayCSS = $this->wrapTemplateArrayInClass($this->makeHeadingsArray(),__FUNCTION__);
 		$commonsArray = array_merge($commonsArray,$headingsArrayCSS);
 
-		$nrPageResults = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "nrPageResults","general");
-		$nrMaxPages = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], "nrMaxPages","general");
+		$nrPageResults = $this->getConfigValue('nrPageResults','int',0,'listview');
+		$nrMaxPages = $this->getConfigValue('nrMaxPages','int',5,'listview');
 
 		switch ($type)
 			{	
-			case 'data':
+			default:
 				{
 				# build option menu
 				$optionField=$this->cObj->getSubpart(TEMPLATE,'###OPTION_FIELD###');
-				$contentArray['###OPTIONS###'] = $this->cObj->substituteMarkerArrayCached($optionField,$commons);
+
+				# include browselist
+				$browseList = $this->makeBrowseList(array('0-9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','all'),'selected_letter',__FUNCTION__,'|',$this->secPiVars->get('selected_letter'));
+				$commons['###BROWSELIST###'] = !$this->conf['withoutBrowseList'] ? $this->wrapInTag($browseList,"optionfield-browselist") : '';
+				$commons['###HEADING_SEARCH###'] = $this->wrapInTag($this->getLL('search'),'heading_search');
+				$commons['###SEARCH_RESET###'] = $this->wrapInTag($this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'reset.png" title="'.$this->getLL('reset').'" alt="['.$this->getLL('reset').']" />',array('search_reset' => 1),'1','1',LIST_PID),'optionfield-reset','');
+				$contentArray['###OPTIONFIELD###'] = $this->cObj->substituteMarkerArrayCached($optionField,$commons);
+
+				# no initial data display ?
+				if 	($this->conf['initialNoResults'] == 1 && 
+					!$this->secPiVars->get('action') && 
+					!$this->secPiVars->get('back') &&
+					!$this->secPiVars->get('selected_letter') &&
+					$this->secPiVars->get('offset') == ''
+					) 
+					{
+					# use template subpart
+					$subpart=$this->cObj->getSubpart(TEMPLATE,'###SEARCHONLY###');
+					return $this->cObj->substituteMarkerArrayCached($subpart,$contentArray);
+					}
 
 				# use template subpart
 				$subpart=$this->cObj->getSubpart(TEMPLATE,'###LIST-DATAVIEW###');
@@ -474,12 +534,13 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 				# instantiate datalist
 				$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
+				
 				$objArr = $dataList->getDS($this->searchClause);
 
 				# count results
 				$nrResults = count($objArr);
 
-				$contentArray['###HITS###'] = "(".$nrResults." ".$this->pi_getLL('hits').")";	
+				$contentArray['###HITS###'] = "(".$nrResults." ".$this->getLL('hits').")";	
 
 				# defined display limit ?
 				if ($nrPageResults && $nrPageResults < $nrResults)
@@ -491,16 +552,18 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$index = intval($offset / ($nrPageResults * $nrMaxPages));
 					$from = $index*$nrMaxPages*$nrPageResults;
 					$to = ($from + $nrMaxPages*$nrPageResults) > $nrResults ? $nrResults : $from + $nrMaxPages*$nrPageResults;
-					if ($from > 0) $contentArray['###PAGELINKS###'] = $this->wrapInSpan($this->pi_linkTP_keepPIvars("<<",array('offset' => $from-$nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink");
-					if ($offset) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("<",array('offset' => $offset - $nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink");
+					if ($from > 0) $contentArray['###PAGELINKS###'] = $this->wrapInTag($this->pi_linkTP_keepPIvars("<<",array('offset' => $from-$nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink","");
+					if ($offset) $contentArray['###PAGELINKS###'] .= $this->wrapInTag($this->pi_linkTP_keepPIvars("<",array('offset' => $offset - $nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink","");
 					for ($i=$from; $i < $to; $i=$i+$nrPageResults)
 						{
 						$index1 = $i;
 						$index2 = ($i+$nrPageResults-1) >= $nrResults ? $nrResults-1 : $i+$nrPageResults-1;
-						$contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars("[".($index1==$index2 ? ($index1+1) : ($index1+1)."-".($index2+1))."]",array('offset' => $index1, 'type' =>'data'),'1','1'),__FUNCTION__.($this->secPiVars->get('offset')==$index1 ? "-pageLinkActive" : "-pageLink"));
+						$contentArray['###PAGELINKS###'] .= $this->secPiVars->get('offset')!=$index1 ? 
+							$this->wrapInTag($this->pi_linkTP_keepPIvars("[".($index1==$index2 ? ($index1+1) : ($index1+1)."-".($index2+1))."]",array('offset' => $index1, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink","") :
+							$this->wrapInTag("[".($index1==$index2 ? ($index1+1) : ($index1+1)."-".($index2+1))."]",__FUNCTION__."-pageLink-active","span");
 						}
-					if (($offset + $nrPageResults) < $nrResults) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">",array('offset' => $offset + $nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink");
-					if ($index2 < $nrResults-1) $contentArray['###PAGELINKS###'] .= $this->wrapInSpan($this->pi_linkTP_keepPIvars(">>",array('offset' => $index2+1, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink"); 
+					if (($offset + $nrPageResults) < $nrResults) $contentArray['###PAGELINKS###'] .= $this->wrapInTag($this->pi_linkTP_keepPIvars(">",array('offset' => $offset + $nrPageResults, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink","");
+					if ($index2 < $nrResults-1) $contentArray['###PAGELINKS###'] .= $this->wrapInTag($this->pi_linkTP_keepPIvars(">>",array('offset' => $index2+1, 'type' =>'data'),'1','1'),__FUNCTION__."-pageLink",""); 
 					} else $contentArray['###PAGELINKS###'] = "";
 					
 				# get list of all categories
@@ -531,8 +594,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$catProgenitors = $categoryList->getAllProgenitors($key);
 					foreach($catProgenitors as $catProgenitor)
 						$categorySortHash[$key] = $categoryRanking[$catProgenitor].$categorySortHash[$key]; 
-					 # get category level
-					$categoryLvlHash[$key] = count($catProgenitors);
 					}
 				asort($categorySortHash,SORT_STRING);
 
@@ -540,7 +601,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				foreach($objArr as $key => $obj)
 						{
 						$dataCategory = $catObjArr[$obj->getObjVar('data_category')] ? $obj->getObjVar('data_category') : 0;
-						$orderedList[$dataCategory] .=  $this->wrapInDiv($this->pi_linkTP_keepPIvars($obj->getObjVar('data_title'),array('uid' => $key, 'view' => '2', 'type' =>'data'),'1','1'),__FUNCTION__."-title");	
+						$orderedList[$dataCategory] .=  $this->wrapInTag($this->pi_linkTP_keepPIvars($obj->getObjVar('data_title'),array('uid' => $key, 'view' => '2', 'type' =>'data'),'1','1',DETAIL_PID),__FUNCTION__."-title");	
 						# set all progenitors if nescessary
 						foreach($categoryList->getAllProgenitors($dataCategory) as $catProgenitor) 
 							$progenitorList[$catProgenitor] = 1;
@@ -551,16 +612,16 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					if ($orderedList[$dataCategory] || $progenitorList[$dataCategory])
 						{
-						$contentArray['###CATEGORY-NAME###'] = $this->wrapInDiv($catObjArr[$dataCategory] ? $catObjArr[$dataCategory]->getObjVar('category_name') : $this->pi_getLL('no_category'),__FUNCTION__."-category-name");
+						$contentArray['###CATEGORY-NAME###'] = $this->wrapInTag($catObjArr[$dataCategory] ? $catObjArr[$dataCategory]->getObjVar('category_name') : $this->getLL('no_category'),__FUNCTION__."-category-name");
 						$contentArray['###DATA-TITLE###'] = $orderedList[$dataCategory];
-						$contentArray['###LISTDATA###'] .= $this->wrapInDiv($this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray),__FUNCTION__."-categorylvl".$categoryLvlHash[$dataCategory]);
+						$contentArray['###LISTDATA###'] .= $this->wrapInTag($this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray),__FUNCTION__."-categorylvl".$catObjArr[$dataCategory]->getObjVar('level'));
 						}
 					}
 
 				if (! $contentArray['###LISTDATA###'])
 					{ 
 					$contentArray['###CATEGORY-NAME###'] = "";
-					$contentArray['###LISTDATA###']=$this->pi_getLL('no_data');
+					$contentArray['###LISTDATA###']=$this->getLL('no_data');
 					}
 				$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);	
 				$contentAll = array_merge($contentArrayCSS,$commonsArray);
@@ -573,12 +634,13 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function singleView($uid,$type='data')
 		{
-		if (!$uid) return;
+		if (!$uid) return $this->showError('error_missing_uid');
 
 		# commons
 		$commonsArray = $this->makeCommonsArray();
 		$headingsArrayCSS = $this->wrapTemplateArrayInClass($this->makeHeadingsArray(),__FUNCTION__);
 		$commonsArray = array_merge($commonsArray,$headingsArrayCSS);		
+		$contentArray = array();
 
 		switch ($type)
 			{	
@@ -626,16 +688,16 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						if ($value && $metadata['content_visible']!="no")
 							{
 							# standard template uses Detaildata - but you can also use your own template & "real" names
-							$contentArray['###HEADING_'.strtoupper($fieldName).'###'] = $this->wrapInDiv($fieldName,__FUNCTION__."-dataHeading");
-							$contentArray['###'.strtoupper($key).'###'] = $this->wrapInDiv($this->pi_getLL($value) ? $this->pi_getLL($value) : $value,__FUNCTION__."-dataContent");	
-							$contentArray['###HEADING_DATACONTENT###'] = $this->wrapInDiv($fieldName,__FUNCTION__."-dataHeading");
-							$contentArray['###DATACONTENT###'] = $this->wrapInDiv($value,__FUNCTION__."-dataContent");
+							$contentArray['###HEADING_'.strtoupper($fieldName).'###'] = $this->wrapInTag($fieldName,__FUNCTION__."-dataHeading");
+							$contentArray['###'.strtoupper($key).'###'] = $this->wrapInTag($this->getLL($value) ? $this->getLL($value) : $value,__FUNCTION__."-dataContent");	
+							$contentArray['###HEADING_DATACONTENT###'] = $this->wrapInTag($fieldName,__FUNCTION__."-dataHeading");
+							$contentArray['###DATACONTENT###'] = $this->wrapInTag($value,__FUNCTION__."-dataContent");
 							$contentArray['###DETAILDATA###'].= $this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray);
 							}
 
 						}
 
-					} 
+					}  else return $this->showError('dberror_no_dataset');
 				$contentArrayCSS = $this->wrapTemplateArrayInClass($contentArray,__FUNCTION__);	
 				$contentAll = array_merge($contentArrayCSS,$commonsArray);
 				$content = $this->cObj->substituteMarkerArrayCached($subpart,$contentAll);
@@ -674,7 +736,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				if ($value && array_key_exists($templKeyword,$contentArray)) 
 					{ 
 					$contentArray[$templKeyword].=
-						$this->wrapInDiv(($this->pi_getLL('error_'.$value) ? $this->pi_getLL('error_'.$value) : 'error_'.$value),__FUNCTION__.'-formerror');
+						$this->wrapInTag($this->getLL('error_'.$value),__FUNCTION__.'-formError');
 					}
 				}
 			}
@@ -690,11 +752,14 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 				$subpart = "###EDIT_DATA###";				
 				# set contentArray
-				$contentArray['###DATA_TITLE###']=$formData->getFormValue('data_title');	
-				$categoryOptions = $this->getOptionsFromTable('category','category_name',$formData->getFormValue('data_category'));
-				$contentArray['###DATA_CATEGORY_OPTIONS###'] = $categoryOptions ? $categoryOptions : '<option value="">'.$this->pi_getLL('empty_category').'</option>';
+				$contentArray['###DATA_TITLE###']=$formData->getFormValue('data_title');
+
+				$categoryList = $datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+				$categoryList->getDS();
+				$categoryOptions = $categoryList->getOptionSelect('category_name',$formData->getFormValue('data_category'));
+				$contentArray['###DATA_CATEGORY_OPTIONS###'] = $categoryOptions ? $categoryOptions : '<option value="">'.$this->getLL('empty_category').'</option>';
 				
-				if (! $objArr) $contentArray['###INPUT_DATAFIELDS###']=$this->pi_getLL('no_datafields'); 
+				if (! $objArr) $contentArray['###INPUT_DATAFIELDS###']=$this->getLL('no_datafields'); 
 				
 				foreach($objArr as $key => $obj)
 					{
@@ -706,7 +771,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$objVars->get('datafield_type'));
 						$dataField->setTmplArr($contentArray);
 						$dataField->setTmplVar('###DATAFIELD_NAME###',$objVars->get('datafield_name'));
-						$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInDiv($objVars->get('datafield_name'),__FUNCTION__."-dataHeading"));
+						$dataField->setTmplVar('###HEADING_DATAFIELD###',$this->wrapInTag($objVars->get('datafield_name'),__FUNCTION__."-dataHeading"));
 						$dataField->setTmplVar('###DATAFIELD_CONTENT###',$formData->getFormValue($objVars->get('datafield_name')));
 
 						# get errors
@@ -717,7 +782,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 							if ($value) 
 								{
 								$formErrorDatafield.=
-									$this->wrapInDiv(($this->pi_getLL('error_'.$value) ? $this->pi_getLL('error_'.$value) : 'error_'.$value),__FUNCTION__.'-formerror');
+									$this->wrapInTag(($this->getLL('error_'.$value) ? $this->getLL('error_'.$value) : 'error_'.$value),__FUNCTION__.'-formError');
 								}
 							}
 						$dataField->setTmplVar('###DATAFIELD_CONTENT_ERROR###',$formErrorDatafield ? $formErrorDatafield : "");
@@ -730,9 +795,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			
 			case 'category':
 				{
+
 				$subpart = "###EDIT_CATEGORY###";
 				$contentArray['###CATEGORY_NAME###']=$formData->getFormValue('category_name');
-				$contentArray['###DATA_SUBCATEGORY_OPTIONS###']="<option value='0'></option>".$this->getOptionsFromTable('category','category_name',$formData->getFormValue('category_progenitor'));
+				$restrictClause = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
+				$restrictClause->addAND('category_name',$formData->getFormValue('category_name'),'!=');
+				# build subcategories option select
+				$categoryList = $datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+				$categoryList->getDS($restrictClause);
+				$contentArray['###DATA_SUBCATEGORY_OPTIONS###']='<option value="0"></option>'.$categoryList->getOptionSelect('category_name',$formData->getFormValue('category_progenitor'),false,'uid');
 				}
 			break;
 			
@@ -758,8 +829,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{	
 					case 'img':
 						{
-						$dataField->setTmplVar('###HEADING_IMGSIZE###',$this->pi_getLL('img_size'));
-						$dataField->setTmplVar('###HEADING_IMGALIGN###',$this->pi_getLL('img_align'));
+						$dataField->setTmplVar('###HEADING_IMGSIZE###',$this->getLL('img_size'));
+						$dataField->setTmplVar('###HEADING_IMGALIGN###',$this->getLL('img_align'));
 						$dataField->setTmplVar('###CONTENT_IMGSIZE_X###',$formData->getMetadata('img_size_x'));
 						$dataField->setTmplVar('###CONTENT_IMGSIZE_Y###',$formData->getMetadata('img_size_y'));
 						$configArr = $dataField->getProperty('config');
@@ -769,17 +840,16 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					
 					default:
 						{
-						$dataField->setTmplVar('###HEADING_REQUIRED###',$this->pi_getLL('required'));
-						$dataField->setTmplVar('###HEADING_SEARCHABLE###',$this->pi_getLL('searchable'));
-						$dataField->setTmplVar('###HEADING_CONTENT_VISIBLE###',$this->pi_getLL('visible'));
+						$dataField->setTmplVar('###HEADING_REQUIRED###',$this->getLL('required'));
+						$dataField->setTmplVar('###HEADING_SEARCHABLE###',$this->getLL('searchable'));
+						$dataField->setTmplVar('###HEADING_CONTENT_VISIBLE###',$this->getLL('visible'));
 						$dataField->setTmplVar('###DATAFIELD_REQUIRED###',$formData->getMetadata('datafield_required')=='yes' ? 'checked="checked"' : '');
 						$dataField->setTmplVar('###DATAFIELD_SEARCHABLE###',$formData->getMetadata('datafield_searchable')=='yes' ? 'checked="checked"' : '');
 						$dataField->setTmplVar('###CONTENT_VISIBLE###',$formData->getMetadata('content_visible')=='yes' ? 'checked="checked"' : '');
 						}
 					}
 
-				$datafieldConf = $this->cObj->getSubpart(TEMPLATE,$datafieldConfPart);
-				$contentArray['###DATAFIELD_CONFIG###'] = $this->wrapInDiv($dataField->HTML('config'),__FUNCTION__."-datafieldConfig");
+				$contentArray['###DATAFIELD_CONFIG###'] = $this->wrapInTag($dataField->HTML('config'),__FUNCTION__."-datafieldConfig");
 				}
 			break;
 			}
@@ -835,7 +905,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					$dataSub=$this->cObj->getSubpart(TEMPLATE,'###DELETE_REQUEST_DETAILS_DATAROW###');
 					foreach($dataContent as $key => $value) 
 						{
-						$contentDataArr['###HEADING_DATA_CONTENT###'] = $this->wrapInDiv($key,__FUNCTION__."-dataHeading");
+						$contentDataArr['###HEADING_DATA_CONTENT###'] = $this->wrapInTag($key,__FUNCTION__."-dataHeading");
 						$contentDataArr['###DATA_CONTENT###'] = $value;
 						$contentArray['###DATAROWS###'] .= $this->cObj->substituteMarkerArrayCached($dataSub,$contentDataArr);
 						}
@@ -854,7 +924,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				{
 				$details='###DELETE_REQUEST_DETAILS_DATAFIELD###';
 				$contentArray['###DATAFIELD###'] = $objVars->get('datafield_name');
-				$contentArray['###DATAFIELD_TYPE###'] = $this->pi_getLL($objVars->get('datafield_type'));
+				$contentArray['###DATAFIELD_TYPE###'] = $this->getLL($objVars->get('datafield_type'));
 				}
 			break;
 			}
@@ -874,8 +944,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		
 		$commonsArray = $this->makeCommonsArray();
 
-		$contentArray['###HEADING_ERROR###'] = $this->wrapInDiv($this->pi_getLL('error'),__FUNCTION__.'-heading');
-		$contentArray['###ERRORTEXT###'] = $this->wrapInDiv($this->pi_getLL($errorCode) ? $this->pi_getLL($errorCode) : $errorCode,__FUNCTION__.'-text');
+		$contentArray['###HEADING_ERROR###'] = $this->wrapInTag($this->getLL('error'),__FUNCTION__.'-heading');
+		$contentArray['###ERRORTEXT###'] = $this->wrapInTag($this->getLL($errorCode) ? $this->getLL($errorCode) : $errorCode,__FUNCTION__.'-text');
 		
 		$contentAll = array_merge($commonsArray,$contentArray);
 		$content = $this->cObj->substituteMarkerArrayCached($subpart,$contentAll);
@@ -894,29 +964,29 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if ($GLOBALS['BE_USER']->user['admin']) return 1;
 			
 			# check if BE user have permission to edit the datapage
-			$dataArray = t3lib_BEfunc::getRecord('pages', PID);
+			$dataArray = t3lib_BEfunc::getRecord('pages', DATA_PID);
 			if ($GLOBALS['BE_USER']->doesUserHaveAccess($dataArray,2)) return 1;
 			}
 
 		# check FE permission
-		# normal user has to be logged in and on the right page
-		if ($GLOBALS['TSFE']->loginUser && (PID==CURRENT_PID)) 
+		# FE user has to be logged in
+		if ($GLOBALS['TSFE']->loginUser) 
 			{
 			# get flexform data users & groups
-			$flexUsers = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],"users","administration");
-			$flexGroups = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],"groups","administration");
+			$flexUsers = $this->getConfigValue('feAdminUsers','string','','administration');
+			$flexGroups = $this->getConfigValue('feAdminGroups','string','','administration');
 
 			# if users & groups 
 			if ($flexUsers || $flexGroups)
  				{
 				# array from flexform users & groups
-				$flexUsersArr = explode(",",$flexUsers);
-				$flexGroupsArr = explode(",",$flexGroups);
+				$flexUsersArr = explode(',',$flexUsers);
+				$flexGroupsArr = explode(',',$flexGroups);
 
 				# uid from session
 				$sessUser=$GLOBALS['TSFE']->fe_user->user['uid'];
-				# array aus session users & groups erstellen
-				$sessGroupArr=explode(",",$GLOBALS['TSFE']->fe_user->user['usergroup']);
+				# create array from user & groups
+				$sessGroupArr=explode(',',$GLOBALS['TSFE']->fe_user->user['usergroup']);
 
 				# Check permission
 				# is user in userlist
@@ -937,25 +1007,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		if ($set && $varContent)
 			{
-			$GLOBALS['TSFE']->fe_user->setKey('ses',$this->extKey.'-'.PID.'-'.$varName,$varContent);
+			$GLOBALS['TSFE']->fe_user->setKey('ses',$this->extKey.'-'.DATA_PID.'-'.$varName,$varContent);
+			$GLOBALS['TSFE']->fe_user->sesData_change = true;
+			$GLOBALS['TSFE']->fe_user->storeSessionData();	
 			return true;
-			} else return $GLOBALS['TSFE']->fe_user->getKey('ses',$this->extKey.'-'.PID.'-'.$varName);
-		}
-
-	private function getOptionsFromTable($type,$field,$selected='',$checkfield='uid',tx_generaldatadisplay_pi1_objClause $clauseObj=null)
-		{
-		$options="";
-
-		$typeList = t3lib_div::makeInstance(PREFIX_ID.'_'.$type.'List');
-		$objArr = $typeList->getDS($clauseObj);
-
-		# Get options
-		foreach($objArr as $key => $obj)
-			{
-			$objVars = $obj->getObjVar($checkfield);
-			$options.='<option value="'.$obj->getObjVar($checkfield).(($obj->getObjVar($checkfield)==$selected) ? '" selected>' : '">').$obj->getObjVar($field).'</option>';
-			}
-		return $options;
+			} else return $GLOBALS['TSFE']->fe_user->getKey('ses',$this->extKey.'-'.DATA_PID.'-'.$varName);
 		}
 
 	private function getOptionsFromArr(array $optionArr,$selected='',$locale=false)
@@ -964,41 +1020,18 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		foreach ($optionArr as $key => $value)
 			{
-			$value = $locale ? $this->pi_getLL($value) : $value;
-			if ($value) 
-				$options.='<option value="'.$key.(($key==$selected) ? '" selected>' : '">').$value.'</option>';
+			$value = $locale ? $this->getLL($value) : $value;
+			if ($value)
+				{
+				$optionEntry = '<option value="'.$key.(($key==$selected) ? '" selected>' : '">').$value.'</option>';
+				# add level class
+				$optionEntry = $this->cObj->addParams($optionEntry,array('class' => $this->pi_getClassName().'optionfield'));
+				
+				$options .= $optionEntry;
+				}
 			}
 
 		return $options;
-		}
-
-	private function getUsedCategoryValues($valueField)
-		{
-		# returns an array of used values of the category table
-		$usedHashArr = array();
-		
-		# get all relevant data
-		$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
-		$dataObjArr = $dataList->getDS();
-
-		$catList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
-		$catObjArr = $catList->getDS();
-
-		foreach($dataObjArr as $key => $obj)
-			{
-			$dataCategory = $obj->getObjVar('data_category');
-			if (! $usedHashArr[$dataCategory])
-				{
-				if ($catObjArr[$dataCategory]) $usedHashArr[$dataCategory] = $catObjArr[$dataCategory]->getObjVar($valueField);
-				# get all progenitors of this category
-				$categoryProgenitors = $catList->getAllProgenitors($dataCategory);
-				foreach($categoryProgenitors as $progenitor)
-					if ($catObjArr[$progenitor]) $usedHashArr[$progenitor] = $catObjArr[$progenitor]->getObjVar($valueField);
-				}
-			}
-		asort($usedHashArr);
-
-		return $usedHashArr; 
 		}
 
 	private function formatContentType(tx_generaldatadisplay_pi1_dataStructs &$obj)
@@ -1006,7 +1039,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$content = $obj->getObjVar('datacontent');
 		$type = $obj->getObjVar('datafield_type');
 
-		if (! $content) return;
+		if (!$content) return;
 
 		switch ($type)
 			{
@@ -1024,7 +1057,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;	
 
 			case 'bool':
-			$content = $this->pi_getLL($content);
+			$content = $this->getLL($content);
 			break;
 
 			case 'img':
@@ -1033,7 +1066,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if ($metadata['img_size_x']) $imgSizeArr[] = 'width="'.$metadata['img_size_x'].'"';
 			if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
-			$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ',$imgSizeArr).' /></div>';
+			$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->getLL('img').'" '.implode(' ',$imgSizeArr).' /></div>';
 			break;
 
 			case 'text':
@@ -1045,6 +1078,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 							      '/%{2}(([^%]|%[^%])*)%{2}/' => '<tt>$1</tt>', # teletyper
 							      '/\^{2}(([^\^]|\^[^\^])*)\^{2}/' => '<sup>$1</sup>', # superscript
 							      '/\,{2}(([^\,]|\,[^\,])*)\,{2}/' => '<sub>$1</sub>', # subscript
+							      '/\{{2}([^\{\}]*)\}{2}/' => 'list', # list
 							      '/\[{2}(([^\[]|\[[^\[])*)\|(([^\[]|\[[^\[])*)\]{2}/' => 'link', # normal link
 							      '/\[{2}(([^\[]|\[[^\[])*)\]{2}/' =>'link' # short link
 							);
@@ -1055,6 +1089,26 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					switch ($regex)
 						{
+						case '/\{{2}([^\{\}]*)\}{2}/':
+						# remove linebreaks
+						$listItems = preg_replace('/<br \/>/','',$matches[1]);
+
+						if (preg_match('/\*([^\*]*)/',$listItems))
+							{
+							while(preg_match('/\*([^\*]*)/',$listItems))
+								{
+								$listItems = preg_replace('/\*([^\*]*)/','<li>$1</li>',$listItems);
+								}
+							$replace = '<ul>'.$listItems.'</ul>';
+							} else { 
+							while(preg_match('/\-([^\-]*)/',$listItems))
+								{
+								$listItems = preg_replace('/\-([^\-]*)/','<li>$1</li>',$listItems);
+								}
+							$replace = '<ol>'.$listItems.'</ol>';
+							}
+
+						break;
 						case '/\[{2}(([^\[]|\[[^\[])*)\|(([^\[]|\[[^\[])*)\]{2}/':
 						$replace = $this->cObj->typoLink($matches[3],array('parameter' => $matches[1],'extTarget' => '_blank'));
 						break;
@@ -1076,30 +1130,30 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		{
 		$commonsArray['###PI_BASE###']= PREFIX_ID;
 		$commonsArray['###PLUGINNAME###'] = $this->pi_getClassName('');
-		$commonsArray['###ACTION_URL###']=$this->pi_getPageLink($GLOBALS['TSFE']->id);
-		$commonsArray['###BACK###']=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'return.png" align="top" title="'.$this->pi_getLL('back').'" alt="['.$this->pi_getLL('back').']" />',array(),'1','1',CURRENT_PID);
-		$commonsArray['###CANCEL###']=$this->pi_getLL('cancel');
-		$commonsArray['###SUBMIT###']=$this->pi_getLL('submit');
-		$commonsArray['###YES###']=$this->pi_getLL('yes');
-		$commonsArray['###NO###']=$this->pi_getLL('no');
-		$commonsArray['###OK###'] = $this->pi_getLL('ok');
+		$commonsArray['###ACTION_URL###']=$this->pi_getPageLink(LIST_PID);
+		$commonsArray['###BACK###']=$this->wrapInTag($this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'return.png" title="'.$this->getLL('back').'" alt="['.$this->getLL('back').']" />',array('back' => 1),'1','1',LIST_PID),'backLink');
+		$commonsArray['###CANCEL###']=$this->getLL('cancel');
+		$commonsArray['###SUBMIT###']=$this->getLL('submit');
+		$commonsArray['###YES###']=$this->getLL('yes');
+		$commonsArray['###NO###']=$this->getLL('no');
+		$commonsArray['###OK###'] = $this->getLL('ok');
 			
 		return $commonsArray;
 		}	
 
 	private function makeHeadingsArray()
 		{
-		$headingsArray['###HEADING_DATA###']=$this->pi_getLL('data');
-		$headingsArray['###HEADING_TITLE###']=$this->pi_getLL('title');
-		$headingsArray['###HEADING_NAME###']=$this->pi_getLL('name');
-		$headingsArray['###HEADING_CATEGORY###']=$this->pi_getLL('category');
-		$headingsArray['###HEADING_SUBCATEGORY###']=$this->pi_getLL('subcategory');
-		$headingsArray['###HEADING_DATAFIELD###']=$this->pi_getLL('datafield');
-		$headingsArray['###HEADING_INPUT_DATAFIELDS###']=$this->pi_getLL('datafields');
-		$headingsArray['###HEADING_FIELDNAME###']=$this->pi_getLL('fieldname');
-		$headingsArray['###HEADING_TYPE###']=$this->pi_getLL('type');
-		$headingsArray['###HEADING_DATAFIELD_CONFIG###'] = $this->pi_getLL('datafield_config');
-		$headingsArray['###HEADING_DELETE_REQUEST###']=$this->pi_getLL('delete_request');
+		$headingsArray['###HEADING_DATA###']=$this->getLL('data');
+		$headingsArray['###HEADING_TITLE###']=$this->getLL('title');
+		$headingsArray['###HEADING_NAME###']=$this->getLL('name');
+		$headingsArray['###HEADING_CATEGORY###']=$this->getLL('category');
+		$headingsArray['###HEADING_SUBCATEGORY###']=$this->getLL('subcategory');
+		$headingsArray['###HEADING_DATAFIELD###']=$this->getLL('datafield');
+		$headingsArray['###HEADING_INPUT_DATAFIELDS###']=$this->getLL('datafields');
+		$headingsArray['###HEADING_FIELDNAME###']=$this->getLL('fieldname');
+		$headingsArray['###HEADING_TYPE###']=$this->getLL('type');
+		$headingsArray['###HEADING_DATAFIELD_CONFIG###'] = $this->getLL('datafield_config');
+		$headingsArray['###HEADING_DELETE_REQUEST###']=$this->getLL('delete_request');
 
 		return $headingsArray;
 		}
@@ -1107,45 +1161,52 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 	private function makeOptionArray()
 		{
 		# get all searchable items and build option array
-		# first elements which are not in table
-		$datafieldOptionArr = array('0' => $this->pi_getLL('all_items'),'data_title' => $this->pi_getLL('title'));
-
 		$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
-		$datafieldObjArr = $datafieldList->getDS();
+		$datafieldList->getDS();
 
-		foreach($datafieldObjArr as $key => $obj)
-			{
-			# get metadata of datafield
-			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($key);
-			if ($metadata['datafield_searchable']=="yes") $datafieldOptionArr[$key] = $obj->getObjVar('datafield_name'); 
-			}
-		$optionArray['###SELECTED_ITEM_OPTIONS###'] = $this->getOptionsFromArr($datafieldOptionArr,$this->secPiVars->get('selected_item'));
+		$optionArray['###SELECTED_ITEM_OPTIONS###'] = 	 '<option value="0">'.$this->getLL('all_items').'</option>
+								  <option value="data_title"'.($this->secPiVars->get('selected_item') == 'data_title' ? ' selected="selected"' : '').'>'.$this->pi_getLL('title').'</option>'
+								.$datafieldList->getOptionSelect('datafield_name',$this->secPiVars->get('selected_item'));
 
 		# build categories options
-		$categoryOptionArr = array('0' => $this->pi_getLL('all_categories')) + $this->getUsedCategoryValues('category_name');
-		$optionArray['###CATEGORY_OPTIONS###'] = $this->getOptionsFromArr($categoryOptionArr,$this->secPiVars->get('selected_category'));
+		$categoryList = $datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
+		$categoryList->getDS();
 
+		$optionArray['###CATEGORY_OPTIONS###'] = '<option value="0">'.$this->getLL('all_categories').'</option>'.$categoryList->getOptionSelect('category_name',$this->secPiVars->get('selected_category'),true);
 		$optionArray['###SEARCHPHRASE###'] = $this->secPiVars->get('searchphrase'); 
 
-		$optionArray['###FE-ADMINLINKS###']=$this->wrapInDiv($this->makeAdminLinks(),'optionField-adminLinks');
-		$optionArray['###SUBMIT_SEARCH###']=$this->pi_getLL('show');
+		$optionArray['###FE-ADMINLINKS###']=$this->wrapInTag($this->makeAdminLinks(),'optionfield-adminLinks');
+		$optionArray['###SUBMIT_SEARCH###']=$this->getLL('show');
 	
 		return $optionArray;
+		}
+
+	private function makeBrowseList($array,$getVar,$class,$separator = '|',$active='')
+		{
+		$linkArray = array();
+		foreach ($array as $l) 
+			{
+			 $linkArray[] = ($l == $active) ? 
+				$this->wrapInTag($this->getLL($l),$class.'-browselist-link-active','span') : 
+				$this->wrapInTag($this->pi_linkTP_keepPIvars($this->getLL($l),array($getVar => $l),'1','1',LIST_PID),$class.'-browselist-link','');
+			}
+		
+		return implode($separator,$linkArray);
 		}
 
 	private function makeAdminStuff($uid,$type='data')
 		{
 		if (ADM_PERM && $uid)
 			{		
-			$stuff =$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'edit.png" align="top" title="'.$this->pi_getLL('modify').'" alt="['.$this->pi_getLL('modify').']" />',array('uid' => $uid, 'action' => 'update', 'type' => $type),'1','1');
+			$stuff =$this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'edit.png" title="'.$this->getLL('modify').'" alt="['.$this->getLL('modify').']" />',array('uid' => $uid, 'action' => 'update', 'type' => $type),'1','1');
 			
 			if ($type=='datafield')
 				{
-				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'button_down.gif" align="top" title="'.$this->pi_getLL('entry_down').'" alt="['.$this->pi_getLL('entry_down').']" />',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'down'),'1','1');
-				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'button_up.gif" align="top" title="'.$this->pi_getLL('entry_up').'" alt="['.$this->pi_getLL('entry_up').']" />',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'up'),'1','1');
+				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'button_down.gif" title="'.$this->getLL('entry_down').'" alt="['.$this->getLL('entry_down').']" />',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'down'),'1','1');
+				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'button_up.gif" title="'.$this->getLL('entry_up').'" alt="['.$this->getLL('entry_up').']" />',array('uid' => $uid, 'action' => 'update-sequence', 'type' => $type, 'direction' => 'up'),'1','1');
 				}	
 			
-			$stuff.=$this->pi_linkTP_keepPIvars('<img src="'.$this->picturePath.'trash.png" align="top" title="'.$this->pi_getLL('delete').'" alt="['.$this->pi_getLL('delete').']" />',array('uid' => $uid,'action' => 'delete-request', 'type' => $type),'1','1');
+			$stuff.=$this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'trash.png" title="'.$this->getLL('delete').'" alt="['.$this->getLL('delete').']" />',array('uid' => $uid,'action' => 'delete-request', 'type' => $type),'1','1');
 
 			return $stuff;
 			} else return;
@@ -1157,34 +1218,61 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			{
 			$subpart=$this->cObj->getSubpart(TEMPLATE,'###ADMINLINKS###');
 
-			$contentArray['###NEW_DATA###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_data').']',array('action' => 'update', 'type' => 'data'),'1','1');
-			$contentArray['###NEW_CATEGORY###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_category').']',array('action' => 'update', 'type' => 'category'),'1','1');
-			$contentArray['###NEW_DATAFIELD###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('new_datafield').']',array('action' => 'update', 'type' => 'datafield'),'1','1');
-			$contentArray['###SHOW_CATEGORIES###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('show_categories').']',array('type' => 'category','view'=>'3'),'1','1');
-			$contentArray['###SHOW_DATAFIELDS###']=$this->pi_linkTP_keepPIvars('['.$this->pi_getLL('show_datafields').']',array('type' => 'datafield','view'=>'3'),'1','1');
+			$contentArray['###NEW_DATA###']=$this->pi_linkTP_keepPIvars('['.$this->getLL('new_data').']',array('action' => 'update', 'type' => 'data'),'1','1');
+			$contentArray['###SHOW_CATEGORIES###']=$this->pi_linkTP_keepPIvars('['.$this->getLL('categories').']',array('type' => 'category','view'=>'3'),'1','1');
+			$contentArray['###SHOW_DATAFIELDS###']=$this->pi_linkTP_keepPIvars('['.$this->getLL('datafields').']',array('type' => 'datafield','view'=>'3'),'1','1');
 
 			return $this->cObj->substituteMarkerArrayCached($subpart,$contentArray);
 			} else return;
 		}	
+
+	private function getConfigValue($configVar,$type='string',$defaultValue='',$flexformSection=false)
+		{
+		$configValue = $flexformSection ? 
+			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], $configVar, $flexformSection) :
+			$this->conf[$configVar];
+
+		if ($flexformSection)
+			{
+			$configValue = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], $configVar, $flexformSection);
+
+			if ($configValue != '')
+				{
+				settype($configValue,$type);
+				return $configValue;
+				}
+			}
+		if ($this->conf[$configVar] != '')
+			{
+			settype($this->conf[$configVar],$type);
+			return $this->conf[$configVar];
+			}
+
+		return $defaultValue;
+		}
 
 	private function wrapTemplateArrayInClass(array $arr,$callingFunction='')
 		{
 		foreach($arr as $key => $value)
 			{
 			preg_match("/^###(.*)###$/",$key,$result);
-			$arr[$key] = $this->wrapInDiv($value,$callingFunction."-".strtolower($result[1]));
+			$arr[$key] = $this->wrapInTag($value,$callingFunction."-".strtolower($result[1]));
 			}
 		return $arr;
 		}
 
-	private function wrapInDiv($str,$class)
+	private function wrapInTag($str,$class,$tag='div')
 		{
-		return $str ? "<div".$this->pi_classParam($class).">".$str."</div>" : $str;
+		if ($str) 
+			{
+			$str = $tag ? '<'.$tag.'>'.$str.'</'.$tag.'>' : $str;
+			return $this->cObj->addParams($str,array('class' => $this->pi_getClassName().$class));
+			} else return '';
 		}
 
-	private function wrapInSpan($str,$class)
+	private function getLL($item) 
 		{
-		return $str ? "<span".$this->pi_classParam($class).">".$str."</span>" : $str;
+		return $this->pi_getLL($item) ? $this->pi_getLL($item) : $item;
 		}
 }
 

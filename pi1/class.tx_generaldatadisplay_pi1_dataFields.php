@@ -30,12 +30,24 @@
  * @package	TYPO3
  * @subpackage	tx_generaldatadisplay
  */
-abstract class tx_generaldatadisplay_pi1_dataFields
+
+abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 	{
+	public $scriptRelPath = 'pi1/class.tx_generaldatadisplay_pi1_dataFields.php';	// Path to this script relative to the extension dir.
+	public $extKey        = 'general_data_display';					// The extension key
+	public $prefixId      = 'tx_generaldatadisplay_pi1';
+
 	protected static $table = "tx_generaldatadisplay_datafields";
 	protected static $metaDataHash = array();
 	protected $tmplArr = array();
 	protected $config = array();
+
+	public function __construct() 
+		{
+		parent::__construct();
+		$this->cObj = t3lib_div::makeInstance('tslib_cObj');
+		$this->pi_loadLL();
+		}
 
 	public function getProperty($property)
 		{
@@ -59,11 +71,10 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 		}
 
 	public function HTML($type='edit')
-		{
-		$cObj = t3lib_div::makeInstance('tslib_cObj');
-		$subpart = $cObj->getSubpart(TEMPLATE,$this->config['subpartType'][$type]);
+		{ 
+		$subpart = $this->cObj->getSubpart(TEMPLATE,$this->config['subpartType'][$type]);
 
-		return $cObj->substituteMarkerArrayCached($subpart,$this->tmplArr);
+		return $this->cObj->substituteMarkerArrayCached($subpart,$this->tmplArr);
 		}
 
 	public static function getMetadata($uid)
@@ -73,7 +84,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields
 			# get metadata from datafield table
 			$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 			$datafieldList->getDS();
-			self::$metaDataHash = $datafieldList->getHash('metadata',true);
+			self::$metaDataHash = $datafieldList->getHash('metadata','uid',true);
 			}
 
 		if (self::$metaDataHash[$uid])
@@ -132,6 +143,18 @@ class tx_generaldatadisplay_pi1_text extends tx_generaldatadisplay_pi1_dataField
 	# vars
 	protected $type = "text";
 	protected $config = array('subpartType' => array('edit' => '###TEXTAREA_INPUT###', 'config' => '###METADATA_INPUT###'));
+
+	public function HTML($type='edit')
+		{
+		$tooltip = $this->pi_linkTP_keepPIvars('
+			<img src="'.PICTURE_PATH.'tooltip.png" alt="tooltip" />
+			<span class="'.$this->pi_getClassName().'tooltip-info">'.$this->pi_getLL('HTMLsubstitutionTip').'</span>
+		',array(),1,0);
+
+		$this->tmplArr['###TOOLTIP###'] = $this->cObj->addParams($tooltip,array('class' => $this->pi_getClassName().'tooltip'));
+
+		return parent::HTML($type);
+		}
 	}
 
 class tx_generaldatadisplay_pi1_img extends tx_generaldatadisplay_pi1_dataFields

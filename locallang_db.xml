@@ -10,7 +10,7 @@
 			<label index="tx_generaldatadisplay_data.title">Title</label>
 			<label index="tx_generaldatadisplay_data.category">Category</label>
 			<label index="tx_generaldatadisplay_datacontent">General data display-datacontent</label>
-			<label index="tx_generaldatadisplay_datacontent.datacontent">Datacontent</label>
+			<label index="tx_generaldatadisplay_datacontent.datacontent">Location datacontent</label>
 			<label index="tx_generaldatadisplay_categories.name">Category</label>
 			<label index="tx_generaldatadisplay_categories.progenitor">Subcategory of</label>
 			<label index="tx_generaldatadisplay_datafields">General data display-data fields</label>
@@ -33,14 +33,24 @@
 			<label index="tt_content.list_type_pi1">General data display</label>
 			
 			<label index="tx_generaldatadisplay_flexform.sheet_general">General settings</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_dataPID">Data location</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_listViewPID">Searchform</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_detailViewPID">Detailview</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_template">User template</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_stylesheet">User stylesheet</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_viewMode">View</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_viewMode1">Searchform with hitlist</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_viewMode2">Detailview</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_maxImageSize">Maximum image size (bytes)</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults">Entries per page</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults_all">all</label>
-			<label index="tx_generaldatadisplay_flexform.sheet_general_nrMaxPages">Display Pagelinks</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_nrMaxPages">Max pagelinks</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_initialNoResults">Initially display datasets</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_withoutBrowseList">Search with alphabetic linklist</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration">FE user administration</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_users">Allowed users</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_groups">Allowed groups</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_listview">List view</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="tx_generaldatadisplay_data">Allgemeine Datenanzeige-Titel</label>
@@ -71,14 +81,24 @@
 			<label index="tt_content.list_type_pi1">Allgemeine Datenanzeige</label>
 			
 			<label index="tx_generaldatadisplay_flexform.sheet_general">Allgemeine Einstellungen</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_dataPID">Datenspeicherort</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_listViewPID">Suchformular</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_detailViewPID">Detailansicht</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_template">Benutzerdefiniertes Template</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_user_stylesheet">Benutzerdefiniertes Stylesheet</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_viewMode">Ansicht</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_viewMode1">Suchformular mit Trefferliste</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_viewMode2">Detailansicht</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_maxImageSize">Maximale Bildergröße (bytes)</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults">Einträge pro Seite</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_general_nrPageResults_all">alle</label>
-			<label index="tx_generaldatadisplay_flexform.sheet_general_nrMaxPages">Anzeige Seitenlinks</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_nrMaxPages">Maximale Seitenlinks</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_initialNoResults">Initial Datensätze anzeigen</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_general_withoutBrowseList">Suche mit alphabetischer Linkliste</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration">FE Benutzer Administration</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_users">Berechtigte Benutzer</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_groups">Berechtigte Gruppen</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_listview">Listenansicht</label>
 		</languageKey>
 	</data>
 </T3locallang>

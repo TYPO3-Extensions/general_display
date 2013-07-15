@@ -88,7 +88,7 @@ abstract class tx_generaldatadisplay_pi1_dataStructs
 		{
 		if ($this->havePerm())
 			{
-			$this->setObjVar('pid',PID); 
+			$this->setObjVar('pid',DATA_PID); 
 			$this->setObjVar('tstamp',time());
 			$this->setObjVar('crdate',time());
 			$this->setObjVar('cruser_id',$GLOBALS['BE_USER']->user['uid'] ? $GLOBALS['BE_USER']->user['uid'] : $GLOBALS['TSFE']->fe_user->user['uid']);
@@ -136,7 +136,7 @@ abstract class tx_generaldatadisplay_pi1_dataStructs
 		if (ADM_PERM)
 			{
 			# update or delete existing DS
-			if ($this->uid)
+			if ($this->uid) 
 				{
 				$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('pid',
 										$this->table,
@@ -145,7 +145,8 @@ abstract class tx_generaldatadisplay_pi1_dataStructs
 				if ($dataSet) 
 					{
 					$ds=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet);
-					return  ADM_PERM && ($ds['pid'] == PID);
+
+					return  ADM_PERM && ($ds['pid'] == DATA_PID);
 					}			
 				} else return true; # new DS
 			}

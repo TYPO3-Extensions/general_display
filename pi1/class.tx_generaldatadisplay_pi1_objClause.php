@@ -64,6 +64,11 @@ class tx_generaldatadisplay_pi1_objClause
 		return $clauses ? implode(' AND ',$clauses) : '';
 		}
 	
+	public function reset()
+		{
+		return $this->ruleArr=array();
+		}
+
 	public function notEmpty()
 		{
 		return empty($this->ruleArr) ? false : true;
@@ -78,11 +83,24 @@ class tx_generaldatadisplay_pi1_objClause
 
 			if (!$error['plainColumn'])
 				{
-				$clause .= 
-					($clause ? " ".$rule['concat']." " : "")
-					."`".$key."`"
-					." ".$rule['operator']." "
-					.$GLOBALS['TYPO3_DB']->fullQuoteStr($rule['value'],$table);
+				# special IN operator
+				if (strtolower($rule['operator']) == 'in')
+					{
+					$clause .=
+						($clause ? " ".$rule['concat']." " : "")
+						."`".$key."`"
+						." ".$rule['operator']." "
+						.'('.$rule['value'].')';
+						
+					}
+				else
+					{
+					$clause .= 
+						($clause ? " ".$rule['concat']." " : "")
+						."`".$key."`"
+						." ".$rule['operator']." "
+						.$GLOBALS['TYPO3_DB']->fullQuoteStr($rule['value'],$table);
+					}
 				}
 			}
 		return '('.$clause.')';

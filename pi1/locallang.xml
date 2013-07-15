@@ -9,9 +9,12 @@
 			<label index="data">Dataset</label>
 			<label index="title">Title</label>
 			<label index="name">Name</label>
+			<label index="search">Search</label>
+			<label index="all">all</label>
 			<label index="category">Category</label>
+			<label index="categories">Categories</label>
 			<label index="subcategory">Subcategory of</label>
-			<label index="datafields">Datafield</label>
+			<label index="datafield">Datafield</label>
 			<label index="datafields">Datafields</label>
 			<label index="fieldname">Fieldname</label>
 			<label index="type">Fieldtype</label>
@@ -26,6 +29,7 @@
 			<label index="back">back</label>
 			<label index="cancel">cancel</label>
 			<label index="submit">submit</label>
+			<label index="reset">reset</label>
 			<label index="show">show</label>
 			<label index="yes">yes</label>
 			<label index="no">no</label>
@@ -33,8 +37,6 @@
 			<label index="new_data">New data</label>
 			<label index="new_category">New category</label>
 			<label index="new_datafield">New datafield</label>
-			<label index="show_categories">Show categories</label>
-			<label index="show_datafields">Show datafields</label>
 			<label index="datafield_config">Datafield config</label>
 			<label index="img_size">Imagesize</label>
 			<label index="img_align">Image alignment</label>
@@ -76,12 +78,31 @@
 			
 			<label index="dberror_permission">Permission denied : You are not the owner of this dataset</label>
 			<label index="dberror_no_dataset">Requested dataset not existing</label>
+			
+			<label index="HTMLsubstitutionTip">
+				&lt;table&gt;
+				&lt;caption&gt;Possible text decorations&lt;/caption&gt;
+				&lt;tr&gt;&lt;th&gt;Text decoration&lt;/th&gt;&lt;th&gt;Notation&lt;/th&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;b&gt;bold&lt;/b&gt;&lt;/td&gt;&lt;td&gt;**bold**&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;i&gt;italic&lt;/i&gt;&lt;/td&gt;&lt;td&gt;//italic//&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;u&gt;underline&lt;/u&gt;&lt;/td&gt;&lt;td&gt;__underline__&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;tt&gt;teletyper&lt;/tt&gt;&lt;/td&gt;&lt;td&gt;%%teletyper%%&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;super&lt;sup&gt;script&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;super^^script^^&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;sub&lt;sub&gt;script&lt;/sub&gt;&lt;/td&gt;&lt;td&gt;sub,,script,,&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Liste (sorted/unsorted)&lt;/td&gt;&lt;td&gt;{{ -/* Listitem ...}}&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Link&lt;/td&gt;&lt;td&gt;[[URL]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Named link&lt;/td&gt;&lt;td&gt;[[URL|identifier]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;/table&gt;
+			</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="data">Datensatz</label>
 			<label index="title">Titel</label>
 			<label index="name">Name</label>
+			<label index="search">Suche</label>
+			<label index="all">alle</label>
 			<label index="category">Kategorie</label>
+			<label index="categories">Kategorien</label>
 			<label index="subcategory">Unterkategorie von</label>
 			<label index="datafield">Datenfeld</label>
 			<label index="datafields">Datenfelder</label>
@@ -98,6 +119,7 @@
 			<label index="back">zurück</label>
 			<label index="cancel">abbrechen</label>
 			<label index="submit">absenden</label>
+			<label index="reset">zurücksetzen</label>
 			<label index="show">anzeigen</label>
 			<label index="yes">ja</label>
 			<label index="no">nein</label>
@@ -105,8 +127,6 @@
 			<label index="new_data">Neuer Datensatz</label>
 			<label index="new_category">Neue Kategorie</label>
 			<label index="new_datafield">Neues Datenfeld</label>
-			<label index="show_categories">Kategorien listen</label>
-			<label index="show_datafields">Datenfelder listen</label>
 			<label index="datafield_config">Datenfeld Einstellungen</label>
 			<label index="img_size">Bildgröße</label>
 			<label index="img_align">Bildausrichtung</label>
@@ -129,7 +149,7 @@
 			<label index="no_category">Keiner Kategorie zugeordnet</label>
 			<label index="no_data">Keine Daten gefunden</label>
 			<label index="no_datafields">Keine Datenfelder definiert</label>
-			
+
 			<label index="error">Ein Fehler ist aufgetreten!</label>
 			<label index="error_notEmpty">Feld ist leer</label>
 			<label index="error_isInt">Wert ist nicht ganzzahlig</label>
@@ -149,6 +169,22 @@
 			
 			<label index="dberror_permission">Zugriff verweigert : Sie sind nicht der Besitzer des Datensatzes</label>
 			<label index="dberror_no_dataset">Der angeforderte Datensatz existiert nicht</label>
+			
+			<label index="HTMLsubstitutionTip">
+				&lt;table&gt;
+				&lt;caption&gt;Übersicht Textformatierungskürzel&lt;/caption&gt;
+				&lt;tr&gt;&lt;th&gt;Textauszeichnung&lt;/th&gt;&lt;th&gt;Notation&lt;/th&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;b&gt;fett&lt;/b&gt;&lt;/td&gt;&lt;td&gt;**fett**&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;i&gt;kursiv&lt;/i&gt;&lt;/td&gt;&lt;td&gt;//kursiv//&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;u&gt;unterstrichen&lt;/u&gt;&lt;/td&gt;&lt;td&gt;__unterstrichen__&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;tt&gt;Fernschreiber&lt;/tt&gt;&lt;/td&gt;&lt;td&gt;%%teletyper%%&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;hoch&lt;sup&gt;gestellt&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;hoch^^gestellt^^&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;tief&lt;sub&gt;gestellt&lt;/sub&gt;&lt;/td&gt;&lt;td&gt;tief,,gestellt,,&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Liste (sortiert/unsortiert)&lt;/td&gt;&lt;td&gt;{{ -/* Listenpunkt ...}}&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Link&lt;/td&gt;&lt;td&gt;[[URL]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Benannter Link&lt;/td&gt;&lt;td&gt;[[URL|Bezeichner]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;/table&gt;
+			</label>
 		</languageKey>
 	</data>
 </T3locallang>

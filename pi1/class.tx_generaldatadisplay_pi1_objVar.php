@@ -79,18 +79,19 @@ class tx_generaldatadisplay_pi1_objVar
 		return $this;
 		}
 
+	public function reset()
+	        {
+		unset($this->data);
+		}
+
 	private function specialchars(&$item,$encode=true)
 		{
 		if (is_array($item))
 			{
 			foreach ($item AS $key => &$value) 
-				{
-				if (is_array($value)) $this->specialchars($value,$encode);
-				elseif(is_scalar($value)) 
-					$value = $encode ? htmlspecialchars($value,ENT_QUOTES) : htmlspecialchars_decode($value,ENT_QUOTES);	
-				}
+				$this->specialchars($value,$encode);
 			} 
-		elseif (is_scalar($item)) $item = $encode ? htmlspecialchars($item,ENT_QUOTES) : htmlspecialchars_decode($item,ENT_QUOTES);
+		elseif (is_scalar($item)) $item = trim($encode ? htmlspecialchars($item,ENT_QUOTES) : htmlspecialchars_decode($item,ENT_QUOTES));
 
 		return $item;
 		}
