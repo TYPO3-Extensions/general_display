@@ -546,7 +546,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				if ($nrPageResults && $nrPageResults < $nrResults)
 					{
 					$offset = intval($this->secPiVars->get('offset'));
-					$range =  $offset ? ($offset.",".($offset + $nrPageResults)) : $nrPageResults;
+					$range =  $offset ? ($offset.",".$nrPageResults) : $nrPageResults;
 					$objArr = $dataList->getDS($this->searchClause,$range);
 
 					$index = intval($offset / ($nrPageResults * $nrMaxPages));
