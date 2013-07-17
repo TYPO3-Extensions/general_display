@@ -94,8 +94,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		define(PICTURE_PATH,t3lib_extMgm::siteRelPath($this->extKey).'images/');
 
 		# set some other config vars
-		$this->conf['viewMode'] = $this->getConfigValue('viewMode','int',0,'general');
-		$this->conf['initialNoResults'] = $this->getConfigValue('initialNoResults','int',0,'listview');
+		$this->conf['viewMode'] = $this->getConfigValue('viewMode','int',1,'general');
+		$this->conf['initialNoResults'] = $this->getConfigValue('initialNoResults','bool',false,'listview');
 		$this->conf['withoutBrowseList'] = $this->getConfigValue('withoutBrowseList','bool',false,'listview');
 
 		# use configured css, if none is given use standard stylesheet
