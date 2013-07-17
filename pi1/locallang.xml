@@ -89,7 +89,7 @@
 				&lt;tr&gt;&lt;td&gt;&lt;tt&gt;teletyper&lt;/tt&gt;&lt;/td&gt;&lt;td&gt;%%teletyper%%&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;super&lt;sup&gt;script&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;super^^script^^&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;sub&lt;sub&gt;script&lt;/sub&gt;&lt;/td&gt;&lt;td&gt;sub,,script,,&lt;/td&gt;&lt;/tr&gt;
-				&lt;tr&gt;&lt;td&gt;Liste (sorted/unsorted)&lt;/td&gt;&lt;td&gt;{{ -/* Listitem ...}}&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;List (ordered/unordered)&lt;/td&gt;&lt;td&gt;{{ -/* listitem1 ...}}&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;Link&lt;/td&gt;&lt;td&gt;[[URL]]&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;Named link&lt;/td&gt;&lt;td&gt;[[URL|identifier]]&lt;/td&gt;&lt;/tr&gt;
 				&lt;/table&gt;
@@ -180,7 +180,7 @@
 				&lt;tr&gt;&lt;td&gt;&lt;tt&gt;Fernschreiber&lt;/tt&gt;&lt;/td&gt;&lt;td&gt;%%teletyper%%&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;hoch&lt;sup&gt;gestellt&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;hoch^^gestellt^^&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;tief&lt;sub&gt;gestellt&lt;/sub&gt;&lt;/td&gt;&lt;td&gt;tief,,gestellt,,&lt;/td&gt;&lt;/tr&gt;
-				&lt;tr&gt;&lt;td&gt;Liste (sortiert/unsortiert)&lt;/td&gt;&lt;td&gt;{{ -/* Listenpunkt ...}}&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Liste (nummeriert/aufgezählt)&lt;/td&gt;&lt;td&gt;{{ -/* Listenpunkt1 ...}}&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;Link&lt;/td&gt;&lt;td&gt;[[URL]]&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;Benannter Link&lt;/td&gt;&lt;td&gt;[[URL|Bezeichner]]&lt;/td&gt;&lt;/tr&gt;
 				&lt;/table&gt;
