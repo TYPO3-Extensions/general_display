@@ -20,3 +20,8 @@ Version	Changes
 1.4.2:	Security fixes & better form checking
 1.4.3:	SQL injection fix
 1.4.4:  Maintenance release
+1.5.0:	Search field enhancement (required template change)
+	Better visualization of subcategories
+	New textfield formatting option (ordered/unordered list)
+	Most options are now in flexform & TS
+	Bugfixing & code cleaning
