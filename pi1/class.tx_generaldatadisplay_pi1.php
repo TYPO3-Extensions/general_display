@@ -111,6 +111,43 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		# save piVars as secureable objVars
 		$this->secPiVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
 		$this->secPiVars->set($this->piVars);
+
+		# check some piVars
+		foreach ($this->secPiVars->get() as $key => $value)
+			{
+			switch (true)
+				{
+				case $key=='type':
+					{
+					if (! preg_match('/^(data|category|datafield)$/',$this->secPiVars->get($key)))
+						$this->secPiVars->setValue($key,'data');
+					}
+				break;
+
+				case $key=='selected_item':
+					{
+					if (is_numeric($value) || $value == 'data_title') 
+						$this->secPiVars->setValue($key,is_numeric($value) ? intval($this->secPiVars->get($key)) : $this->secPiVars->get($key));
+					else $this->secPiVars->delKey($key);
+					}
+				break;
+
+				case $key=='selected_letter':
+					{
+					if (!preg_match('/^([A-Z]|0\-9|all|)$/',$this->secPiVars->get($key)))
+						$this->searchClause->reset();
+					}
+				break;
+
+				case preg_match('/^(uid|selected_category|offset)$/',$key):
+					{
+					if (is_numeric($value)) $this->secPiVars->setValue($key,intval($this->secPiVars->get($key)));
+					else $this->secPiVars->delKey($key);
+					}
+				break;
+				}
+			}
+
 		# get scope
 		$scopeArr = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
 		$scopeArr->set(unserialize($this->sessionData('scope')));
@@ -228,41 +265,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		# unset action if cancel is pressed
 		if ($this->secPiVars->get('cancel')) $this->secPiVars->delKey('action');
 
-		# check some piVars
-		foreach ($this->secPiVars->get() as $key => $value)
-			{
-			switch (true)
-				{
-				case $key=='type':
-					{
-					if (! preg_match('/^(data|category|datafield)$/',$this->secPiVars->get($key)))
-						$this->secPiVars->setValue($key,'data');
-					}
-				break;
-
-				case $key=='selected_item':
-					{
-					if (is_numeric($value) || $value == 'data_title') 
-						$this->secPiVars->setValue($key,is_numeric($value) ? intval($this->secPiVars->get($key)) : $this->secPiVars->get($key));
-					else $this->secPiVars->delKey($key);
-					}
-				break;
-
-				case $key=='selected_letter':
-					{
-					if (!preg_match('/^([A-Z]|0\-9|all|)$/',$this->secPiVars->get($key)))
-						$this->searchClause->reset();
-					}
-				break;
-
-				case preg_match('/^(uid|selected_category|offset)$/',$key):
-					{
-					if (is_numeric($value)) $this->secPiVars->setValue($key,intval($this->secPiVars->get($key)));
-					else $this->secPiVars->delKey($key);
-					}
-				break;
-				}
-			}
 
 		# choose action
 		switch ($this->secPiVars->get('action'))
@@ -614,7 +616,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						{
 						$contentArray['###CATEGORY-NAME###'] = $this->wrapInTag($catObjArr[$dataCategory] ? $catObjArr[$dataCategory]->getObjVar('category_name') : $this->getLL('no_category'),__FUNCTION__."-category-name");
 						$contentArray['###DATA-TITLE###'] = $orderedList[$dataCategory];
-						$contentArray['###LISTDATA###'] .= $this->wrapInTag($this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray),__FUNCTION__."-categorylvl".$catObjArr[$dataCategory]->getObjVar('level'));
+						$contentArray['###LISTDATA###'] .= $this->wrapInTag($this->cObj->substituteMarkerArrayCached($subsubpart,$contentArray),__FUNCTION__."-categorylvl".($catObjArr[$dataCategory] ? $catObjArr[$dataCategory]->getObjVar('level') : 0));
 						}
 					}
 
@@ -1023,9 +1025,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$value = $locale ? $this->getLL($value) : $value;
 			if ($value)
 				{
-				$optionEntry = '<option value="'.$key.(($key==$selected) ? '" selected>' : '">').$value.'</option>';
-				# add level class
-				$optionEntry = $this->cObj->addParams($optionEntry,array('class' => $this->pi_getClassName().'optionfield'));
+				$optionEntry = '<option value="'.$key.'"'.(($key==$selected) ? 
+					' selected="selected">' : '>').$value.'</option>';
+
+				# add class
+				$optionEntry = $this->cObj->addParams($optionEntry,array('class' => $this->pi_getClassName('optionfield')));
 				
 				$options .= $optionEntry;
 				}
@@ -1048,7 +1052,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;
 
 			case 'email':
-			$mailarr = $this->cObj->getMailTo($content);
+			$mailarr = $this->cObj->getMailTo($content,$content);
 			$content = '<a href="'.$mailarr[0].'">'.$mailarr[1].'</a>';
 			break;
 
@@ -1130,7 +1134,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		{
 		$commonsArray['###PI_BASE###']= PREFIX_ID;
 		$commonsArray['###PLUGINNAME###'] = $this->pi_getClassName('');
-		$commonsArray['###ACTION_URL###']=$this->pi_getPageLink(LIST_PID);
+		$commonsArray['###ACTION_URL###']= $this->pi_getPageLink(LIST_PID);
 		$commonsArray['###BACK###']=$this->wrapInTag($this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'return.png" title="'.$this->getLL('back').'" alt="['.$this->getLL('back').']" />',array('back' => 1),'1','1',LIST_PID),'backLink');
 		$commonsArray['###CANCEL###']=$this->getLL('cancel');
 		$commonsArray['###SUBMIT###']=$this->getLL('submit');
@@ -1266,7 +1270,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		if ($str) 
 			{
 			$str = $tag ? '<'.$tag.'>'.$str.'</'.$tag.'>' : $str;
-			return $this->cObj->addParams($str,array('class' => $this->pi_getClassName().$class));
+			return $this->cObj->addParams($str,array('class' => $this->pi_getClassName($class)));
 			} else return '';
 		}
 

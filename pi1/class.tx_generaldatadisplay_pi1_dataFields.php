@@ -148,10 +148,10 @@ class tx_generaldatadisplay_pi1_text extends tx_generaldatadisplay_pi1_dataField
 		{
 		$tooltip = $this->pi_linkTP_keepPIvars('
 			<img src="'.PICTURE_PATH.'tooltip.png" alt="tooltip" />
-			<span class="'.$this->pi_getClassName().'tooltip-info">'.$this->pi_getLL('HTMLsubstitutionTip').'</span>
+			<span class="'.$this->pi_getClassName('tooltip-info').'">'.$this->pi_getLL('HTMLsubstitutionTip').'</span>
 		',array(),1,0);
 
-		$this->tmplArr['###TOOLTIP###'] = $this->cObj->addParams($tooltip,array('class' => $this->pi_getClassName().'tooltip'));
+		$this->tmplArr['###TOOLTIP###'] = $this->cObj->addParams($tooltip,array('class' => $this->pi_getClassName('tooltip')));
 
 		return parent::HTML($type);
 		}

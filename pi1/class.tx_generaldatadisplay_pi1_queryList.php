@@ -397,7 +397,7 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 				' selected="selected">' : '>').$obj->getObjVar($field).'</option>';
 			
 			# add level class
-			$optionEntry = $this->cObj->addParams($optionEntry,array('class' => $this->pi_getClassName().'optionfield-categorylvl'.$obj->getObjVar('level')));
+			$optionEntry = $this->cObj->addParams($optionEntry,array('class' => $this->pi_getClassName('optionfield-categorylvl').$obj->getObjVar('level')));
 			$options.= $optionEntry;
 			}
 

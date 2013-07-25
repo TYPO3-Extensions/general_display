@@ -72,7 +72,8 @@ class tx_generaldatadisplay_pi1_wizicon {
                                                           : t3lib_div::int_from_ver(TYPO3_version);
 
 						if ($version >= 4007000) {
-							$LOCAL_LANG =  t3lib_l10n_parser_Llxml::getParsedData($llFile, $GLOBALS['LANG']->lang);
+							$object = t3lib_div::makeInstance('t3lib_l10n_parser_Llxml');
+							$LOCAL_LANG =  $object->getParsedData($llFile, $GLOBALS['LANG']->lang);
 						} else {
 							$LOCAL_LANG =  t3lib_div::readLLXMLfile($llFile, $GLOBALS['LANG']->lang);
 						}
