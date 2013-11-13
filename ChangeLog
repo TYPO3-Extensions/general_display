@@ -26,3 +26,6 @@ Version	Changes
 	New textfield formatting options (ordered/unordered list)
 	Most options are now in flexform & TS
 	Bugfixing & code cleaning
+1.5.1:	Experimental Import / Export (CSV)
+	Template change
+	Bugfixing
