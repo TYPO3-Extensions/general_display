@@ -12,7 +12,6 @@
 				<el>
 					<dataPID>
 						<TCEforms>
-							<exclude>1</exclude>
 							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_dataPID</label>
 							<config>
 								<type>group</type>
@@ -27,7 +26,6 @@
 					</dataPID>
 					<listViewPID>
 						<TCEforms>
-							<exclude>1</exclude>
 							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_listViewPID</label>
 							<config>
 								<type>group</type>
@@ -42,7 +40,6 @@
 					</listViewPID>
 					<detailViewPID>
 						<TCEforms>
-							<exclude>1</exclude>
 							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_general_detailViewPID</label>
 							<config>
 								<type>group</type>
