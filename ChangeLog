@@ -1,0 +1,31 @@
+Version	Changes
+-------	-------
+1.0.0:	Initial release
+1.0.2:	New input datatypes & verifications added
+	Required flag for input fields
+1.0.3:	Security fix & minor changes
+1.0.4:	Bugfix - wrong function call produced log warnings
+1.1.0:	Subcategories are now implemented
+1.1.1:	Normal BE user access to the FE administration interface, minor fixes  & documentation added
+1.2.0:	Content is now base64 encoded to prevent data corruption through charset change
+	Replaced deprecated eregi-function  
+1.3.0:	New image datatype added
+	New table design makes base64 encoding obsolete
+	A lot of bugfixes & code cleaning
+1.4.0:	Short HTML tag substitutions for textfields implemented
+	Additional searchterms are treated as AND statements 
+	All content is cacheable now
+	Some bugfixes
+1.4.1:	Bugfix release
+1.4.2:	Security fixes & better form checking
+1.4.3:	SQL injection fix
+1.4.4:  Maintenance release
+1.5.0:	Typo3 version 6 compatible
+	Search field enhancement (required template change)
+	Better visualization of subcategories
+	New textfield formatting options (ordered/unordered list)
+	Most options are now in flexform & TS
+	Bugfixing & code cleaning
+1.5.1:	Experimental Import / Export (CSV)
+	Template change
+	Bugfixing

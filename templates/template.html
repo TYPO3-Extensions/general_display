@@ -1,0 +1,387 @@
+<!-- ###OPTION_FIELD### -->
+	<div class="optionfield-heading">
+		###HEADING_SEARCH###
+	</div>
+	<div class="optionfield-search">
+		<form method="POST" action="###ACTION_URL###">
+			<input type="hidden" name="###PI_BASE###[action]" value="search" />
+			###SEARCH_RESET###
+			<input type="text" name="###PI_BASE###[searchphrase]" size="20" value="###SEARCHPHRASE###" />
+			<select name="###PI_BASE###[selected_item]">###SELECTED_ITEM_OPTIONS###</select>
+			<select name="###PI_BASE###[selected_category]">###CATEGORY_OPTIONS###</select>
+			<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT_SEARCH###" />
+		</form>
+		###BROWSELIST###
+	</div>
+	###FE-ADMINLINKS###
+<!-- ###OPTION_FIELD### -->
+
+<!-- ###ADMINLINKS### -->
+	###ADMIN_MENU###
+<!-- ###ADMINLINKS### -->
+
+<!-- ###SEARCHONLY### -->
+	###OPTIONFIELD###
+<!-- ###SEARCHONLY### -->
+
+<!-- ###LIST-DATAVIEW### -->
+	###OPTIONFIELD###
+	###PAGELINKS###
+	###LISTDATA###
+	###PAGELINKS###
+	###HITS###
+<!-- ###LIST-DATAVIEW### -->
+
+<!-- ###LIST-DATA### -->
+	###CATEGORY-NAME###
+	###DATA-TITLE###
+<!-- ###LIST-DATA### -->
+
+<!-- ###TABLE-VIEW### -->
+<div class="tableView">
+	<table>
+		<tr><th>###TABLE_HEADING###</th><th>###ADMIN_CREATE###</th></tr>
+		###TABLE_CONTENT###
+	</table>
+	###BACK###
+</div>
+<!-- ###TABLE-VIEW### -->
+
+<!-- ###TABLE-CONTENT### -->
+	<tr>
+		<td>###TABLE_ROW###</td>
+		<td>###ADMINSTUFF###</td>
+	</tr>
+<!-- ###TABLE-CONTENT### -->
+
+<!-- ###DETAIL-DATAVIEW### -->
+<div class="singleView">
+	###CATEGORY-NAME###
+	###DATA_TITLE###
+	###DETAILDATA###
+	###ADMINSTUFF###
+	###BACK###
+</div>
+<!-- ###DETAIL-DATAVIEW### -->
+
+<!-- ###DETAIL-DATA### -->
+	###HEADING_DATACONTENT###
+	###DATACONTENT###
+<!-- ###DETAIL-DATA### -->
+
+<!-- ###EDIT_DATA### -->
+<div class="editData">
+<form method="POST" action="###ACTION_URL###" enctype="multipart/form-data">
+        <input type="hidden" name="###PI_BASE###[action]" value="update" />
+        <input type="hidden" name="###PI_BASE###[uid]" value="###UID###" />
+        <input type="hidden" name="###PI_BASE###[type]" value="data" />
+        ###HEADING_TITLE###
+        ###DATA_TITLE_ERROR###
+        <input ###DATA_TITLE_ERRORCLASS### type="text" name="###PI_BASE###[data_title]" size="60"  maxlength="254" value="###DATA_TITLE###" />
+	###HEADING_CATEGORY###
+        <select name="###PI_BASE###[data_category]">###DATA_CATEGORY_OPTIONS###</select>
+	<div class="editView-datafields">
+		###HEADING_INPUT_DATAFIELDS###
+		###INPUT_DATAFIELDS###
+	</div>
+        <div>
+		<br />
+		<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###" />
+		<input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###" />
+        </div>
+</form>
+</div>
+<!-- ###EDIT_DATA### -->
+
+<!-- ###EDIT_CATEGORY### -->
+<div class="editCategory">
+<form method="POST" action="###ACTION_URL###">
+        <input type="hidden" name="###PI_BASE###[action]" value="update" />
+        <input type="hidden" name="###PI_BASE###[uid]" value="###UID###" />
+        <input type="hidden" name="###PI_BASE###[type]" value="category" />
+        ###HEADING_CATEGORY###
+        ###CATEGORY_NAME_ERROR###
+        <input ###CATEGORY_NAME_ERRORCLASS### type="text" name="###PI_BASE###[category_name]" size="40"  value="###CATEGORY_NAME###" />
+	###HEADING_SUBCATEGORY###
+	<select name="###PI_BASE###[category_progenitor]">###DATA_SUBCATEGORY_OPTIONS###</select>
+        <div>
+		<br />
+		<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###" />
+		<input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###" />
+        </div>
+</form>
+</div>
+<!-- ###EDIT_CATEGORY### -->
+
+<!-- ###EDIT_DATAFIELD### -->
+<div class="editDatafield">
+<form method="POST" action="###ACTION_URL###">
+        <input type="hidden" name="###PI_BASE###[action]" value="update" />
+        <input type="hidden" name="###PI_BASE###[uid]" value="###UID###" />
+        <input type="hidden" name="###PI_BASE###[type]" value="datafield" />
+	<input type="hidden" name="###PI_BASE###[display_sequence]" value="###DISPLAY_SEQUENCE###" />
+        ###HEADING_FIELDNAME###
+	###DATAFIELD_NAME_ERROR###
+        <input ###DATAFIELD_NAME_ERRORCLASS### type="text" name="###PI_BASE###[datafield_name]" size="40"  value="###DATAFIELD_NAME###" />
+	###HEADING_TYPE###
+	###DATAFIELD_TYPE_ERROR###
+        <select onchange="this.form.submit()" name="###PI_BASE###[datafield_type]">###DATAFIELD_TYPE_OPTIONS###</select>
+	###HEADING_DATAFIELD_CONFIG###
+	###DATAFIELD_CONFIG###
+	<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT###" />
+	<input type="submit" name="###PI_BASE###[cancel]" value="###CANCEL###" />
+	
+</form>
+</div>
+<!-- ###EDIT_DATAFIELD### -->
+
+<!-- ###TINYTEXT_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40"  value="###DATAFIELD_CONTENT###" />
+<!-- ###TINYTEXT_INPUT### -->
+
+<!-- ###TEXTAREA_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<textarea ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###]" cols="60" rows="10">###DATAFIELD_CONTENT###</textarea>
+	###TOOLTIP###
+<!-- ###TEXTAREA_INPUT### -->
+
+<!-- ###IMAGE_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###" readonly /><br />
+	<input name="###PI_BASE###[###DATAFIELD_NAME###][select]" type="file" size="20" />
+	<input type="submit" name="###PI_BASE###[###DATAFIELD_NAME###][delete]" value="x" />
+<!-- ###IMAGE_INPUT### -->
+
+<!-- ###INT_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="10"  value="###DATAFIELD_CONTENT###" />
+<!-- ###INT_INPUT### -->
+
+<!-- ###BOOL_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<select name="###PI_BASE###[###DATAFIELD_NAME###]">
+		###YES###
+		<option value="###VALUE_DATAFIELD_YES###" ###DATAFIELD_SELECTED_YES###>###YES###</option>
+		<option value="###VALUE_DATAFIELD_NO###" ###DATAFIELD_SELECTED_NO###>###NO###</option>
+	</select>
+<!-- ###BOOL_INPUT### -->
+
+<!-- ###DATE_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="10" maxlength="10" value="###DATAFIELD_CONTENT###" />
+<!-- ###DATE_INPUT### -->
+
+<!-- ###TIME_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="8" maxlength="8" value="###DATAFIELD_CONTENT###" />
+<!-- ###TIME_INPUT### -->
+
+<!-- ###EMAIL_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###" />
+<!-- ###EMAIL_INPUT### -->
+
+<!-- ###URL_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###" />
+<!-- ###URL_INPUT### -->
+
+<!-- ###METADATA_INPUT### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+        <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###
+<!-- ###METADATA_INPUT### -->
+
+<!-- ###METADATA_IMAGE### -->
+	<div>
+		###HEADING_IMGSIZE###
+		<input type="text" name="###PI_BASE###[meta][img_size_x]" size="3" maxlength="3" value="###CONTENT_IMGSIZE_X###" />
+			<span style="padding: 0.5em;">x</span>
+		<input type="text" name="###PI_BASE###[meta][img_size_y]" size="3" maxlength="3" value="###CONTENT_IMGSIZE_Y###" />
+	</div>
+	<div>
+		###HEADING_IMGALIGN###
+		<select name="###PI_BASE###[meta][img_align]">###IMGALIGN_OPTIONS###</select>
+	</div>
+<!-- ###METADATA_IMAGE### -->
+
+<!-- ###DELETE_REQUEST### -->
+<div class="deleteRequest">
+<form method="POST" action="###ACTION_URL###">
+        <input type="hidden" name="###PI_BASE###[action]" value="delete" />
+        <input type="hidden" name="###PI_BASE###[uid]" value="###UID###" />
+	<input type="hidden" name="###PI_BASE###[type]" value="###TYPE###" />
+	
+	###HEADING_DELETE_REQUEST###
+	###DETAILS###
+	</div>
+		<input type="submit" name="###PI_BASE###[submit]" value="###YES###" />
+		<input type="submit" name="###PI_BASE###[cancel]" value="###NO###" />
+        </div>
+</form>
+</div>	
+<!-- ###DELETE_REQUEST### -->
+
+<!-- ###DELETE_REQUEST_DETAILS_DATA### -->
+<table>
+	<th colspan="2">###HEADING_DATA###</th>
+	<tr>
+		<td>###HEADING_TITLE###</td>
+		<td>###TITLE###</td>
+	</tr>
+	###DATAROWS###
+</table>
+<!-- ###DELETE_REQUEST_DETAILS_DATA### -->
+
+<!-- ###DELETE_REQUEST_DETAILS_DATAROW### -->
+	<tr>
+		<td>###HEADING_DATA_CONTENT###</td>
+		<td>###DATA_CONTENT###</td>
+	</tr>
+<!-- ###DELETE_REQUEST_DETAILS_DATAROW### -->
+
+<!-- ###DELETE_REQUEST_DETAILS_CATEGORY### -->
+<table>
+	<th colspan="2">###HEADING_CATEGORY###</th>
+	<tr>
+		<td>###HEADING_NAME###</td>
+		<td>###CATEGORY###</td>
+	</tr>
+</table>
+<!-- ###DELETE_REQUEST_DETAILS_CATEGORY### -->
+
+<!-- ###DELETE_REQUEST_DETAILS_DATAFIELD### -->
+<table>
+	<th colspan="2">###HEADING_DATAFIELD###</th>
+	<tr>
+		<td>###HEADING_NAME###</td>
+		<td>###DATAFIELD###</td>
+	</tr>
+	<tr>	
+		<td>###HEADING_TYPE###</td>
+		<td>###DATAFIELD_TYPE###</td>
+	</tr>
+</table>
+<!-- ###DELETE_REQUEST_DETAILS_DATAFIELD### -->
+
+<!-- ###TOOLTIPTAG### -->
+	###TOOLTIP###
+<!-- ###TOOLTIPTAG### -->
+
+<!-- ###IMPORTDATA### -->
+<div class="importData">
+<form method="POST" action="###ACTION_URL###" enctype="multipart/form-data">
+	<div class="boxed">
+	<label>###HEADING_READ_CSVFILE###</label>
+	<input type="hidden" name="###PI_BASE###[action]" value="import" />
+	<label>###HEADING_FILENAME###</label>
+	<input name="###PI_BASE###[importfile]" type="file" size="20">
+	<input type="submit" name="###PI_BASE###[submit_import_data]" value="einlesen" />
+	<label>###HEADING_DATA_DELIMITER###</label>
+	<select name="###PI_BASE###[import_data_delimiter]">
+		<option>;</option>
+		<option>,</option>
+		<option>:</option>
+	</select>
+	<label>###HEADING_TEXT_DELIMITER###</label>
+	<select name="###PI_BASE###[import_text_delimiter]">
+		<option>"</option>
+		<option>'</option>
+	</select>
+	</div>
+	<div class="boxed">
+	<label>###HEADING_PREVIEW###</label>
+	###IMPORT_DATA_PREVIEW###
+	</div>
+	<div class="boxed">
+	<label>###HEADING_DATA_MAPPING###</label>
+	<table>
+		<tr>
+		<th>###HEADING_DATA_CSVFIELDS###</th>
+		<th>###HEADING_INPUT_DATAFIELDS###</th>
+		<th></th>
+		<th>###HEADING_DATA_MAPPING###</th>
+		</tr>
+		<tr>
+		<td>
+			<select class="mappingSelect" name="###PI_BASE###[map_selected_CSVField]" size="5">
+			###CSV_FIELDS###
+			</select>
+		</td>
+		<td>
+			<select class="mappingSelect" name="###PI_BASE###[map_selected_dataField]" size="5">
+			###DATA_FIELDS###
+			</select>
+		</td>
+		<td>
+			<input type="submit" name="###PI_BASE###[mapping_add]" value="=>" /><br />
+			<input type="submit" name="###PI_BASE###[mapping_delete]" value="<=" />
+		</td>
+		<td>
+			<select class="mappingSelect" name="###PI_BASE###[selected_mapping]" size="5">
+			###DATA_MAPPING###
+			</select>
+		</td>
+		</tr>
+	</table>
+	<table>
+		<tr>
+		<td>
+			<label>###HEADING_IMPORT_CATEGORIE_FIELD###</label>
+			<select class="mappingSelect" name="###PI_BASE###[import_selected_category]" size="1">
+			###CSV_FIELDS###
+			</select>
+		</td>
+		<td>
+			<label>###HEADING_IMPORT_CATEGORIES###</label>
+			<input type="checkbox" name="###PI_BASE###[import_categories_create]" />
+		</td>
+		<td>
+			<label>###HEADING_IMPORT_FROM_ROW###</label>
+			<input name="###PI_BASE###[import_startfrom]" type="text" size="1" maxlength="4" value="1" />
+		</td>
+		</tr>
+		<tr>
+		<td>
+			<br /><input type="submit" name="###PI_BASE###[submit_import]" value="###IMPORT###" />
+		</td>
+		</tr>
+	</table>
+	</div>
+</form>
+</div>
+<!-- ###IMPORTDATA### -->
+
+<!-- ###STATUSPAGE### -->
+<div class="errorpage">
+	<form method="POST" action="###ACTION_URL###">
+	###MSGTYPE###
+	###MSGTEXT###
+	###BACK###
+	</form>
+</div>
+<!-- ###STATUSPAGE### -->
+
+<!-- ###STATUSMSG### -->
+<script LANGUAGE="JavaScript">
+	window.alert("###MSGTYPE###\n###MSGTEXT###");
+</script>
+<noscript>
+<div class="label">
+	###MSGTYPE###
+</div>
+<div class="status">
+	###MSGTEXT###
+</div>
+</noscript>
+<!-- ###STATUSMSG### -->
