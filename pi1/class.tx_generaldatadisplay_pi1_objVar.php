@@ -8,13 +8,13 @@
 *  This script is part of the TYPO3 project. The TYPO3 project is
 *  free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
+*  the Free Software Foundation; either version 2 of the License,  or
 *  (at your option) any later version.
 *
 *  The GNU General Public License can be found at
 *  http://www.gnu.org/copyleft/gpl.html.
 *
-*  This script is distributed in the hope that it will be useful,
+*  This script is distributed in the hope that it will be useful, 
 *  but WITHOUT ANY WARRANTY; without even the implied warranty of
 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *  GNU General Public License for more details.
@@ -33,43 +33,29 @@
 
 class tx_generaldatadisplay_pi1_objVar
 	{
-	# vars
+	// vars
 	protected $data = null;
 
 	public function set($property)
 		{
-		$this->data = $this->specialchars($property,false);
+		$this->data = $this->specialchars($property, FALSE);
 
 		return $this;
 		}
 
-	public function setValue($key,$value)
+	public function setValue($key, $value)
 		{
-		if (is_array($this->data) || !$this->data) $this->data[$key] = $this->specialchars($value,false);
+		if (is_array($this->data) || !$this->data) $this->data[$key] = $this->specialchars($value, FALSE);
 
 		return $this;
 		}
 
-	public function get($key="")
+	
+	public function get($key="", $plain=FALSE)
 		{
-		$data =  $this->data;
+		$item = (is_array($this->data) && $key) ? $this->data[$key]: $this->data;
 
-		if (is_array($data))
-			return $key ? $this->specialchars($data[$key]) : $this->specialchars($data);
-		elseif (is_scalar($this->data)) return $this->specialchars($data);
-
-		return null;
-		}
-
-	public function getplain($key="")
-		{
-		$data = null;
-
-		if (is_array($this->data))
-			return ($key) ? $this->data[$key] : $this->data;
-		elseif (is_scalar($this->data)) return $this->data;
-
-		return null;
+		return $plain ? $item : $this->specialchars($item);
 		}
 
 	public function delKey($key)
@@ -81,17 +67,18 @@ class tx_generaldatadisplay_pi1_objVar
 
 	public function reset()
 	        {
-		unset($this->data);
+		if (is_array($this->data)) $this->data = array();
+		else unset($this->data);
 		}
 
-	private function specialchars(&$item,$encode=true)
+	private function specialchars(&$item, $encode=TRUE)
 		{
 		if (is_array($item))
 			{
 			foreach ($item AS $key => &$value) 
-				$this->specialchars($value,$encode);
+				$this->specialchars($value, $encode);
 			} 
-		elseif (is_scalar($item)) $item = trim($encode ? htmlspecialchars($item,ENT_QUOTES) : htmlspecialchars_decode($item,ENT_QUOTES));
+		elseif (is_scalar($item)) $item = trim($encode ? htmlspecialchars($item, ENT_QUOTES) : htmlspecialchars_decode($item, ENT_QUOTES));
 
 		return $item;
 		}

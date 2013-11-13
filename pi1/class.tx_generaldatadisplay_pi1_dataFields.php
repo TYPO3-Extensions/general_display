@@ -8,13 +8,13 @@
 *  This script is part of the TYPO3 project. The TYPO3 project is
 *  free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
+*  the Free Software Foundation; either version 2 of the License,  or
 *  (at your option) any later version.
 *
 *  The GNU General Public License can be found at
 *  http://www.gnu.org/copyleft/gpl.html.
 *
-*  This script is distributed in the hope that it will be useful,
+*  This script is distributed in the hope that it will be useful, 
 *  but WITHOUT ANY WARRANTY; without even the implied warranty of
 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *  GNU General Public License for more details.
@@ -64,7 +64,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 		return isset($this->tmplArr[$property]) ? $this->tmplArr[$property] : null;
 		}
 
-	public function setTmplVar($property,$value)
+	public function setTmplVar($property, $value)
 		{
 		$this->tmplArr[$property] = $value;
 		return isset($this->tmplArr[$property]) ? $this->tmplArr[$property] : null;
@@ -72,19 +72,19 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 
 	public function HTML($type='edit')
 		{ 
-		$subpart = $this->cObj->getSubpart(TEMPLATE,$this->config['subpartType'][$type]);
+		$subpart = $this->cObj->getSubpart(TEMPLATE, $this->config['subpartType'][$type]);
 
-		return $this->cObj->substituteMarkerArrayCached($subpart,$this->tmplArr);
+		return $this->cObj->substituteMarkerArrayCached($subpart, $this->tmplArr);
 		}
 
 	public static function getMetadata($uid)
 		{
 		if (empty(self::$metaDataHash)) 
 			{
-			# get metadata from datafield table
+			// get metadata from datafield table
 			$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 			$datafieldList->getDS();
-			self::$metaDataHash = $datafieldList->getHash('metadata','uid',true);
+			self::$metaDataHash = $datafieldList->getHash('metadata', 'uid', TRUE);
 			}
 
 		if (self::$metaDataHash[$uid])
@@ -107,19 +107,19 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 		switch ($this->type)
 			{
 			case 'img':
-				$keyArr = array('img_size_x' => 1,'img_size_y' => 1,'img_align' => 1);
-				# clear all non defined metadata
+				$keyArr = array('img_size_x' => 1, 'img_size_y' => 1, 'img_align' => 1);
+				// clear all non defined metadata
 				foreach ($metadata as $key => $value) 
 					if (!$keyArr[$key]) unset($metadata[$key]);
 
 				if ($metadata['img_size_x']) $metadata['img_size_x'] = (int)$metadata['img_size_x'];
 				if ($metadata['img_size_y']) $metadata['img_size_y'] = (int)$metadata['img_size_y'];
-				if (!preg_match('/^(left|right|center)$/',$metadata['img_align'])) unset($metadata['img_align']);
+				if (!preg_match('/^(left|right|center)$/', $metadata['img_align'])) unset($metadata['img_align']);
 			break;
 
 			default:
-				$keyArr = array('datafield_searchable' => 1,'datafield_required' => 1,'content_visible' => 1);
-				# clear all non defined metadata
+				$keyArr = array('datafield_searchable' => 1, 'datafield_required' => 1, 'content_visible' => 1);
+				// clear all non defined metadata
 				foreach ($metadata as $key => $value) 
 					if (!$keyArr[$key]) unset($metadata[$key]);
 
@@ -133,25 +133,25 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 
 class tx_generaldatadisplay_pi1_tinytext extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "tinytext";
-	protected $config = array('subpartType' => array('edit' => '###TINYTEXT_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###TINYTEXT_INPUT###',  'config' => '###METADATA_INPUT###'));
 	}
 
 class tx_generaldatadisplay_pi1_text extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "text";
-	protected $config = array('subpartType' => array('edit' => '###TEXTAREA_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###TEXTAREA_INPUT###',  'config' => '###METADATA_INPUT###'));
 
 	public function HTML($type='edit')
 		{
 		$tooltip = $this->pi_linkTP_keepPIvars('
 			<img src="'.PICTURE_PATH.'tooltip.png" alt="tooltip" />
-			<span class="'.$this->pi_getClassName('tooltip-info').'">'.$this->pi_getLL('HTMLsubstitutionTip').'</span>
-		',array(),1,0);
+			<span class="tooltip-info">'.$this->pi_getLL('HTMLsubstitutionTip').'</span>
+		', array(), 1, 0);
 
-		$this->tmplArr['###TOOLTIP###'] = $this->cObj->addParams($tooltip,array('class' => $this->pi_getClassName('tooltip')));
+		$this->tmplArr['###TOOLTIP###'] = $this->cObj->addParams($tooltip, array('class' => 'tooltip'));
 
 		return parent::HTML($type);
 		}
@@ -159,25 +159,25 @@ class tx_generaldatadisplay_pi1_text extends tx_generaldatadisplay_pi1_dataField
 
 class tx_generaldatadisplay_pi1_img extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "img";
-	protected $config = array('subpartType' => array('edit' => '###IMAGE_INPUT###', 'config' => '###METADATA_IMAGE###'),
-				  'imgAlign' => array('left' => 'left','center' => 'center','right' => 'right')
+	protected $config = array('subpartType' => array('edit' => '###IMAGE_INPUT###',  'config' => '###METADATA_IMAGE###'), 
+				  'imgAlign' => array('left' => 'left', 'center' => 'center', 'right' => 'right')
 				 );
 	}
 
 class tx_generaldatadisplay_pi1_int extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "int";
-	protected $config = array('subpartType' => array('edit' => '###INT_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###INT_INPUT###',  'config' => '###METADATA_INPUT###'));
 	}
 
 class tx_generaldatadisplay_pi1_bool extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "bool";
-	protected $config = array('subpartType' => array('edit' => '###BOOL_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###BOOL_INPUT###',  'config' => '###METADATA_INPUT###'));
 
 	public function HTML($type='edit')
 		{
@@ -192,30 +192,30 @@ class tx_generaldatadisplay_pi1_bool extends tx_generaldatadisplay_pi1_dataField
 
 class tx_generaldatadisplay_pi1_date extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "date";
-	protected $config = array('subpartType' => array('edit' => '###DATE_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###DATE_INPUT###',  'config' => '###METADATA_INPUT###'));
 	}
 
 class tx_generaldatadisplay_pi1_time extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "time";
-	protected $config = array('subpartType' => array('edit' => '###TIME_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###TIME_INPUT###',  'config' => '###METADATA_INPUT###'));
 	}
 
 class tx_generaldatadisplay_pi1_email extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "email";
-	protected $config = array('subpartType' => array('edit' => '###EMAIL_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###EMAIL_INPUT###',  'config' => '###METADATA_INPUT###'));
 	}
 
 class tx_generaldatadisplay_pi1_url extends tx_generaldatadisplay_pi1_dataFields
 	{
-	# vars
+	// vars
 	protected $type = "url";
-	protected $config = array('subpartType' => array('edit' => '###URL_INPUT###', 'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###URL_INPUT###',  'config' => '###METADATA_INPUT###'));
 	}
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/general_data_display/pi1/class.tx_generaldatadisplay_pi1_dataFields.php'])        {

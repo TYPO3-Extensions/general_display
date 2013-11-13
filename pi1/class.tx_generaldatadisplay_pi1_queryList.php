@@ -8,13 +8,13 @@
 *  This script is part of the TYPO3 project. The TYPO3 project is
 *  free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
+*  the Free Software Foundation; either version 2 of the License,  or
 *  (at your option) any later version.
 *
 *  The GNU General Public License can be found at
 *  http://www.gnu.org/copyleft/gpl.html.
 *
-*  This script is distributed in the hope that it will be useful,
+*  This script is distributed in the hope that it will be useful, 
 *  but WITHOUT ANY WARRANTY; without even the implied warranty of
 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *  GNU General Public License for more details.
@@ -33,7 +33,7 @@
 
 abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 	{
-	# vars
+	// vars
 	public $scriptRelPath = 'pi1/class.tx_generaldatadisplay_pi1_queryList.php';	// Path to this script relative to the extension dir.
 	public $extKey        = 'general_data_display';					// The extension key
 	public $prefixId      = 'tx_generaldatadisplay_pi1';
@@ -43,6 +43,7 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 	protected $whereClause;
 	protected $groupByField;
 	protected $orderByField;
+	protected $nrResults = 0;
 
 	public function __construct() 
 		{
@@ -57,7 +58,7 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 		return isset($this->$property) ? $this->$property : null;
 		}
 
-	public function setProperty($property,$value)
+	public function setProperty($property, $value)
 		{
 		$this->$property = $value; 
 		return $this->getProperty($property);
@@ -68,50 +69,52 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 		if (isset($this->$property)) unset($this->$property);
 		} 
 	
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null,$range="")
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null, $range="")
 		{
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
-		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
-								$this->table,
-								$where=$whereClause,
-								$groupBy=$this->groupByField,
-       								$orderBy=$this->orderField,
+		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 
+								$this->table, 
+								$where=$whereClause, 
+								$groupBy=$this->groupByField, 
+       								$orderBy=$this->orderField, 
         							$limit=$range);
 
-		if ($dataSet) 
+		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
+
+		if ($this->nrResults) 
 			{
-			# delete former result	
+			// delete former result	
 			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
 
-			# Content
+			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
 				$data = t3lib_div::makeInstance($this->objType);
-				$uid = $data->setProperty("uid",$row['uid']);
+				$uid = $data->setProperty("uid", $row['uid']);
 				$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-				$data->setProperty("objVars",$objVars->set($row));
+				$data->setProperty("objVars", $objVars->set($row));
 				$this->objArr[$uid] = $data;
 				}
 			}
 		return $this->objArr;	
 		}
 
-	public function getHash($valueField,$keyField='uid',$plain=false)
+	public function getHash($valueField, $keyField='uid', $plain=FALSE)
 		{
 		$hash = array();
 
 		foreach ($this->objArr as $key => $obj)
-			$hash[$obj->getObjVar($keyField)] = $obj->getObjVar($valueField,$plain);
+			$hash[$obj->getObjVar($keyField)] = $obj->getObjVar($valueField, $plain);
 
 		return $hash;
 		}	
 
-	public function getOptionSelect($field,$selected='',$checkfield='uid')
+	public function getOptionSelect($field, $selected='', $checkfield='uid')
 		{
 		$options="";
 
-		# Get options
+		// Get options
 		foreach($this->objArr as $key => $obj)
 			{
 			$optionEntry = '<option value="'.$obj->getObjVar($checkfield).'"'.(($obj->getObjVar($checkfield) == $selected) ? 
@@ -133,10 +136,10 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 
 class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_queryList
 	{
-	# vars
+	// vars
 	protected $table = "tx_generaldatadisplay_temptable";
 	protected $objType = "tx_generaldatadisplay_pi1_data";
-	protected $orderField = "category_name,data_title";
+	protected $orderField = "category_name, data_title";
 	protected static $tableColumnHash = array();
 
 
@@ -145,31 +148,33 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		$this->restrictQuery = "pid=".DATA_PID;
 		}
 
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null,$range="")
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null, $range="")
 		{
 		$this->createTempTable();
 
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
-		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
-								$this->table,
-								$where=$whereClause,
-								$groupBy='',
-								$orderBy=$this->orderField,
+		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 
+								$this->table, 
+								$where=$whereClause, 
+								$groupBy='', 
+								$orderBy=$this->orderField, 
 								$limit=$range);
 
-		if ($dataSet) 
+		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
+
+		if ($this->nrResults) 
 			{
-			# delete former result	
+			// delete former result	
 			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
 
-			# Content
+			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
 				$data = t3lib_div::makeInstance($this->objType);
-				$uid = $data->setProperty("uid",$row['uid']);
+				$uid = $data->setProperty("uid", $row['uid']);
 				$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-				$data->setProperty("objVars",$objVars->set($row));
+				$data->setProperty("objVars", $objVars->set($row));
 				$this->objArr[$uid] = $data;
 				}
 			}
@@ -180,86 +185,89 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 	private function createTempTable()
 		{
-		# if temptable is already existing nothing has to be done
-		if (tx_generaldatadisplay_pi1_tempdata::tempTableExist()) return true;
+		// if temptable is already existing nothing has to be done
+		if (tx_generaldatadisplay_pi1_tempdata::tempTableExist()) return TRUE;
 
 		$tempDataClass = PREFIX_ID.'_tempdata';
 		$tableColumnHash = self::getColumns();
 		foreach($tableColumnHash as $key => $value)
 			$fieldArr[] = $this->addBackTicks($key)." ".$value;
 
-		$createFields = implode(",",$fieldArr);
+		$createFields = implode(", ", $fieldArr);
 
-		# create temptable
+		// create temptable
 		$tempData = t3lib_div::makeInstance($tempDataClass);
 		$dberror = $tempData->createTable($createFields);
 
 		if (!$dberror)
 			{
-			 # get all non deleted entrys from page
+			 // get all non deleted entrys from page
 			$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataOnlyList');
 			$dataObjArr = $dataList->getDS();
 
-			# get categoryList
+			// get categoryList
 			$categoryList = t3lib_div::makeInstance(PREFIX_ID.'_categoryList');
 			$categoryList->getDS();
-			# make category hash
+			// make category hash
 			$categoryHash = $categoryList->getHash('category_name');
 
-			# go and get the data
+			// go and get the data
 			foreach ($dataObjArr as $key => $obj)
 				{
-				# Content	
-				# first unset possibly existing datacontent array
+				// Content	
+				// first unset possibly existing datacontent array
 				unset($dataContent);
-				# get dataContent
-				$dataContentSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datacontent.datacontent',
+				// get dataContent
+				$dataContentSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name, tx_generaldatadisplay_datacontent.datacontent', 
 											 'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
-											  ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
+											  ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid', 
 											 'tx_generaldatadisplay_datacontent.pid='.DATA_PID.
 											 ' AND tx_generaldatadisplay_datacontent.data_uid='.$obj->getObjVar('uid').
 											 ' AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted'
 											 );
+
+				$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
+
 				if (! $GLOBALS['TYPO3_DB']->sql_error())
 					{
 					while ($dataContentRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataContentSet))
-					if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
+						if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
 
-					# additional fields
+					// additional fields
 					$dataContent['pid'] = DATA_PID;
 					$dataContent['uid'] = $obj->getObjVar('uid');
-					$dataContent['data_title'] = $obj->getObjVar('data_title',true);
+					$dataContent['data_title'] = $obj->getObjVar('data_title', TRUE);
 					$dataContent['data_category'] = $obj->getObjVar('data_category');
 					$dataContent['category_name'] = $categoryHash[$dataContent['data_category']];
 					$dataContent = $this->addBackTicks($dataContent);
-					# set DS in tempTable
+					// set DS in tempTable
 					$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-					$tempData->setProperty("objVars",$objVars->set($dataContent));
+					$tempData->setProperty("objVars", $objVars->set($dataContent));
 
 					$tempData->newDS();
 					}
 				}
 			}
-		return $GLOBALS['TYPO3_DB']->sql_error() ? false : true;
+		return $GLOBALS['TYPO3_DB']->sql_error() ? FALSE : TRUE;
 		}
 
 	public static function getColumns()
 		{
 		if (!empty(self::$tableColumnHash)) return self::$tableColumnHash;
 
-		self::$tableColumnHash = array('pid' => 'int','uid' => 'int','data_title' => 'tinytext','data_category' => 'int','category_name' => 'tinytext');
-		# get list of datafield names
-		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('datafield_name,datafield_type',
-								'tx_generaldatadisplay_datafields',
+		self::$tableColumnHash = array('pid' => 'int', 'uid' => 'int', 'data_title' => 'tinytext', 'data_category' => 'int', 'category_name' => 'tinytext');
+		// get list of datafield names
+		$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('datafield_name, datafield_type', 
+								'tx_generaldatadisplay_datafields', 
 								'pid='.DATA_PID.' AND NOT deleted'
 								);
 
 		if ($dataSet) 
 			{
-			# Content
+			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
-				# build column hash from datafields
+				// build column hash from datafields
 				self::$tableColumnHash[$row['datafield_name']] = "text";
 				}
 			}
@@ -270,7 +278,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 class tx_generaldatadisplay_pi1_dataOnlyList extends tx_generaldatadisplay_pi1_queryList
 	{
-	# vars
+	// vars
 	protected $table = "tx_generaldatadisplay_data";
 	protected $objType = "tx_generaldatadisplay_pi1_data";
 	protected $orderField = "data_title";
@@ -278,7 +286,7 @@ class tx_generaldatadisplay_pi1_dataOnlyList extends tx_generaldatadisplay_pi1_q
 
 class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi1_queryList
 	{
-	# vars
+	// vars
 	protected $table = "tx_generaldatadisplay_datacontent";
 	protected $objType = "tx_generaldatadisplay_pi1_datacontent";
 	protected $orderField = "tx_generaldatadisplay_datafields.display_sequence";
@@ -294,26 +302,28 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
-		$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name,tx_generaldatadisplay_datafields.datafield_type,tx_generaldatadisplay_datacontent.uid,tx_generaldatadisplay_datacontent.datacontent,tx_generaldatadisplay_datacontent.datafields_uid',
+		$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name, tx_generaldatadisplay_datafields.datafield_type, tx_generaldatadisplay_datacontent.uid, tx_generaldatadisplay_datacontent.datacontent, tx_generaldatadisplay_datacontent.datafields_uid', 
 								'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
-								ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
-								'tx_generaldatadisplay_datacontent.'.$whereClause,
-								'',
+								ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid', 
+								'tx_generaldatadisplay_datacontent.'.$whereClause, 
+								'', 
        								$this->orderField
 								);
 
-		if ($dataSet) 
+		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
+
+		if ($this->nrResults) 
 			{
-			# delete former result	
+			// delete former result	
 			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
 
-			# Content
+			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{ 
 				$data = t3lib_div::makeInstance($this->objType);
-				$uid = $data->setProperty("uid",$row['uid']);
+				$uid = $data->setProperty("uid", $row['uid']);
 				$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
-				$data->setProperty("objVars",$objVars->set($row));
+				$data->setProperty("objVars", $objVars->set($row));
 				$this->objArr[$uid] = $data;
 				}
 			}
@@ -323,7 +333,7 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 
 class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_queryList
 	{
-	# vars
+	// vars
 	protected $table = "tx_generaldatadisplay_categories";
 	protected $objType = "tx_generaldatadisplay_pi1_category";
 	protected $orderField = "category_name";
@@ -338,22 +348,22 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 
 	public function getUsedCategoryValues($valueField='category_name')
                 {
-                # returns an array of used values of the category table
+                // returns an array of used values of the category table
                 $usedHashArr = array();
 
-                # get special dataList Hash
+                // get special dataList Hash
                 $dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
                 $dataList->getDS();
 
-		# special data_category hash
-		$dataCategoryHash = $dataList->getHash('uid','data_category');
+		// special data_category hash
+		$dataCategoryHash = $dataList->getHash('uid', 'data_category');
 
 		foreach($this->objArr as $key => $obj)
 			{
 			if ($dataCategoryHash[$key])
 				{
 				$usedHashArr[$key] = $obj->getObjVar($valueField);
-				# add progenitors too
+				// add progenitors too
 				$progenitors = $this->getAllProgenitors($key);
 				foreach($progenitors as $uid)
 					$usedHashArr[$uid] = $this->objArr[$uid]->getObjVar($valueField);
@@ -376,28 +386,28 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 		return $allProgenitors;
 		}
 
-	public function getOptionSelect($field,$selected='',$usedOnly=false,$checkfield='uid')
+	public function getOptionSelect($field, $selected='', $usedOnly=FALSE, $checkfield='uid')
 		{
 		$options="";
 
 		if ($usedOnly)
 			{
-			# get uids
+			// get uids
 			$uids = array_keys($this->getUsedCategoryValues());
-			# make clause to retrieve used categories
+			// make clause to retrieve used categories
 			$searchClause = t3lib_div::makeInstance(PREFIX_ID.'_objClause');
-			$searchClause->addAND('uid',implode(',',$uids),'IN');
+			$searchClause->addAND('uid', implode(', ', $uids), 'IN');
 			$this->getDS($searchClause);
 			}
 
-		# Get options
+		// Get options
 		foreach($this->objArr as $key => $obj)
 			{
 			$optionEntry = '<option value="'.$obj->getObjVar($checkfield).'"'.(($obj->getObjVar($checkfield) == $selected) ? 
 				' selected="selected">' : '>').$obj->getObjVar($field).'</option>';
 			
-			# add level class
-			$optionEntry = $this->cObj->addParams($optionEntry,array('class' => $this->pi_getClassName('optionfield-categorylvl').$obj->getObjVar('level')));
+			// add level class
+			$optionEntry = $this->cObj->addParams($optionEntry, array('class' => 'optionfield-categorylvl'.$obj->getObjVar('level')));
 			$options.= $optionEntry;
 			}
 
@@ -417,23 +427,23 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 				$level++;
                                 $savedNode = $node;
                                 $node = $this->objArr[$node->getObjVar('category_progenitor')];
-				# node is not part of this array -> maybe deleted...
+				// node is not part of this array -> maybe deleted...
 				if (!$node) break;
                                 $childs = $node->getObjVar('childs') ? $node->getObjVar('childs') : array();
                                 if (!isset($childs[$savedNode->getObjVar('uid')]))
                                         {
-					# save child uid
+					// save child uid
                                         $childs[$savedNode->getObjVar('uid')] = $savedNode->getObjVar('uid');
-                                        $node->setObjVar('childs',$childs);
+                                        $node->setObjVar('childs', $childs);
                                         }
                                 }
-			# save nodelevel
-			$this->objArr[$key]->setObjVar('level',$level);
-			# build sortHashArr for hierachical sorting
+			// save nodelevel
+			$this->objArr[$key]->setObjVar('level', $level);
+			// build sortHashArr for hierachical sorting
 			$sortHashArr[$level][] = $key;
                         }
 
-		# get the entry level
+		// get the entry level
 		$savelevel = $level;
 		foreach($sortHashArr as $level => $nodeArr)
 			if ($level < $savelevel) $savelevel = $level;
@@ -441,14 +451,14 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 		$this->objArr = $this->hierachicalSort($sortHashArr[$savelevel]);
                 }
 
-	private function hierachicalSort($nodeArr,$level=0,&$newObjArr=array())
+	private function hierachicalSort($nodeArr, $level=0, &$newObjArr=array())
 		{
 		while($nodeArr)
 			{
 			$node = $this->objArr[array_shift($nodeArr)];
 			$newObjArr[$node->getObjVar('uid')] = $node;
 			if ($subchilds = $node->getObjVar('childs'))
-				$this->hierachicalSort($subchilds,++$level,$newObjArr);	
+				$this->hierachicalSort($subchilds, ++$level, $newObjArr);	
 			}
 		return $newObjArr;
 		}
@@ -456,19 +466,19 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 
 class tx_generaldatadisplay_pi1_datafieldList extends tx_generaldatadisplay_pi1_queryList
 	{
-	# vars
+	// vars
 	protected $table = "tx_generaldatadisplay_datafields";
 	protected $objType = "tx_generaldatadisplay_pi1_datafield";
 	protected $orderField = "display_sequence";
 
-	public function getOptionSelect($field,$selected='',$checkfield='uid')
+	public function getOptionSelect($field, $selected='', $checkfield='uid', $searchableOnly=TRUE)
 		{
-		# Get options
+		// Get options
 		foreach($this->objArr as $key => $obj)
 			{
-			# get metadata of datafield
+			// get metadata of datafield
 			$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($key);
-			if ($metadata['datafield_searchable']=="yes")
+			if ($metadata['datafield_searchable']=="yes" || !$searchableOnly)
 				{
 				$optionEntry =  '<option value="'.$obj->getObjVar($checkfield).'"'.(($obj->getObjVar($checkfield) == $selected) ? 
 						' selected="selected">' : '>').$obj->getObjVar($field).'</option>';
@@ -487,7 +497,7 @@ class tx_generaldatadisplay_pi1_datafieldList extends tx_generaldatadisplay_pi1_
 			$objVars = $obj->getProperty('objVars');
 			if ($objVars->get('datafield_name') == $datafieldName) return $objVars->get('uid');
 			}
-		return false;
+		return FALSE;
 		}
 	}
 
