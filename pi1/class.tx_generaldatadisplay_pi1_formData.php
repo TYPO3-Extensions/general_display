@@ -51,7 +51,7 @@ abstract class tx_generaldatadisplay_pi1_formData
 
 	public function getProperty($property)
 		{
-		return isset($this->$property) ? $this->$property : null;
+		return isset($this->$property) ? $this->$property : NULL;
 		}
 
 	public function setProperty($property, $value)
@@ -80,14 +80,24 @@ abstract class tx_generaldatadisplay_pi1_formData
 		return 0;
 		}
 
-	protected function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=null)
+	protected function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=NULL)
 		{
 		$piVars = $secPiVars ? $secPiVars->get() : array();
 		$data = $formData->get("", TRUE);
 
 		foreach ($data as $key => $value)
-			$dataArr[$key] = (is_scalar($piVars[$key]) && isset($piVars[$key])) ? $piVars[$key] : $value;
-	
+			{
+			$datafieldType = tx_generaldatadisplay_pi1_dataFields::getFieldType($key);
+			switch (TRUE)
+				{
+				case $datafieldType =='date' || $datafieldType =='time' || $datafieldType =='currency':
+				$dataArr[$key] = (is_array($piVars[$key]) && isset($piVars[$key])) ? $piVars[$key] : (is_array($value) ? $value : unserialize($value));
+				break;
+
+				default:
+				$dataArr[$key] = (is_scalar($piVars[$key]) && isset($piVars[$key])) ? $piVars[$key] : $value;
+				}
+			}
 		return $this->formData->set($dataArr);
 		}
 
@@ -97,12 +107,12 @@ abstract class tx_generaldatadisplay_pi1_formData
 			{
 			// check value if it's not already checked
 			if ($this->checkHash[$key] && !$this->formError[$key])
-				$this->formError[$key] = $this->checkValue($this->getFormValue($key, TRUE), $this->checkHash[$key]);
+				$this->formError[$key] = $this->checkValue($this->getFormValue($key, TRUE), $this->checkHash[$key], $datafieldType = tx_generaldatadisplay_pi1_dataFields::getFieldType($key));
 			elseif (!$this->checkHash[$key]) $this->formData->delKey($key);
 			}
 		}
 
-	static public function checkValue($value, $checkarr)
+	static public function checkValue($value, $checkarr, $type='')
 		{
 		if (is_scalar($checkarr)) $checkarr = array($checkarr);
 
@@ -110,13 +120,23 @@ abstract class tx_generaldatadisplay_pi1_formData
 			{
 			switch ($check)
 				{
-				case 'notEmpty': 
-				$error[$check] = $value ? 0 : $check;
+				case 'notEmpty':
+				if (is_scalar($value))
+					$error[$check] = $value ? 0 : $check;
+				if (is_array($value))
+					{
+					// check if there is any value
+					// type specific key removing before checking
+					if ($type == 'currency') unset($value['CURRENCY']);
+					$error[$check] = $check;
+					foreach($value as $k => $v)
+						if ($v) $error[$check] = 0;
+					}
 				break;
 		
 				case 'isInt':
 				$cmpval = $value;
-				settype($cmpval, 'integer');
+				settype($cmpval, 'int');
 				$error[$check]=(strcmp($cmpval, $value)) ? $check : 0;
 				break;
 	
@@ -125,18 +145,59 @@ abstract class tx_generaldatadisplay_pi1_formData
 				break;
 
 				case 'isDate':
-				preg_match('/^([0-9]{1, 2})\D([0-9]{1, 2})\D([0-9]{1, 4})$/', $value, $matches);
-				$error[$check] = checkdate($matches[2], $matches[1], $matches[3]) ? 0 : $check;
+				$chk = TRUE;
+				if (is_array($value))
+					{
+					// check all values -> should be int or empty
+					foreach($value as $k => $v)
+						$chk = $chk && preg_match('/^(\d+|)$/', $v);
+
+					// minimum to check is year
+					if ($value['YEAR'])
+						{
+						$day = $value['DAY'] ? $value['DAY'] : 1;
+						$month = $value['MONTH'] ? $value['MONTH'] : 1;
+						$chk = $chk && checkdate($month, $day, $value['YEAR']);
+						}
+					}
+				$error[$check] = $chk ? 0 : $check;
 				break;
 
 				case 'isTime':
-				preg_match('/^([0-9]{1, 2}):([0-9]{2})(:([0-9]{2}))?$/', $value, $matches);
-				$matches[1] = strlen($matches[1])==1 ? "0".$matches[1] : $matches[1];	
-				$matches[1] = $matches[1]=="24" ? "00" : $matches[1];
-				$cmpval1 = $matches[1].":".$matches[2].($matches[4] ? ":".$matches[4] : ":00");
-				$cmpval2 = date("H:i:s", mktime($matches[1], $matches[2], $matches[4]));
-				$error[$check] = strcmp($cmpval1, $cmpval2) ? $check : 0;
+				$chk = TRUE;
+				// minimum to check is hour
+				if (is_array($value))
+					{
+					// clean values
+					foreach($value as $k => $v)
+						{
+						// replace leading zero
+						$v = preg_replace('/^0(\d)$/','$1', $v);
+						$chk = $chk && (!strcmp(($v = $v ? $v : 0),(int)$v));
+						switch ($k)
+							{
+							case 'HOUR':	
+							$chk = $chk && isset($v) && ($v >=0 && $v < 24);
+							break;
+
+							default:
+							$chk = $chk && ($v >=0 && $v < 60);
+							break;
+							}
+						}
+					}
+				$error[$check] = $chk ? 0 : $check;
 				break;	
+
+				case 'isCurrency':
+				if (is_array($value) && ($value['VALUE_PREFIX'] || $value['VALUE_SUFFIX']))
+					{
+					$error[$check] = preg_match('/^(\d+|)$/', $value['VALUE_PREFIX']) && preg_match('/^(\d+|)$/', $value['VALUE_SUFFIX']) ? 0 : $check;
+					} else {
+					// no error if it is empty
+					$error[$check] = 0;
+					}
+				break;
 
 				case 'isEmail':
 				$error[$check] = t3lib_div::validEmail($value) ? 0 : $check; 
@@ -208,7 +269,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 	// vars
 	protected $type='data';
 
-	public function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=null)
+	public function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=NULL)
 		{
 		// first set $this->formData with formData
 		$this->formData = parent::importValues($formData, $secPiVars);
@@ -245,6 +306,10 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 
 					case 'date':
 					$checkMethod[] = 'isDate';
+					break;
+
+					case 'currency':
+					$checkMethod[] = 'isCurrency';
 					break;
 
 					case 'time':
@@ -292,7 +357,7 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 					}
 				else 
 					{
-					$imgvalue = $secPiVars ? $secPiVars->get($key, TRUE) : null;
+					$imgvalue = $secPiVars ? $secPiVars->get($key, TRUE) : NULL;
 					if (is_array($imgvalue) && isset($imgvalue['delete'])) $this->formData->delKey($key);
 					}
 				}
@@ -309,7 +374,7 @@ class tx_generaldatadisplay_pi1_categoryForm extends tx_generaldatadisplay_pi1_f
 	// vars
 	protected $type='category';
 
-	public function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=null)
+	public function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=NULL)
 		{
 		$this->formData = parent::importValues($formData, $piVars);
 
@@ -329,7 +394,7 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 	// vars
 	protected $type='datafield';
 
-	public function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=null)
+	public function importValues(tx_generaldatadisplay_pi1_objVar $formData, tx_generaldatadisplay_pi1_objVar $secPiVars=NULL)
 		{
 		$this->formData = parent::importValues($formData, $secPiVars);
 
@@ -369,7 +434,6 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 
 		// serialize metadata
 		$this->setMetadata($metadata);
-
 		return $this->formData;
 		}
 
@@ -380,7 +444,7 @@ class tx_generaldatadisplay_pi1_datafieldForm extends tx_generaldatadisplay_pi1_
 
 		if (!$meta) $meta = array();
 
-		return $key ? $meta[$key] : $meta;
+		return $key ? tx_generaldatadisplay_pi1_objVar::specialchars($meta[$key]) : $meta;
 		}
 
 	public function setMetadata($metadata)

@@ -27,7 +27,7 @@
  * Hint: use extdeveval to insert/update function index above.
  */
 
-require_once(PATH_tslib.'class.tslib_pibase.php');
+#require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once('class.tx_generaldatadisplay_pi1_objVar.php');
 require_once('class.tx_generaldatadisplay_pi1_objClause.php');
 require_once('class.tx_generaldatadisplay_pi1_dataStructs.php');
@@ -63,7 +63,6 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$this->pi_loadLL();
 		
 		// t3lib_utility_Debug::debug($this->piVars, 'piVars'); 
-		
 		// Init Flex form
 		$this->pi_initPIflexForm();
 
@@ -77,6 +76,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		// get & store permission
 		define(ADM_PERM, $this->isAdmin());
+		define(STRICT_PERM, $this->getConfigValue('strict_perm', 'int', 1, 'administration')); 
 
 		// use configured templates,  if none is given use standard template
 		$templateFile = $this->getConfigValue('userTemplateFile', 'file', 'EXT:'.$this->extKey.'/templates/template.html', 'general');
@@ -158,15 +158,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$this->secPiVars->setValue('searchphrase', $scopeArr->get('searchphrase'));
 			$this->secPiVars->setValue('selected_category', $scopeArr->get('selected_category'));
 			}
-		if ($this->secPiVars->get('offset') == null) $this->secPiVars->setValue('offset', $scopeArr->get('offset'));
-		if ($this->secPiVars->get('selected_letter') == null) $this->secPiVars->setValue('selected_letter', $scopeArr->get('selected_letter'));
+		if ($this->secPiVars->get('offset') == NULL) $this->secPiVars->setValue('offset', $scopeArr->get('offset'));
+		if ($this->secPiVars->get('selected_letter') == NULL) $this->secPiVars->setValue('selected_letter', $scopeArr->get('selected_letter'));
 
 		// set scopeArray
-		$scopeArr->setValue('selected_item',  $this->secPiVars->get('selected_item'));
-		$scopeArr->setValue('selected_category',  $this->secPiVars->get('selected_category'));
-		$scopeArr->setValue('selected_letter',  $this->secPiVars->get('selected_letter'));
-		$scopeArr->setValue('searchphrase',  $this->secPiVars->get('searchphrase', TRUE));
-		$scopeArr->setValue('offset',  $this->secPiVars->get('offset'));
+		$scopeArr->setValue('selected_item', $this->secPiVars->get('selected_item'));
+		$scopeArr->setValue('selected_category', $this->secPiVars->get('selected_category'));
+		$scopeArr->setValue('selected_letter', $this->secPiVars->get('selected_letter'));
+		$scopeArr->setValue('searchphrase', $this->secPiVars->get('searchphrase', TRUE));
+		$scopeArr->setValue('offset', $this->secPiVars->get('offset'));
 		// get all datafields & create hash
 		$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
 		$objArr = $datafieldList->getDS();
@@ -468,7 +468,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					} else $contentAll['###TABLE_CONTENT###']="";
 				$contentAll['###TABLE_HEADING###'] = $this->wrapInTag($this->getLL('categories'), __FUNCTION__.'-heading');
 				$createLink = $this->wrapInTag($this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'create.png" title="'.$this->getLL('new_category').'" alt="['.$this->getLL('new_category').']" />', array('action' => 'update',  'type' => 'category'), '1', '1'), __FUNCTION__.'-admincreate');
-				$contentAll['###ADMIN_CREATE###'] = ADM_PERM ? $createLink : '';
+				$contentAll['###ADMIN_CREATE###'] = ADM_PERM == 'BE' ? $createLink : '';
 				}
 			break;
 
@@ -488,7 +488,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					} else $contentAll['###TABLE_CONTENT###']="";
 				$contentAll['###TABLE_HEADING###'] = $this->wrapInTag($this->getLL('datafields'), __FUNCTION__.'-heading');	
 				$createLink = $this->wrapInTag($this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'create.png" title="'.$this->getLL('new_datafield').'" alt="['.$this->getLL('new_datafield').']" />', array('action' => 'update',  'type' => 'datafield'), '1', '1'), __FUNCTION__.'-admincreate');
-				$contentAll['###ADMIN_CREATE###'] = ADM_PERM ? $createLink : '';
+				$contentAll['###ADMIN_CREATE###'] = ADM_PERM == 'BE' ? $createLink : '';
 				}
 			break;
 			}
@@ -674,7 +674,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				if ($objArr[$uid])
 					{
 					$objVars =  $objArr[$uid]->getProperty('objVars');
-					$contentArray['###ADMINSTUFF###'] = $this->makeAdminStuff($uid);
+					$contentArray['###ADMINSTUFF###'] = $objArr[$uid]->havePerm() ?  $this->makeAdminStuff($uid) : '';
 					$contentArray['###CATEGORY-NAME###'] = is_object($catObjArr[$objVars->get('data_category')]) ?  $catObjArr[$objVars->get('data_category')]->getObjVar('category_name') : "";
 					$contentArray['###DATA_TITLE###']=$objVars->get('data_title');
 					$contentArray['###DETAILDATA###'] ="";
@@ -690,17 +690,19 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					foreach($dataContentObjArr as $key => $obj) 
 						{
 						$fieldName = $obj->getObjVar('datafield_name');
-						$value = $this->formatContentType($obj);
+						$value = $obj->getObjVar('datacontent');
 						// get metadata
 						$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('datafields_uid'));
+						// check value
+						$error = tx_generaldatadisplay_pi1_formData::checkValue($value,'notEmpty');
 
-						if ($value && $metadata['content_visible']!="no")
+						if (!$error['notEmpty'] && $metadata['content_visible']!="no")
 							{
 							// standard template uses Detaildata - but you can also use your own template & "real" names
 							$contentArray['###HEADING_'.strtoupper($fieldName).'###'] = $this->wrapInTag($fieldName, __FUNCTION__."-dataHeading");
 							$contentArray['###'.strtoupper($key).'###'] = $this->wrapInTag($this->getLL($value) ? $this->getLL($value) : $value, __FUNCTION__."-dataContent");	
 							$contentArray['###HEADING_DATACONTENT###'] = $this->wrapInTag($fieldName, __FUNCTION__."-dataHeading");
-							$contentArray['###DATACONTENT###'] = $this->wrapInTag($value, __FUNCTION__."-dataContent");
+							$contentArray['###DATACONTENT###'] = $this->wrapInTag($this->formatContentType($obj), __FUNCTION__."-dataContent");
 							$contentArray['###DETAILDATA###'].= $this->cObj->substituteMarkerArrayCached($subsubpart, $contentArray);
 							}
 
@@ -737,7 +739,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$contentArray['###DATAFIELD_TYPE_ERROR###'] = $contentArray['###DATAFIELD_TYPE_ERRORCLASS###'] = '';
 
 		foreach ($formError as $key => $hash)
- 			{
+			{
 			foreach ($hash as $check => $value)
 				{
 				if ($value) 
@@ -780,8 +782,74 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						$dataField->setTmplArr($contentArray);
 						$dataField->setTmplVar('###DATAFIELD_NAME###', $objVars->get('datafield_name'));
 						$dataField->setTmplVar('###HEADING_DATAFIELD###', $this->wrapInTag($objVars->get('datafield_name'), __FUNCTION__."-dataHeading"));
-						$dataField->setTmplVar('###DATAFIELD_CONTENT###', $formData->getFormValue($objVars->get('datafield_name')));
+			
+						// get metadata
+						$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($key);
+						// switch content by datafield_type
+						switch ($objVars->get('datafield_type'))
+							{
+							case 'date':
+							$dateField = $formData->getFormValue($objVars->get('datafield_name'),TRUE);
+							if ($dateField && is_array($dateField))
+								{
+								$dataField->setTmplVar('###CONTENT_DAY###',$dateField['DAY']);
+								$dataField->setTmplVar('###CONTENT_MONTH###',$dateField['MONTH']);
+								$dataField->setTmplVar('###CONTENT_YEAR###',$dateField['YEAR']);
+								} else {
+								if ($metadata['date_defaultvalue'] == 'yes')
+									{
+									$currDate = date('d.m.Y');
+									$dateField = explode('.',$currDate);
+									$dataField->setTmplVar('###CONTENT_DAY###',$dateField[0]);
+									$dataField->setTmplVar('###CONTENT_MONTH###',$dateField[1]);
+									$dataField->setTmplVar('###CONTENT_YEAR###',$dateField[2]);
+									} else {
+									$dataField->setTmplVar('###CONTENT_DAY###','');
+									$dataField->setTmplVar('###CONTENT_MONTH###','');
+									$dataField->setTmplVar('###CONTENT_YEAR###','');
+									}
+								}
+							break;
 
+							case 'time':
+							$dataFieldContent = $formData->getFormValue($objVars->get('datafield_name'));
+							if ($dataFieldContent && is_array($dataFieldContent))
+								{
+								$dataField->setTmplVar('###CONTENT_HOUR###',$dataFieldContent['HOUR']);
+								$dataField->setTmplVar('###CONTENT_MINUTE###',$dataFieldContent['MINUTE']);
+								$dataField->setTmplVar('###CONTENT_SECOND###',$dataFieldContent['SECOND']);
+								} else {
+								if ($metadata['time_defaultvalue'] == 'yes')
+									{
+									$currTime = date('H:i:s');
+									$dataFieldContent = explode(':',$currTime);
+									$dataField->setTmplVar('###CONTENT_HOUR###',$dataFieldContent[0]);
+									$dataField->setTmplVar('###CONTENT_MINUTE###',$dataFieldContent[1]);
+									$dataField->setTmplVar('###CONTENT_SECOND###',$dataFieldContent[2]);
+									} else {
+									$dataField->setTmplVar('###CONTENT_HOUR###','');
+									$dataField->setTmplVar('###CONTENT_MINUTE###','');
+									$dataField->setTmplVar('###CONTENT_SECOND###','');
+									}
+								}
+							break;
+
+							case 'currency':	
+								$dataFieldContent = $formData->getFormValue($objVars->get('datafield_name'));
+								if (!$dataFieldContent)
+									$dataFieldContent = array('VALUE_PREFIX' => $metadata['default_value_prefix'], 'VALUE_SUFFIX' => $metadata['default_value_suffix']);
+	
+								$dataField->setTmplVar('###DATAFIELD_VALUE_PREFIX###', $dataFieldContent['VALUE_PREFIX']);
+								$dataField->setTmplVar('###DATAFIELD_VALUE_SUFFIX###', $dataFieldContent['VALUE_SUFFIX']);
+							break;
+
+							default:
+								$dataFieldContent = $formData->getFormValue($objVars->get('datafield_name'));
+								if (!$dataFieldContent) 
+									$dataFieldContent = $metadata['default_value'];
+								$dataField->setTmplVar('###DATAFIELD_CONTENT###', $dataFieldContent);
+							}
+							
 						// get errors
 						$formErrorDatafield="";
 						$ferror = $formError[$objVars->get('datafield_name')] ? $formError[$objVars->get('datafield_name')] : array();
@@ -833,7 +901,17 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				$dataField = t3lib_div::makeInstance(PREFIX_ID.'_'.$datafieldType);
 				$dataField->setTmplArr($contentArray);
 
-				// select datafield configuration
+				// set common fields
+				$dataField->setTmplVar('###HEADING_REQUIRED###', $this->getLL('required'));
+				$dataField->setTmplVar('###HEADING_SEARCHABLE###', $this->getLL('searchable'));
+				$dataField->setTmplVar('###HEADING_CONTENT_VISIBLE###', $this->getLL('visible'));
+				$dataField->setTmplVar('###HEADING_DEFAULT###', $this->wrapInTag($this->getLL('default_value'), __FUNCTION__."-dataHeading"));
+				$dataField->setTmplVar('###DATAFIELD_REQUIRED###', $formData->getMetadata('datafield_required')=='yes' ? 'checked="checked"' : '');
+				$dataField->setTmplVar('###DATAFIELD_SEARCHABLE###', $formData->getMetadata('datafield_searchable')=='yes' ? 'checked="checked"' : '');
+				$dataField->setTmplVar('###CONTENT_VISIBLE###', $formData->getMetadata('content_visible')=='yes' ? 'checked="checked"' : '');
+
+
+				// select special datafield configurations
 				switch ($formData->getFormValue('datafield_type'))
 					{	
 					case 'img':
@@ -847,15 +925,36 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						}
 					break;
 					
-					default:
+					case 'date':
 						{
-						$dataField->setTmplVar('###HEADING_REQUIRED###', $this->getLL('required'));
-						$dataField->setTmplVar('###HEADING_SEARCHABLE###', $this->getLL('searchable'));
-						$dataField->setTmplVar('###HEADING_CONTENT_VISIBLE###', $this->getLL('visible'));
-						$dataField->setTmplVar('###DATAFIELD_REQUIRED###', $formData->getMetadata('datafield_required')=='yes' ? 'checked="checked"' : '');
-						$dataField->setTmplVar('###DATAFIELD_SEARCHABLE###', $formData->getMetadata('datafield_searchable')=='yes' ? 'checked="checked"' : '');
-						$dataField->setTmplVar('###CONTENT_VISIBLE###', $formData->getMetadata('content_visible')=='yes' ? 'checked="checked"' : '');
+						$dataField->setTmplVar('###HEADING_DATE_DEFAULTVALUE###', $this->getLL('default_value').': '.$this->getLL('default_current_date'));
+						$dataField->setTmplVar('###DATE_DEFAULTVALUE###', $formData->getMetadata('date_defaultvalue')=='yes' ? 'checked="checked"' : '');
 						}
+					break;
+
+					case 'time':
+						{
+						$dataField->setTmplVar('###HEADING_TIME_DEFAULTVALUE###', $this->getLL('default_value').': '.$this->getLL('default_current_time'));
+						$dataField->setTmplVar('###TIME_DEFAULTVALUE###', $formData->getMetadata('time_defaultvalue')=='yes' ? 'checked="checked"' : '');
+						}
+					break;
+
+					case 'bool':
+						{
+						$dataField->setTmplVar('###DATAFIELD_SELECTED_YES###', $formData->getMetadata('default_value')=='yes' ? 'selected="selected"' : '');
+						$dataField->setTmplVar('###DATAFIELD_SELECTED_NO###', $formData->getMetadata('default_value')=='no' ? 'selected="selected"' : '');
+						}
+					break;
+
+					case 'currency':
+						{
+						$dataField->setTmplVar('###DEFAULT_VALUE_PREFIX###', $formData->getMetadata('default_value_prefix'));
+						$dataField->setTmplVar('###DEFAULT_VALUE_SUFFIX###', $formData->getMetadata('default_value_suffix'));
+						}
+					break;
+
+					default:
+						$dataField->setTmplVar('###DEFAULT_VALUE###', $formData->getMetadata('default_value'));
 					}
 
 				$contentArray['###DATAFIELD_CONFIG###'] = $this->wrapInTag($dataField->HTML('config'), __FUNCTION__."-datafieldConfig");
@@ -948,7 +1047,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 	private function importData()
 		{
 		// do nothing without permission
-		if (!$this->getConfigValue('allowDataImport','bool',FALSE)) return $this->showError('error_noPermission');
+		if (!$this->getConfigValue('allowDataImport','bool',FALSE) || ADM_PERM != 'BE') return $this->showError('error_noPermission');
 		// is file submitted ?
 		if ($this->secPiVars->get('submit_import_data') && $_FILES[PREFIX_ID]['tmp_name'])
 			{
@@ -961,7 +1060,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$ddl = $this->secPiVars->get('import_data_delimiter', TRUE);
 
 			$data = file_get_contents($_FILES[PREFIX_ID]['tmp_name']['importfile']);
-			$data = preg_replace('/('.$tdl.'|'.$ddl.'|'.$tdl.$ddl.')(\r\n|\r|\n)/',  $tdl."\a",  $data);
+			$data = preg_replace('/('.$tdl.'|'.$ddl.'|'.$tdl.$ddl.')(\r\n|\r|\n)/', $tdl."\a",  $data);
 			$dataArr = explode("\a", $data);
 			// remove last empty element
 			array_pop($dataArr);
@@ -1034,7 +1133,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$importData = unserialize($this->sessionData('importData'));
 
 			// import categories ?
-			if ($this->secPiVars->get('import_categories_create') && $this->secPiVars->get('import_selected_category') != null)
+			if ($this->secPiVars->get('import_categories_create') && $this->secPiVars->get('import_selected_category') != NULL)
 				{
 				$importCategory = $this->secPiVars->get('import_selected_category');
 
@@ -1105,8 +1204,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			{
 			// add mapping
 			if ($this->secPiVars->get('mapping_add') &&
-			    $this->secPiVars->get('map_selected_CSVField') != null &&
-			    $this->secPiVars->get('map_selected_dataField') != null)
+			    $this->secPiVars->get('map_selected_CSVField') != NULL &&
+			    $this->secPiVars->get('map_selected_dataField') != NULL)
 				{
 				$mapData = unserialize($this->sessionData('mapData'));
 
@@ -1159,10 +1258,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 	private function exportData()
 		{
 		// do nothing without permission
-		if (!$this->getConfigValue('allowDataExport','bool',FALSE)) return $this->showError('error_noPermission');
+		if (!$this->getConfigValue('allowDataExport','bool',FALSE) || ADM_PERM != 'BE') return $this->showError('error_noPermission');
 		// instantiate datalist 
 		$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
-		$objArr = $dataList->getDS($this->searchClause);
+		$objArr = $dataList->getDS($this->searchClause,TRUE);
 
 		if ($dataList->getProperty('nrResults'))
 			{
@@ -1180,7 +1279,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			foreach($objArr as $id => $obj)
 				{
 				foreach ($headerData as $key) 
-					$row[$key] = $obj->getObjVar($key);
+					$row[$key] = $obj->getObjVar($key,TRUE);
 
 				$exportData[]= $row;
 				}
@@ -1212,6 +1311,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $content;			
 		}
 
+	
+
 	private function isAdmin()
 		{
 		// if permission is already defined return
@@ -1221,11 +1322,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		if ($GLOBALS['BE_USER']->user)
 			{
 			// if user is logged in as a BE-Admin grand access
-			if ($GLOBALS['BE_USER']->user['admin']) return 1;
+			if ($GLOBALS['BE_USER']->user['admin']) return 'BE';
 			
 			// check if BE user have permission to edit the datapage
-			$dataArray = t3lib_BEfunc::getRecord('pages',  DATA_PID);
-			if ($GLOBALS['BE_USER']->doesUserHaveAccess($dataArray, 2)) return 1;
+			$dataArray = t3lib_BEfunc::getRecord('pages', DATA_PID);
+			if ($GLOBALS['BE_USER']->doesUserHaveAccess($dataArray, 2)) return 'BE';
 			}
 
 		// check FE permission
@@ -1250,11 +1351,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 				// Check permission
 				// is user in userlist
-				foreach ($flexUsersArr as $adminUser) if ($sessUser==$adminUser) return 1;
+				foreach ($flexUsersArr as $adminUser) if ($sessUser==$adminUser) return 'FE';
 				// is user in grouplist
 				foreach ($flexGroupsArr as $adminGroup)
 					{
-					foreach ($sessGroupArr as $sessGroup) if ($sessGroup==$adminGroup) return 1;
+					foreach ($sessGroupArr as $sessGroup) if ($sessGroup==$adminGroup) return 'FE';
 					}
 				}
 			}
@@ -1316,17 +1417,46 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $table;
 		}
 
-	private function formatContentType(tx_generaldatadisplay_pi1_dataStructs &$obj)
+	public function formatContentType(tx_generaldatadisplay_pi1_dataStructs $obj=NULL, $content, $type)
 		{
-		$content = $obj->getObjVar('datacontent');
-		$type = $obj->getObjVar('datafield_type');
+		if (!$content && !$type)
+			{
+			$content = $obj->getObjVar('datacontent');
+			$type = $obj->getObjVar('datafield_type');
+			}
 
 		if (!$content) return;
 
 		switch ($type)
 			{
 			case 'date':
-			$content = preg_replace('/\D/', '.', $content);
+			// use plain content
+			$dataContent = unserialize(htmlspecialchars_decode($content));
+			if (is_array($dataContent))
+				{
+				if (isset($dataContent['MONTH']) && !$dataContent['MONTH']) unset($dataContent['MONTH']);
+				if (isset($dataContent['DAY']) && !$dataContent['DAY']) unset($dataContent['DAY']);
+				$content = implode('.',$dataContent);
+				}
+			break;
+
+			case 'time':
+			// use plain content
+			$dataContent = unserialize(htmlspecialchars_decode($content));
+			if (is_array($dataContent))
+				{
+				$dataContent['MINUTE'] = $dataContent['MINUTE']  ? $dataContent['MINUTE'] : '00';
+				$dataContent['SECOND'] = $dataContent['SECOND']  ? $dataContent['SECOND'] : '00';
+				$content = implode(':',$dataContent);
+				}
+			break;
+
+			case 'currency':
+			// use plain content
+			$dataContent = unserialize(htmlspecialchars_decode($content));
+			if (is_array($dataContent))
+				$value = (int)$dataContent['VALUE_PREFIX']+((int)$dataContent['VALUE_SUFFIX']/100);
+				$content = number_format($value, 2, ',', '.')." ".$dataContent['CURRENCY'];
 			break;
 
 			case 'email':
@@ -1339,7 +1469,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;	
 
 			case 'bool':
-			$content = $this->getLL($content);
+			$content = $this->pi_getLL($content);
 			break;
 
 			case 'img':
@@ -1348,7 +1478,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if ($metadata['img_size_x']) $imgSizeArr[] = 'width="'.$metadata['img_size_x'].'"';
 			if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
-			$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->getLL('img').'" '.implode(' ', $imgSizeArr).' /></div>';
+			$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ', $imgSizeArr).' /></div>';
 			break;
 
 			case 'text':
@@ -1491,20 +1621,20 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function makeAdminStuff($uid, $type='data')
 		{
-		if (ADM_PERM && $uid)
+		if ($uid && (ADM_PERM == 'BE' || (ADM_PERM == 'FE' && $type == 'data')))
 			{		
 			$stuff =$this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'edit.png" title="'.$this->getLL('modify').'" alt="['.$this->getLL('modify').']" />', array('uid' => $uid,  'action' => 'update',  'type' => $type), '1', '1');
-			
-			if ($type=='datafield')
+			$stuff.=$this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'trash.png" title="'.$this->getLL('delete').'" alt="['.$this->getLL('delete').']" />', array('uid' => $uid, 'action' => 'delete-request',  'type' => $type), '1', '1');
+
+			if ($type=='datafield' && ADM_PERM == 'BE')
 				{
 				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'button_down.gif" title="'.$this->getLL('entry_down').'" alt="['.$this->getLL('entry_down').']" />', array('uid' => $uid,  'action' => 'update-sequence',  'type' => $type,  'direction' => 'down'), '1', '1');
 				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'button_up.gif" title="'.$this->getLL('entry_up').'" alt="['.$this->getLL('entry_up').']" />', array('uid' => $uid,  'action' => 'update-sequence',  'type' => $type,  'direction' => 'up'), '1', '1');
 				}	
-			
-			$stuff.=$this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'trash.png" title="'.$this->getLL('delete').'" alt="['.$this->getLL('delete').']" />', array('uid' => $uid, 'action' => 'delete-request',  'type' => $type), '1', '1');
 
 			return $stuff;
-			} else return;
+			}
+		return;
 		}
 
 	private function makeAdminLinks()
@@ -1514,12 +1644,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$subpart=$this->cObj->getSubpart(TEMPLATE, '###ADMINLINKS###');
 
 			$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('new_data').']', array('action' => 'update',  'type' => 'data'), '1', '1');
-			$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('categories').']', array('type' => 'category', 'view'=>'3'), '1', '1');
-			$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('datafields').']', array('type' => 'datafield', 'view'=>'3'), '1', '1');
-			if ($this->getConfigValue('allowDataExport','bool',FALSE))
-				$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('export_data').']', array('action' => 'export'), '1', '1');
-			if ($this->getConfigValue('allowDataImport','bool',FALSE))
-				$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('import_data').']', array('action' => 'import'), '1', '1');
+			if (ADM_PERM == 'BE')
+				{
+				$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('categories').']', array('type' => 'category', 'view'=>'3'), '1', '1');
+				$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('datafields').']', array('type' => 'datafield', 'view'=>'3'), '1', '1');
+				if ($this->getConfigValue('allowDataExport','bool',FALSE))
+					$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('export_data').']', array('action' => 'export'), '1', '1');
+				if ($this->getConfigValue('allowDataImport','bool',FALSE))
+					$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('import_data').']', array('action' => 'import'), '1', '1');
+				}
 
 			$contentArray['###ADMIN_MENU###'] = implode(' | ', $adminMenu);
 
@@ -1530,14 +1663,14 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 	private function getConfigValue($configVar, $type='string', $defaultValue='', $flexformSection=FALSE) 
 		{
 		$configValue = $flexformSection ? 
-			$this->pi_getFFvalue($this->cObj->data['pi_flexform'],  $configVar,  $flexformSection) :
+			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], $configVar, $flexformSection) :
 			$this->conf[$configVar];
 
 		if ($flexformSection) 
 			{
-			$configValue = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],  $configVar,  $flexformSection);
+			$configValue = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], $configVar, $flexformSection);
 
-			if ($configValue != null) 
+			if ($configValue != NULL) 
 				{
 				switch ($type) 
 					{
@@ -1552,7 +1685,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				return $configValue;
 				}
 			}
-		if ($this->conf[$configVar] != null) 
+		if ($this->conf[$configVar] != NULL) 
 			{
 			if ($type == 'file') $type = 'string';
 			settype($this->conf[$configVar], $type);

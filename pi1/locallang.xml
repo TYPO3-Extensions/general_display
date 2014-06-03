@@ -35,6 +35,9 @@
 			<label index="required">required</label>
 			<label index="searchable">searchable</label>
 			<label index="visible">Content visible</label>
+			<label index="default_value">Default value</label>
+			<label index="default_current_date">Current date</label>
+			<label index="default_current_time">Current time</label>
 			<label index="all_items">All fields</label>
 			<label index="all_categories">All categories</label>
 			<label index="entry_up">Entry up</label>
@@ -65,6 +68,7 @@
 			<label index="img">Picture</label>
 			<label index="int">Integer</label>
 			<label index="bool">Yes/No</label>
+			<label index="currency">Currency</label>
 			<label index="date">Date</label>
 			<label index="time">Time</label>
 			<label index="email">Email</label>
@@ -80,6 +84,7 @@
 			<label index="error_isNumeric">Value is not numeric</label>
 			<label index="error_isBool">Valuetype is not bool</label>
 			<label index="error_isDate">Unknown date format</label>
+			<label index="error_isCurrency">Unknown currency format</label>
 			<label index="error_isTime">Unknown time format</label>
 			<label index="error_isEmail">Incorrect email address</label>
 			<label index="error_isURL">Incorrect URL</label>
@@ -108,7 +113,7 @@
 				&lt;tr&gt;&lt;td&gt;sub&lt;sub&gt;script&lt;/sub&gt;&lt;/td&gt;&lt;td&gt;sub,,script,,&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;List (ordered/unordered)&lt;/td&gt;&lt;td&gt;{{ ~/* listitem1 ...}}&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;Link&lt;/td&gt;&lt;td&gt;[[URL]]&lt;/td&gt;&lt;/tr&gt;
-				&lt;tr&gt;&lt;td&gt;Named link&lt;/td&gt;&lt;td&gt;[[URL|identifier]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;named link&lt;/td&gt;&lt;td&gt;[[URL|identifier]]&lt;/td&gt;&lt;/tr&gt;
 				&lt;/table&gt;
 			</label>
 		</languageKey>
@@ -142,6 +147,9 @@
 			<label index="required">benötigt</label>
 			<label index="searchable">durchsuchbar</label>
 			<label index="visible">Inhalt sichtbar</label>
+			<label index="default_value">Standardwert</label>
+			<label index="default_current_date">Aktuelles Datum</label>
+			<label index="default_current_time">Aktuelle Uhrzeit</label>
 			<label index="all_items">Alle Felder</label>
 			<label index="all_categories">Alle Kategorien</label>
 			<label index="entry_up">Eintrag hoch</label>
@@ -172,6 +180,7 @@
 			<label index="img">Bild</label>
 			<label index="int">Ganzzahl</label>
 			<label index="bool">Ja/Nein</label>
+			<label index="currency">Währung</label>
 			<label index="date">Datum</label>
 			<label index="time">Uhrzeit</label>
 			<label index="email">Email</label>
@@ -188,6 +197,7 @@
 			<label index="error_isNumeric">Wert ist nicht numerisch</label>
 			<label index="error_isBool">Kein Wahrheitswert</label>
 			<label index="error_isDate">Unbekanntes Datumsformat</label>
+			<label index="error_isCurrency">Unbekanntes Währungsformat</label>
 			<label index="error_isTime">Unbekanntes Zeitformat</label>
 			<label index="error_isEmail">Fehlerhafte Email Adresse</label>
 			<label index="error_isURL">Fehlerhafte URL</label>
@@ -217,7 +227,7 @@
 				&lt;tr&gt;&lt;td&gt;tief&lt;sub&gt;gestellt&lt;/sub&gt;&lt;/td&gt;&lt;td&gt;tief,,gestellt,,&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;Liste (nummeriert/aufgezählt)&lt;/td&gt;&lt;td&gt;{{ ~/* Listenpunkt1 ...}}&lt;/td&gt;&lt;/tr&gt;
 				&lt;tr&gt;&lt;td&gt;Link&lt;/td&gt;&lt;td&gt;[[URL]]&lt;/td&gt;&lt;/tr&gt;
-				&lt;tr&gt;&lt;td&gt;Benannter Link&lt;/td&gt;&lt;td&gt;[[URL|Bezeichner]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;benannter Link&lt;/td&gt;&lt;td&gt;[[URL|Bezeichner]]&lt;/td&gt;&lt;/tr&gt;
 				&lt;/table&gt;
 			</label>
 		</languageKey>

@@ -166,22 +166,42 @@
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
 	<select name="###PI_BASE###[###DATAFIELD_NAME###]">
-		###YES###
+		<option value=""></option>
 		<option value="###VALUE_DATAFIELD_YES###" ###DATAFIELD_SELECTED_YES###>###YES###</option>
 		<option value="###VALUE_DATAFIELD_NO###" ###DATAFIELD_SELECTED_NO###>###NO###</option>
 	</select>
 <!-- ###BOOL_INPUT### -->
 
+<!-- ###CURRENCY_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][VALUE_PREFIX]" size="10"  value="###DATAFIELD_VALUE_PREFIX###" />,
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][VALUE_SUFFIX]" size="2"  maxlength="2" value="###DATAFIELD_VALUE_SUFFIX###" />
+	<select name="###PI_BASE###[###DATAFIELD_NAME###][CURRENCY]">
+		<option value="EUR" ###DATAFIELD_SELECTED_EUR###>EUR</option>
+		<option value="USD" ###DATAFIELD_SELECTED_USD###>USD</option>
+		<option value="GBR" ###DATAFIELD_SELECTED_GBR###>GBR</option>
+		<option value="CHF" ###DATAFIELD_SELECTED_CHF###>CHF</option>
+		<option value="JPY" ###DATAFIELD_SELECTED_JPY###>JPY</option>
+		<option value="CNY" ###DATAFIELD_SELECTED_CNY###>CNY</option>
+		<option value="NOK" ###DATAFIELD_SELECTED_NOK###>NOK</option>
+	</select>
+<!-- ###CURRENCY_INPUT### -->
+
 <!-- ###DATE_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
-	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="10" maxlength="10" value="###DATAFIELD_CONTENT###" />
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][DAY]" size="2" maxlength="2" value="###CONTENT_DAY###" />.
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][MONTH]" size="2" maxlength="2" value="###CONTENT_MONTH###" />.
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][YEAR]" size="4" maxlength="4" value="###CONTENT_YEAR###" />
 <!-- ###DATE_INPUT### -->
 
 <!-- ###TIME_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
-	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="8" maxlength="8" value="###DATAFIELD_CONTENT###" />
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][HOUR]" size="2" maxlength="2" value="###CONTENT_HOUR###" />:
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][MINUTE]" size="2" maxlength="2" value="###CONTENT_MINUTE###" />:
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###][SECOND]" size="2" maxlength="2" value="###CONTENT_SECOND###" />
 <!-- ###TIME_INPUT### -->
 
 <!-- ###EMAIL_INPUT### -->
@@ -200,7 +220,41 @@
 	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
         <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
 	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###
+	###HEADING_DEFAULT###
+	<input type="text" name="###PI_BASE###[meta][default_value]" size="40"  value="###DEFAULT_VALUE###" />
 <!-- ###METADATA_INPUT### -->
+
+<!-- ###METADATA_TEXT### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+        <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###
+	###HEADING_DEFAULT###
+	<textarea name="###PI_BASE###[meta][default_value]" cols="60" rows="10">###DEFAULT_VALUE###</textarea>
+	###TOOLTIP###
+<!-- ###METADATA_TEXT### -->
+
+<!-- ###METADATA_DATE### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+        <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###<br>
+	<input type="checkbox" name="###PI_BASE###[meta][date_defaultvalue]" value="yes" ###DATE_DEFAULTVALUE### />###HEADING_DATE_DEFAULTVALUE###
+<!-- ###METADATA_DATE### -->
+
+<!-- ###METADATA_TIME### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+        <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###<br>
+	<input type="checkbox" name="###PI_BASE###[meta][time_defaultvalue]" value="yes" ###TIME_DEFAULTVALUE### />###HEADING_TIME_DEFAULTVALUE###
+<!-- ###METADATA_TIME### -->
+
+<!-- ###METADATA_CURRENCY### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+        <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###<br>
+	###HEADING_DEFAULT###
+	<input type="text" name="###PI_BASE###[meta][default_value_prefix]" size="10"  value="###DEFAULT_VALUE_PREFIX###" />,
+	<input type="text" name="###PI_BASE###[meta][default_value_suffix]" size="2" maxlength="2" value="###DEFAULT_VALUE_SUFFIX###" />
+<!-- ###METADATA_CURRENCY### -->
 
 <!-- ###METADATA_IMAGE### -->
 	<div>
@@ -214,6 +268,18 @@
 		<select name="###PI_BASE###[meta][img_align]">###IMGALIGN_OPTIONS###</select>
 	</div>
 <!-- ###METADATA_IMAGE### -->
+
+<!-- ###METADATA_BOOL### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+        <input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###
+	###HEADING_DEFAULT###
+	<select name="###PI_BASE###[meta][default_value]">
+		<option value=""></option>
+		<option value="###VALUE_DATAFIELD_YES###" ###DATAFIELD_SELECTED_YES###>###YES###</option>
+		<option value="###VALUE_DATAFIELD_NO###" ###DATAFIELD_SELECTED_NO###>###NO###</option>
+	</select>
+<!-- ###METADATA_BOOL### -->
 
 <!-- ###DELETE_REQUEST### -->
 <div class="deleteRequest">

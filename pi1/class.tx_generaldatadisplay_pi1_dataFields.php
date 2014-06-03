@@ -33,11 +33,11 @@
 
 abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 	{
-	public $scriptRelPath = 'pi1/class.tx_generaldatadisplay_pi1_dataFields.php';	// Path to this script relative to the extension dir.
-	public $extKey        = 'general_data_display';					// The extension key
-	public $prefixId      = 'tx_generaldatadisplay_pi1';
+	public $scriptRelPath = 'pi1/class.tx_generaldatadisplay_pi1_dataFields.php';
+	public $extKey        = 'general_data_display';
 
 	protected static $table = "tx_generaldatadisplay_datafields";
+	protected static $fieldTypeHash  = array();
 	protected static $metaDataHash = array();
 	protected $tmplArr = array();
 	protected $config = array();
@@ -51,7 +51,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 
 	public function getProperty($property)
 		{
-		return isset($this->$property) ? $this->$property : null;
+		return isset($this->$property) ? $this->$property : NULL;
 		}
 
 	public function setTmplArr(array &$tmplArr)
@@ -61,20 +61,23 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 
 	public function getTmplVar($property)
 		{
-		return isset($this->tmplArr[$property]) ? $this->tmplArr[$property] : null;
+		return isset($this->tmplArr[$property]) ? $this->tmplArr[$property] : NULL;
 		}
 
 	public function setTmplVar($property, $value)
 		{
 		$this->tmplArr[$property] = $value;
-		return isset($this->tmplArr[$property]) ? $this->tmplArr[$property] : null;
+		return isset($this->tmplArr[$property]) ? $this->tmplArr[$property] : NULL;
 		}
 
 	public function HTML($type='edit')
 		{ 
-		$subpart = $this->cObj->getSubpart(TEMPLATE, $this->config['subpartType'][$type]);
-
-		return $this->cObj->substituteMarkerArrayCached($subpart, $this->tmplArr);
+		if (isset($this->config['subpartType'][$type]))
+			{
+			$subpart = $this->cObj->getSubpart(TEMPLATE, $this->config['subpartType'][$type]);
+			return $this->cObj->substituteMarkerArrayCached($subpart, $this->tmplArr);
+			}
+		else return;
 		}
 
 	public static function getMetadata($uid)
@@ -88,9 +91,21 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 			}
 
 		if (self::$metaDataHash[$uid])
-			$tmplArr = unserialize(self::$metaDataHash[$uid]);
+			$tmplArr = tx_generaldatadisplay_pi1_objVar::specialchars(unserialize(self::$metaDataHash[$uid]));
 
 		return $tmplArr ? $tmplArr : array();
+		}
+
+	public static function getFieldType($key)
+		{
+		if (empty(self::$fieldTypeHash))
+			{
+			$datafieldList = t3lib_div::makeInstance(PREFIX_ID.'_datafieldList');
+			$datafieldList->getDS();
+			self::$fieldTypeHash = $datafieldList->getHash('datafield_type', 'datafield_name', TRUE);
+			}
+		
+		return array_key_exists($key,self::$fieldTypeHash) ? self::$fieldTypeHash[$key] : NULL;
 		}
 
 	public static function getTypes()
@@ -107,26 +122,45 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 		switch ($this->type)
 			{
 			case 'img':
-				$keyArr = array('img_size_x' => 1, 'img_size_y' => 1, 'img_align' => 1);
-				// clear all non defined metadata
-				foreach ($metadata as $key => $value) 
-					if (!$keyArr[$key]) unset($metadata[$key]);
+				$keyArr = array('img_size_x' => 's', 'img_size_y' => 'int', 'img_align' => 'string');
 
 				if ($metadata['img_size_x']) $metadata['img_size_x'] = (int)$metadata['img_size_x'];
 				if ($metadata['img_size_y']) $metadata['img_size_y'] = (int)$metadata['img_size_y'];
 				if (!preg_match('/^(left|right|center)$/', $metadata['img_align'])) unset($metadata['img_align']);
 			break;
 
-			default:
-				$keyArr = array('datafield_searchable' => 1, 'datafield_required' => 1, 'content_visible' => 1);
-				// clear all non defined metadata
-				foreach ($metadata as $key => $value) 
-					if (!$keyArr[$key]) unset($metadata[$key]);
+			case 'date':
+				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'date_defaultvalue' => 'bool');
+			break;
 
-				foreach ($keyArr as $key => $value)
-					if (!isset($metadata[$key]) || $metadata[$key] == "no") $metadata[$key]="no";
+			case 'time':
+				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'time_defaultvalue' => 'bool');
+			break;
+
+			case 'currency':
+				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'default_value_prefix' => 'int', 'default_value_suffix' => 'int');
+			break;
+
+			default:
+				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'default_value' => 'string');
 			break;
 			}
+		// check types and set defaults
+		foreach ($keyArr as $key => $value)
+			{
+			switch ($value)
+				{
+				case 'bool':
+					(!isset($metadata[$key]) || $metadata[$key] == "no") ? $metadata[$key]="no" : $metadata[$key]="yes";
+				break;
+				default: 
+					if ($metadata[$key]) settype($metadata[$key], $value);	
+				}
+			}
+
+		// clear all non defined metadata
+		foreach ($metadata as $key => $value) 
+			if (!$keyArr[$key]) unset($metadata[$key]);
 		}
 
 	}
@@ -142,7 +176,7 @@ class tx_generaldatadisplay_pi1_text extends tx_generaldatadisplay_pi1_dataField
 	{
 	// vars
 	protected $type = "text";
-	protected $config = array('subpartType' => array('edit' => '###TEXTAREA_INPUT###',  'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###TEXTAREA_INPUT###',  'config' => '###METADATA_TEXT###'));
 
 	public function HTML($type='edit')
 		{
@@ -177,31 +211,41 @@ class tx_generaldatadisplay_pi1_bool extends tx_generaldatadisplay_pi1_dataField
 	{
 	// vars
 	protected $type = "bool";
-	protected $config = array('subpartType' => array('edit' => '###BOOL_INPUT###',  'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###BOOL_INPUT###',  'config' => '###METADATA_BOOL###'));
 
 	public function HTML($type='edit')
 		{
 		$this->tmplArr['###VALUE_DATAFIELD_NO###'] = 'no';
 		$this->tmplArr['###VALUE_DATAFIELD_YES###'] = 'yes';
-		$this->tmplArr['###DATAFIELD_SELECTED_YES###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='yes' ? "selected" : "";
-		$this->tmplArr['###DATAFIELD_SELECTED_NO###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='no' ? "selected" : "";
-	
+		if ($type == 'edit')
+			{
+			$this->tmplArr['###DATAFIELD_SELECTED_YES###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='yes' ? 'selected="selected"' : '';
+			$this->tmplArr['###DATAFIELD_SELECTED_NO###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='no' ? 'selected="selected"' : '';
+			}
+			
 		return parent::HTML($type);
 		}
+	}
+
+class tx_generaldatadisplay_pi1_currency extends tx_generaldatadisplay_pi1_dataFields
+	{
+	// vars
+	protected $type = "currency";
+	protected $config = array('subpartType' => array('edit' => '###CURRENCY_INPUT###',  'config' => '###METADATA_CURRENCY###'));
 	}
 
 class tx_generaldatadisplay_pi1_date extends tx_generaldatadisplay_pi1_dataFields
 	{
 	// vars
 	protected $type = "date";
-	protected $config = array('subpartType' => array('edit' => '###DATE_INPUT###',  'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###DATE_INPUT###',  'config' => '###METADATA_DATE###', 'default' => '###DATE_INPUTFIELD###'));
 	}
 
 class tx_generaldatadisplay_pi1_time extends tx_generaldatadisplay_pi1_dataFields
 	{
 	// vars
 	protected $type = "time";
-	protected $config = array('subpartType' => array('edit' => '###TIME_INPUT###',  'config' => '###METADATA_INPUT###'));
+	protected $config = array('subpartType' => array('edit' => '###TIME_INPUT###',  'config' => '###METADATA_TIME###'));
 	}
 
 class tx_generaldatadisplay_pi1_email extends tx_generaldatadisplay_pi1_dataFields

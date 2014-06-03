@@ -34,9 +34,8 @@
 abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 	{
 	// vars
-	public $scriptRelPath = 'pi1/class.tx_generaldatadisplay_pi1_queryList.php';	// Path to this script relative to the extension dir.
-	public $extKey        = 'general_data_display';					// The extension key
-	public $prefixId      = 'tx_generaldatadisplay_pi1';
+	public $scriptRelPath = 'pi1/class.tx_generaldatadisplay_pi1_queryList.php';
+	public $extKey        = 'general_data_display';
 
 	protected $objArr = array();
 	protected $restrictQuery;
@@ -49,13 +48,13 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 		{
 		parent::__construct();
 		$this->cObj = t3lib_div::makeInstance('tslib_cObj');
-		$this->pi_loadLL();
+		$this->pi_loadLL(); 
 		$this->restrictQuery = "pid=".DATA_PID." AND NOT deleted";
 		}
 
 	public function getProperty($property)
 		{
-		return isset($this->$property) ? $this->$property : null;
+		return isset($this->$property) ? $this->$property : NULL;
 		}
 
 	public function setProperty($property, $value)
@@ -69,7 +68,7 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 		if (isset($this->$property)) unset($this->$property);
 		} 
 	
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null, $range="")
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range="")
 		{
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
@@ -145,12 +144,13 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 	public function __construct()
 		{
+		parent::__construct();
 		$this->restrictQuery = "pid=".DATA_PID;
 		}
 
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null, $range="")
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $formatContent=FALSE, $range="")
 		{
-		$this->createTempTable();
+		$this->createTempTable($formatContent);
 
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
@@ -183,7 +183,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		}
 
 
-	private function createTempTable()
+	private function createTempTable($formatContent)
 		{
 		// if temptable is already existing nothing has to be done
 		if (tx_generaldatadisplay_pi1_tempdata::tempTableExist()) return TRUE;
@@ -218,7 +218,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 				// first unset possibly existing datacontent array
 				unset($dataContent);
 				// get dataContent
-				$dataContentSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name, tx_generaldatadisplay_datacontent.datacontent', 
+				$dataSet = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datafields.datafield_name, tx_generaldatadisplay_datafields.datafield_type, tx_generaldatadisplay_datacontent.datacontent', 
 											 'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
 											  ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid', 
 											 'tx_generaldatadisplay_datacontent.pid='.DATA_PID.
@@ -230,9 +230,10 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 				if (! $GLOBALS['TYPO3_DB']->sql_error())
 					{
-					while ($dataContentRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataContentSet))
-						if ($dataContentRow['datafield_name']) $dataContent[$dataContentRow['datafield_name']] = $dataContentRow['datacontent'];
-
+					$baseObj = t3lib_div::makeInstance(PREFIX_ID);
+					while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
+						if ($row['datafield_name']) $dataContent[$row['datafield_name']] = 
+							$formatContent ? $baseObj->formatContentType(NULL,$row['datacontent'],$row['datafield_type']) : $row['datacontent'];
 					// additional fields
 					$dataContent['pid'] = DATA_PID;
 					$dataContent['uid'] = $obj->getObjVar('uid');
@@ -293,10 +294,11 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 
 	public function __construct()
 		{
+		parent::__construct();
 		$this->restrictQuery = "pid=".DATA_PID." AND NOT tx_generaldatadisplay_datacontent.deleted AND NOT tx_generaldatadisplay_datafields.deleted";
 		}
 
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null)
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL)
 		{
 		$table = $this->table;
 
@@ -319,7 +321,7 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 
 			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
-				{ 
+				{
 				$data = t3lib_div::makeInstance($this->objType);
 				$uid = $data->setProperty("uid", $row['uid']);
 				$objVars = t3lib_div::makeInstance(PREFIX_ID.'_objVar');
@@ -338,7 +340,7 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 	protected $objType = "tx_generaldatadisplay_pi1_category";
 	protected $orderField = "category_name";
 
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=null)
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL)
 		{
 		parent::getDS($clause);
 		$this->createCategoryHierarchy();

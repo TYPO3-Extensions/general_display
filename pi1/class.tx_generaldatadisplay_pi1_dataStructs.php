@@ -53,7 +53,7 @@ abstract class tx_generaldatadisplay_pi1_dataStructs
 
 	public function getProperty($property)
 		{
-		return isset($this->$property) ? $this->$property : null;
+		return isset($this->$property) ? $this->$property : NULL;
 		}
 
 	public function setProperty($property, $value)
@@ -78,10 +78,52 @@ abstract class tx_generaldatadisplay_pi1_dataStructs
 		foreach ($this->objVars->get("", TRUE) as $key => $value)
 			{ 
 			if ($checkpiVars && !$this->fields[$key]) $this->objVars->delKey($key);
-			else $this->setObjVar($key, trim($value));
+			else $this->setObjVar($key, $this->cleanContent($key,$value));
 			}
 
 		return $this->objVars->get("", TRUE);
+		}
+
+	protected function cleanContent($key,$value)
+		{
+		$datafieldType = tx_generaldatadisplay_pi1_dataFields::getFieldType($key);
+		
+		// check value is not empty
+		$error = tx_generaldatadisplay_pi1_formData::checkValue($value,'notEmpty');
+		if ($error['notEmpty']) return '';
+
+		switch ($datafieldType)
+			{
+			case 'currency':
+			if (is_array($value) && ($value['VALUE_PREFIX'] || $value['VALUE_SUFFIX']))
+				$content = serialize($value);
+			break;
+
+			case 'date':
+			if (is_array($value))
+				{
+				# add zero to single values
+				if (strlen($value['MONTH']) == 1) $value['MONTH'] = '0'. $value['MONTH'];
+				if (strlen($value['DAY']) == 1) $value['DAY'] = '0'. $value['DAY'];
+				$content = serialize($value);
+				}
+			break;
+
+			case 'time':
+			if (is_array($value))
+				{
+				# add zero to single values
+				if (strlen($value['HOUR']) == 1) $value['HOUR'] = '0'. $value['HOUR'];
+				if (strlen($value['MINUTE']) == 1) $value['MINUTE'] = '0'. $value['MINUTE'];
+				if (strlen($value['SECOND']) == 1) $value['SECOND'] = '0'. $value['SECOND'];
+				$content = serialize($value);
+				}
+			break;
+
+			default:
+			$content = is_array($value) ? serialize($value) : trim($value);
+			}
+		return $content;
 		}
 
 	public function newDS()
@@ -131,22 +173,25 @@ abstract class tx_generaldatadisplay_pi1_dataStructs
 		return $templateArray;
 		}
 
-	 protected function havePerm()
+	 public function havePerm()
 		{
 		if (ADM_PERM)
 			{
 			// update or delete existing DS
 			if ($this->uid) 
 				{
-				$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('pid', 
+				$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('pid,cruser_id', 
 										$this->table, 
 										$where='uid='.$this->uid);
 		
 				if ($dataSet) 
 					{
 					$ds=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet);
-
-					return  ADM_PERM && ($ds['pid'] == DATA_PID);
+					if ($ds['pid'] == DATA_PID)
+						{
+						if (ADM_PERM == 'BE') return TRUE;
+						else return ($this->type == 'data' || $this->type == 'datacontent') && (STRICT_PERM ? $ds['cruser_id'] == $GLOBALS['TSFE']->fe_user->user['uid'] : TRUE);
+						} else return FALSE;
 					}			
 				} else return TRUE; // new DS
 			}

@@ -34,18 +34,18 @@
 class tx_generaldatadisplay_pi1_objVar
 	{
 	// vars
-	protected $data = null;
+	protected $data = NULL;
 
 	public function set($property)
 		{
-		$this->data = $this->specialchars($property, FALSE);
+		$this->data = self::specialchars($property, FALSE);
 
 		return $this;
 		}
 
 	public function setValue($key, $value)
 		{
-		if (is_array($this->data) || !$this->data) $this->data[$key] = $this->specialchars($value, FALSE);
+		if (is_array($this->data) || !$this->data) $this->data[$key] = self::specialchars($value, FALSE);
 
 		return $this;
 		}
@@ -55,7 +55,7 @@ class tx_generaldatadisplay_pi1_objVar
 		{
 		$item = (is_array($this->data) && $key) ? $this->data[$key]: $this->data;
 
-		return $plain ? $item : $this->specialchars($item);
+		return $plain ? $item : self::specialchars($item);
 		}
 
 	public function delKey($key)
@@ -71,12 +71,12 @@ class tx_generaldatadisplay_pi1_objVar
 		else unset($this->data);
 		}
 
-	private function specialchars(&$item, $encode=TRUE)
+	public static function specialchars(&$item, $encode=TRUE)
 		{
 		if (is_array($item))
 			{
 			foreach ($item AS $key => &$value) 
-				$this->specialchars($value, $encode);
+				self::specialchars($value, $encode);
 			} 
 		elseif (is_scalar($item)) $item = trim($encode ? htmlspecialchars($item, ENT_QUOTES) : htmlspecialchars_decode($item, ENT_QUOTES));
 
