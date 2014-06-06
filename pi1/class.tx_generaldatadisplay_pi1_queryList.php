@@ -148,7 +148,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		$this->restrictQuery = "pid=".DATA_PID;
 		}
 
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $formatContent=FALSE, $range="")
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range="", $formatContent=FALSE)
 		{
 		$this->createTempTable($formatContent);
 

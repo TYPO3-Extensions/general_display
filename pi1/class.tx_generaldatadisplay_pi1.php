@@ -1261,7 +1261,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		if (!$this->getConfigValue('allowDataExport','bool',FALSE) || ADM_PERM != 'BE') return $this->showError('error_noPermission');
 		// instantiate datalist 
 		$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
-		$objArr = $dataList->getDS($this->searchClause,TRUE);
+		$objArr = $dataList->getDS($this->searchClause,'',TRUE);
 
 		if ($dataList->getProperty('nrResults'))
 			{
