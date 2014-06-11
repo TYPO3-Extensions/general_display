@@ -84,11 +84,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		// define template
 		define(TEMPLATE, $this->cObj->fileResource($templateFile));
 
+		// put javascript in header
+		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] .= '<script src="'.t3lib_extMgm::siteRelPath($this->extKey).$this->prefixId.'.js" type="text/javascript"></script>';
+
+
 		// use configured css,  if none is given use standard stylesheet
 		$cssFile = $this->getConfigValue('userStyleSheet', 'file', t3lib_extMgm::siteRelPath($this->extKey).'css/default.css', 'general');
 
-		// put stylesheet in Header
-		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '<link rel="stylesheet" href="'.$cssFile.'" type="text/css" />';
+		// put stylesheet in header
+		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] .= '<link rel="stylesheet" href="'.$cssFile.'" type="text/css" />';
 
 		// set img upload path
 		define(IMGUPLOADPATH, $this->uploadPath."/".DATA_PID);
@@ -1446,7 +1450,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if (is_array($dataContent))
 				{
 				$dataContent['MINUTE'] = $dataContent['MINUTE']  ? $dataContent['MINUTE'] : '00';
-				$dataContent['SECOND'] = $dataContent['SECOND']  ? $dataContent['SECOND'] : '00';
+				if (!$dataContent['SECOND']) unset($dataContent['SECOND']);
 				$content = implode(':',$dataContent);
 				}
 			break;

@@ -309,7 +309,7 @@
         color: #FF0000;
  }
  
-.tx-generaldatadisplay-pi1 input.formError, textarea.formError {
+.tx-generaldatadisplay-pi1 select.formError, input.formError, textarea.formError {
 	background: #F0E68C;
 }
  
