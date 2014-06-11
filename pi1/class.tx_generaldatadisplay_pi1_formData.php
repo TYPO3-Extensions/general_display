@@ -158,7 +158,7 @@ abstract class tx_generaldatadisplay_pi1_formData
 						$day = $value['DAY'] ? $value['DAY'] : 1;
 						$month = $value['MONTH'] ? $value['MONTH'] : 1;
 						$chk = $chk && checkdate($month, $day, $value['YEAR']);
-						}
+						} else $chk = FALSE;
 					}
 				$error[$check] = $chk ? 0 : $check;
 				break;
