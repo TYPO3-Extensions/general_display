@@ -28,15 +28,15 @@
  */
 class ext_update 
 	{
-	private $sqlError = false;
+	private $sqlError = FALSE;
 
 	public function main() 
 		{
 		# If the update button hasn't been clicked
 		if (!t3lib_div::_GP('do_update')) 
 			{
-			$onClick = "document.location='".t3lib_div::linkThisScript(array('do_update' => 1))."'; return false;";
-			$content = '<form action=""><input type="submit" value="Update database content" onclick="'.htmlspecialchars($onClick).'"></form>';
+			$button = '<input name="update" value="Update" type="submit" />';
+			$content = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript(array('do_update' => 1))).'" method="post">'.$button.'</form>';
 			} else
 			{
 			# convert data content
@@ -46,13 +46,13 @@ class ext_update
 									'data_field_content !=""'
 									);
 
-			if (!$this->dbError() && $dataSet) 
+			if (!$GLOBALS['TYPO3_DB']->sql_error() && $dataSet) 
 				{
 				# Content
 				while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 					{
 					# convert content if it is not converted yet
-					$dataContent = base64_decode($row['data_field_content'],true) ? base64_decode($row['data_field_content']) : $row['data_field_content'];
+					$dataContent = base64_decode($row['data_field_content'],TRUE) ? base64_decode($row['data_field_content']) : $row['data_field_content'];
 					$unserializedData = unserialize($dataContent);
 					# go through hash
 					if (is_array($unserializedData))
@@ -67,29 +67,30 @@ class ext_update
 							$insertData['datafields_uid'] = $key;
 							$insertData['datacontent'] = $value;
 							$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_generaldatadisplay_datacontent',$insertData);
+							$this->dbError();
 						
-							if (!$this->dbError())
+							if (!$this->sqlError)
 								{
 								$GLOBALS['TYPO3_DB']->exec_UPDATEquery( 'tx_generaldatadisplay_data',
 													'uid='.$row['uid'],
 													array('data_field_content' => NULL)
 													);
+
 								$this->dbError();
 								}
 							}
-						} else $this->sqlError = true;
+						} 
 						
 					}
 				}
-
+			
 			# convert datafields
 			$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*',
 									'tx_generaldatadisplay_datafields',
 									'metadata is null'
 									);
-			;
 
-			if (!$this->dbError() && $dataSet) 
+			if (!$GLOBALS['TYPO3_DB']->sql_error() && $dataSet) 
 				{
 				while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 					{
@@ -99,11 +100,11 @@ class ext_update
 
 					$serializedData['metadata'] = serialize($metadata);
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_generaldatadisplay_datafields','uid='.$row['uid'],$serializedData);
-					if ($this->dbError()) break;
+					$this->dbError();
 					}
 				}
 
-			# now drop all non used table fields
+			# now drop all non used table fields silently
 			if (!$this->sqlError)
 				{
 				$obsoleteTableFields = array('tx_generaldatadisplay_data' => array('data_field_content'),
@@ -116,10 +117,47 @@ class ext_update
 						{
 						$sql = "ALTER TABLE ".$table." DROP ".$field;
 						$GLOBALS['TYPO3_DB']->admin_query($sql);
-						$this->dbError();
 						}
 					}
 					
+				}
+
+			# convert old time & date fields
+			$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datacontent.uid AS uid, tx_generaldatadisplay_datacontent.datacontent AS datacontent, tx_generaldatadisplay_datafields.datafield_type AS datafield_type',
+								'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
+								 ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
+								'datafield_type IN ("date","time") AND datacontent !="" AND datacontent not like "a:3:{%"'
+								);
+
+			if (!$GLOBALS['TYPO3_DB']->sql_error() && $dataSet) 
+				{
+				# Content
+				while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
+					{
+					switch($row['datafield_type']) 
+						{
+						case 'time':
+						preg_match('/^([0-9]{1,2}):([0-9]{2})(:([0-9]{2}))?$/', $row['datacontent'], $matches);
+						$data = array('HOUR' => $matches[1], 'MINUTE' => $matches[2], 'SECOND' => $matches[4]);
+						break;
+
+						case 'date':
+						preg_match('/^([0-9]{1,2})\D([0-9]{1,2})\D([0-9]{1,4})$/', $row['datacontent'], $matches);
+						$data = array('MONTH' => $matches[1], 'DAY' => $matches[2], 'YEAR' => $matches[3]);
+						break;
+						}
+					
+					if ($matches[0])
+						{
+						$data = serialize($data);
+						$GLOBALS['TYPO3_DB']->exec_UPDATEquery( 'tx_generaldatadisplay_datacontent',
+											'uid='.$row['uid'],
+											array('datacontent' => $data)
+											);
+
+						$this->dbError();
+						}
+					}
 				}
 
 			$content = $this->sqlError ? "<p>Something went wrong during the database content update!</p>" : "<p>Database content update successful!</p>";
@@ -129,20 +167,34 @@ class ext_update
 	
 	public function access()
 		{
+		$return = FALSE;
 		# check if there is old data_field_content
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid',
 					 			'tx_generaldatadisplay_data',
 								'data_field_content !=""'
 								);
-		if ($dataSet) return $GLOBALS['TYPO3_DB']->sql_num_rows($dataSet) ? true : false;
+
+		
+		if ($dataSet) $return = $GLOBALS['TYPO3_DB']->sql_num_rows($dataSet) ? TRUE : FALSE;
 
 		# check if metadata is already extracted
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('uid',
 								'tx_generaldatadisplay_datafields',
-								'metadata is null');
+								'metadata is null'
+								);
 
-		if ($dataSet) return $GLOBALS['TYPO3_DB']->sql_num_rows($dataSet) ? true : false;
-		return false;
+		if ($dataSet) $return = $return || $GLOBALS['TYPO3_DB']->sql_num_rows($dataSet) ? TRUE : FALSE;
+
+		# check for old date or time fieldtypes
+		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_generaldatadisplay_datacontent.uid AS uid, tx_generaldatadisplay_datacontent.datacontent AS datacontent, tx_generaldatadisplay_datafields.datafield_type AS datafield_type',
+								'tx_generaldatadisplay_datacontent LEFT JOIN tx_generaldatadisplay_datafields
+								 ON tx_generaldatadisplay_datacontent.datafields_uid = tx_generaldatadisplay_datafields.uid',
+								'datafield_type IN ("date","time") AND datacontent !="" AND datacontent not like "a:3:{%"'
+								);
+
+		if ($dataSet) $return = $return || $GLOBALS['TYPO3_DB']->sql_num_rows($dataSet) ? TRUE : FALSE;
+
+		return $return;
 		}
 
 	private function dbError()
