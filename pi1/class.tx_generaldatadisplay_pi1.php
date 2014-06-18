@@ -841,10 +841,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 							case 'currency':	
 								$dataFieldContent = $formData->getFormValue($objVars->get('datafield_name'));
 								if (!$dataFieldContent)
-									$dataFieldContent = array('VALUE_PREFIX' => $metadata['default_value_prefix'], 'VALUE_SUFFIX' => $metadata['default_value_suffix']);
+									$dataFieldContent = array('VALUE_PREFIX' => $metadata['default_value_prefix'], 'VALUE_SUFFIX' => $metadata['default_value_suffix'], 'CURRENCY' => $metadata['default_currency']);
 	
 								$dataField->setTmplVar('###DATAFIELD_VALUE_PREFIX###', $dataFieldContent['VALUE_PREFIX']);
 								$dataField->setTmplVar('###DATAFIELD_VALUE_SUFFIX###', $dataFieldContent['VALUE_SUFFIX']);
+								$dataField->setTmplVar('###CURRENCY_SELECTED###', $dataFieldContent['CURRENCY']);
 							break;
 
 							default:
@@ -945,8 +946,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 					case 'bool':
 						{
-						$dataField->setTmplVar('###DATAFIELD_SELECTED_YES###', $formData->getMetadata('default_value')=='yes' ? 'selected="selected"' : '');
-						$dataField->setTmplVar('###DATAFIELD_SELECTED_NO###', $formData->getMetadata('default_value')=='no' ? 'selected="selected"' : '');
+						$dataField->setTmplVar('###DATAFIELD_CONTENT###', $formData->getMetadata('default_value'));
 						}
 					break;
 
@@ -954,6 +954,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 						{
 						$dataField->setTmplVar('###DEFAULT_VALUE_PREFIX###', $formData->getMetadata('default_value_prefix'));
 						$dataField->setTmplVar('###DEFAULT_VALUE_SUFFIX###', $formData->getMetadata('default_value_suffix'));
+						$dataField->setTmplVar('###CURRENCY_SELECTED###', $formData->getMetadata('default_currency'));
 						}
 					break;
 

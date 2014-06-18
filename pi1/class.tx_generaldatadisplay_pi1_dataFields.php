@@ -138,7 +138,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 			break;
 
 			case 'currency':
-				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'default_value_prefix' => 'int', 'default_value_suffix' => 'int');
+				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'default_value_prefix' => 'int', 'default_value_suffix' => 'int', 'default_currency' => 'string');
 			break;
 
 			default:
@@ -217,11 +217,9 @@ class tx_generaldatadisplay_pi1_bool extends tx_generaldatadisplay_pi1_dataField
 		{
 		$this->tmplArr['###VALUE_DATAFIELD_NO###'] = 'no';
 		$this->tmplArr['###VALUE_DATAFIELD_YES###'] = 'yes';
-		if ($type == 'edit')
-			{
-			$this->tmplArr['###DATAFIELD_SELECTED_YES###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='yes' ? 'selected="selected"' : '';
-			$this->tmplArr['###DATAFIELD_SELECTED_NO###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='no' ? 'selected="selected"' : '';
-			}
+		
+		$this->tmplArr['###DATAFIELD_SELECTED_YES###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='yes' ? 'selected="selected"' : '';
+		$this->tmplArr['###DATAFIELD_SELECTED_NO###'] = $this->tmplArr['###DATAFIELD_CONTENT###']=='no' ? 'selected="selected"' : '';
 			
 		return parent::HTML($type);
 		}
@@ -232,6 +230,19 @@ class tx_generaldatadisplay_pi1_currency extends tx_generaldatadisplay_pi1_dataF
 	// vars
 	protected $type = "currency";
 	protected $config = array('subpartType' => array('edit' => '###CURRENCY_INPUT###',  'config' => '###METADATA_CURRENCY###'));
+
+	public function HTML($type='edit')
+		{	
+		$this->tmplArr['###DATAFIELD_SELECTED_EUR###'] = $this->tmplArr['###CURRENCY_SELECTED###']=='EUR' ? 'selected="selected"' : '';
+		$this->tmplArr['###DATAFIELD_SELECTED_USD###'] = $this->tmplArr['###CURRENCY_SELECTED###']=='USD' ? 'selected="selected"' : '';
+		$this->tmplArr['###DATAFIELD_SELECTED_GBR###'] = $this->tmplArr['###CURRENCY_SELECTED###']=='GBR' ? 'selected="selected"' : '';
+		$this->tmplArr['###DATAFIELD_SELECTED_CHF###'] = $this->tmplArr['###CURRENCY_SELECTED###']=='CHF' ? 'selected="selected"' : '';
+		$this->tmplArr['###DATAFIELD_SELECTED_JPY###'] = $this->tmplArr['###CURRENCY_SELECTED###']=='JPY' ? 'selected="selected"' : '';
+		$this->tmplArr['###DATAFIELD_SELECTED_CNY###'] = $this->tmplArr['###CURRENCY_SELECTED###']=='CNY' ? 'selected="selected"' : '';
+		$this->tmplArr['###DATAFIELD_SELECTED_NOK###'] = $this->tmplArr['###CURRENCY_SELECTED###']=='NOK' ? 'selected="selected"' : '';	
+			
+		return parent::HTML($type);
+		}
 	}
 
 class tx_generaldatadisplay_pi1_date extends tx_generaldatadisplay_pi1_dataFields
