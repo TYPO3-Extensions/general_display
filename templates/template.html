@@ -6,7 +6,7 @@
 		<form method="POST" action="###ACTION_URL###">
 			<input type="hidden" name="###PI_BASE###[action]" value="search" />
 			###SEARCH_RESET###
-			<input type="text" name="###PI_BASE###[searchphrase]" size="20" value="###SEARCHPHRASE###" />
+			<input type="text" name="###PI_BASE###[searchphrase]" id="###PI_BASE###-searchphrase-input" size="20" value="###SEARCHPHRASE###" />
 			<select name="###PI_BASE###[selected_item]">###SELECTED_ITEM_OPTIONS###</select>
 			<select name="###PI_BASE###[selected_category]">###CATEGORY_OPTIONS###</select>
 			<input type="submit" name="###PI_BASE###[submit]" value="###SUBMIT_SEARCH###" />
@@ -191,49 +191,49 @@
 <!-- ###DATE_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
-	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][DAY]" id="###PI_BASE###-select-day">
+	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][DAY]" id="###PI_BASE###-###DATAFIELD_NAME###-select-day">
 		<option value=""></option>
 		<script type="text/javascript">
-			###PI_BASE###.create_ranged_select('###PI_BASE###-select-day',1,31,'###CONTENT_DAY###');
+			###PI_BASE###.create_ranged_select('###PI_BASE###-###DATAFIELD_NAME###-select-day',1,31,'###CONTENT_DAY###');
 		</script>
 	</select>
-	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][MONTH]" id="###PI_BASE###-select-month">
+	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][MONTH]" id="###PI_BASE###-###DATAFIELD_NAME###-select-month">
 		<option value=""></option>
 		<script type="text/javascript">
-			###PI_BASE###.create_ranged_select('###PI_BASE###-select-month',1,12,'###CONTENT_MONTH###');
+			###PI_BASE###.create_ranged_select('###PI_BASE###-###DATAFIELD_NAME###-select-month',1,12,'###CONTENT_MONTH###');
 		</script>
 	</select>
-	<select ###DATAFIELD_CONTENT_ERRORCLASS### id="###PI_BASE###-select-year" onchange="###PI_BASE###.input_by_select('###PI_BASE###-select-year','###PI_BASE###-input-year')">
+	<select ###DATAFIELD_CONTENT_ERRORCLASS### id="###PI_BASE###-###DATAFIELD_NAME###-select-year" onchange="###PI_BASE###.input_by_select('###PI_BASE###-###DATAFIELD_NAME###-select-year','###PI_BASE###-###DATAFIELD_NAME###-input-year')">
 		<option value=""></option>
 		<script type="text/javascript">
 			var now = new Date();
 			var year = now.getFullYear();
-			###PI_BASE###.create_ranged_select('###PI_BASE###-select-year',year,year+20,'###CONTENT_YEAR###');
+			###PI_BASE###.create_ranged_select('###PI_BASE###-###DATAFIELD_NAME###-select-year',year,year+20,'###CONTENT_YEAR###');
 		</script>
 	</select>
-	<a href="javascript:###PI_BASE###.toggle_visibility('###PI_BASE###-input-year')">[*]</a>
-	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###][YEAR]" id="###PI_BASE###-input-year" value="###CONTENT_YEAR###" onchange="###PI_BASE###.add_option('###PI_BASE###-select-year',this.value,this.value,true);###PI_BASE###.toggle_visibility('###PI_BASE###-input-year')" size="4" maxlength="4" style="display: none;">
+	<a href="javascript:###PI_BASE###.toggle_visibility('###PI_BASE###-###DATAFIELD_NAME###-input-year')">[*]</a>
+	<input type="text" name="###PI_BASE###[###DATAFIELD_NAME###][YEAR]" id="###PI_BASE###-###DATAFIELD_NAME###-input-year" value="###CONTENT_YEAR###" onblur="###PI_BASE###.add_option('###PI_BASE###-###DATAFIELD_NAME###-select-year',this.value,this.value,true);###PI_BASE###.toggle_visibility('###PI_BASE###-###DATAFIELD_NAME###-input-year')" size="4" maxlength="4" style="display: none;">
 <!-- ###DATE_INPUT### -->
 
 <!-- ###TIME_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
-	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][HOUR]" id="###PI_BASE###-select-hour" onchange="###PI_BASE###.input_by_select('###PI_BASE###-select-hour','###PI_BASE###-input-hour')">
+	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][HOUR]" id="###PI_BASE###-###DATAFIELD_NAME###-select-hour" onchange="###PI_BASE###.input_by_select('###PI_BASE###-###DATAFIELD_NAME###-select-hour','###PI_BASE###-###DATAFIELD_NAME###-input-hour')">
 		<option value=""></option>
 		<script type="text/javascript">
-			###PI_BASE###.create_ranged_select('###PI_BASE###-select-hour',0,23,'###CONTENT_HOUR###');
+			###PI_BASE###.create_ranged_select('###PI_BASE###-###DATAFIELD_NAME###-select-hour',0,23,'###CONTENT_HOUR###');
 		</script>
 	</select>:
-	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][MINUTE]" id="###PI_BASE###-select-minute" onchange="###PI_BASE###.input_by_select('###PI_BASE###-select-minute','###PI_BASE###-input-minute')">
+	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][MINUTE]" id="###PI_BASE###-###DATAFIELD_NAME###-select-minute" onchange="###PI_BASE###.input_by_select('###PI_BASE###-###DATAFIELD_NAME###-select-minute','###PI_BASE###-###DATAFIELD_NAME###-input-minute')">
 		<option value=""></option>
 		<script type="text/javascript">
-			###PI_BASE###.create_ranged_select('###PI_BASE###-select-minute',0,59,'###CONTENT_MINUTE###');
+			###PI_BASE###.create_ranged_select('###PI_BASE###-###DATAFIELD_NAME###-select-minute',0,59,'###CONTENT_MINUTE###');
 		</script>
 	</select>:
-	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][SECOND]" id="###PI_BASE###-select-second" onchange="###PI_BASE###.input_by_select('###PI_BASE###-select-second','###PI_BASE###-input-second')">
+	<select ###DATAFIELD_CONTENT_ERRORCLASS### name="###PI_BASE###[###DATAFIELD_NAME###][SECOND]" id="###PI_BASE###-###DATAFIELD_NAME###-select-second" onchange="###PI_BASE###.input_by_select('###PI_BASE###-###DATAFIELD_NAME###-select-second','###PI_BASE###-###DATAFIELD_NAME###-input-second')">
 		<option value=""></option>
 		<script type="text/javascript">
-			###PI_BASE###.create_ranged_select('###PI_BASE###-select-second',0,59,'###CONTENT_SECOND###');
+			###PI_BASE###.create_ranged_select('###PI_BASE###-###DATAFIELD_NAME###-select-second',0,59,'###CONTENT_SECOND###');
 		</script>
 	</select>
 <!-- ###TIME_INPUT### -->
@@ -288,6 +288,15 @@
 	###HEADING_DEFAULT###
 	<input type="text" name="###PI_BASE###[meta][default_value_prefix]" size="10"  value="###DEFAULT_VALUE_PREFIX###" />,
 	<input type="text" name="###PI_BASE###[meta][default_value_suffix]" size="2" maxlength="2" value="###DEFAULT_VALUE_SUFFIX###" />
+	<select name="###PI_BASE###[meta][default_currency]">
+		<option value="EUR" ###DATAFIELD_SELECTED_EUR###>EUR</option>
+		<option value="USD" ###DATAFIELD_SELECTED_USD###>USD</option>
+		<option value="GBR" ###DATAFIELD_SELECTED_GBR###>GBR</option>
+		<option value="CHF" ###DATAFIELD_SELECTED_CHF###>CHF</option>
+		<option value="JPY" ###DATAFIELD_SELECTED_JPY###>JPY</option>
+		<option value="CNY" ###DATAFIELD_SELECTED_CNY###>CNY</option>
+		<option value="NOK" ###DATAFIELD_SELECTED_NOK###>NOK</option>
+	</select>
 <!-- ###METADATA_CURRENCY### -->
 
 <!-- ###METADATA_IMAGE### -->
