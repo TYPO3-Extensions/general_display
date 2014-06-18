@@ -158,7 +158,9 @@ abstract class tx_generaldatadisplay_pi1_formData
 						$day = $value['DAY'] ? $value['DAY'] : 1;
 						$month = $value['MONTH'] ? $value['MONTH'] : 1;
 						$chk = $chk && checkdate($month, $day, $value['YEAR']);
-						} else $chk = FALSE;
+						}
+					// only day and/or month is not enough
+					elseif ($value['DAY'] || $value['MONTH']) $chk = FALSE;
 					}
 				$error[$check] = $chk ? 0 : $check;
 				break;
