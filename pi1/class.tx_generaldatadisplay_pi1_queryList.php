@@ -230,7 +230,9 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 				if (! $GLOBALS['TYPO3_DB']->sql_error())
 					{
+					// instantiate baseObj
 					$baseObj = t3lib_div::makeInstance(PREFIX_ID);
+					$baseObj->cObj = t3lib_div::makeInstance('tslib_cObj');
 					$baseObj->pi_loadLL();
 
 					while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
