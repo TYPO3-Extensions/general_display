@@ -148,7 +148,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		$this->restrictQuery = "pid=".DATA_PID;
 		}
 
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range="", $formatContent=FALSE)
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range='', $formatContent=FALSE)
 		{
 		$this->createTempTable($formatContent);
 
@@ -231,6 +231,8 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 				if (! $GLOBALS['TYPO3_DB']->sql_error())
 					{
 					$baseObj = t3lib_div::makeInstance(PREFIX_ID);
+					$baseObj->pi_loadLL();
+
 					while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 						if ($row['datafield_name']) $dataContent[$row['datafield_name']] = 
 							$formatContent ? $baseObj->formatContentType(NULL,$row['datacontent'],$row['datafield_type']) : $row['datacontent'];
@@ -349,13 +351,13 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 		}
 
 	public function getUsedCategoryValues($valueField='category_name')
-                {
-                // returns an array of used values of the category table
-                $usedHashArr = array();
+		{
+		// returns an array of used values of the category table
+		$usedHashArr = array();
 
-                // get special dataList Hash
-                $dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
-                $dataList->getDS();
+		// get special dataList Hash
+		$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataOnlyList');
+		$dataList->getDS();
 
 		// special data_category hash
 		$dataCategoryHash = $dataList->getHash('uid', 'data_category');
@@ -371,8 +373,8 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 					$usedHashArr[$uid] = $this->objArr[$uid]->getObjVar($valueField);
 				}
 			}
-                return $usedHashArr;
-                }
+		return $usedHashArr;
+		}
 
 	public function getAllProgenitors($dataCategory)
 		{
@@ -484,7 +486,7 @@ class tx_generaldatadisplay_pi1_datafieldList extends tx_generaldatadisplay_pi1_
 				{
 				$optionEntry =  '<option value="'.$obj->getObjVar($checkfield).'"'.(($obj->getObjVar($checkfield) == $selected) ? 
 						' selected="selected">' : '>').$obj->getObjVar($field).'</option>';
-			
+
 				$options.= $optionEntry;
 				}
 			}
