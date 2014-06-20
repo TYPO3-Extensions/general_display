@@ -548,10 +548,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				// instantiate datalist
 				$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
 				
-				$objArr = $dataList->getDS($this->searchClause);
-
-				// count results
-				$nrResults = count($objArr);
+				$objArr = $dataList->getDS($this->searchClause, '' ,TRUE);
+				$nrResults = $dataList->getProperty('nrResults');
 
 				$contentArray['###HITS###'] = "(".$nrResults." ".$this->getLL('hits').")";	
 
@@ -560,7 +558,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 					{
 					$offset = intval($this->secPiVars->get('offset'));
 					$range =  $offset ? ($offset.", ".$nrPageResults) : $nrPageResults;
-					$objArr = $dataList->getDS($this->searchClause, $range);
+					$objArr = $dataList->getDS($this->searchClause, $range, TRUE);
 
 					$index = intval($offset / ($nrPageResults * $nrMaxPages));
 					$from = $index*$nrMaxPages*$nrPageResults;
@@ -722,7 +720,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $content;
 		}
 
-	private function editView(tx_generaldatadisplay_pi1_formData $formData)
+	private function editView(tx_generaldatadisplay_pi1_formData &$formData)
 		{
 		// commons
 		$commonsArray = $this->makeCommonsArray();
@@ -1474,7 +1472,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;	
 
 			case 'bool':
-			$content = $this->pi_getLL($content);
+			$content = $this->getLL($content);
 			break;
 
 			case 'img':
