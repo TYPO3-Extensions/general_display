@@ -1420,9 +1420,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		return $table;
 		}
 
-	public function formatContentType(tx_generaldatadisplay_pi1_dataStructs $obj=NULL, $content, $type)
+	public function formatContentType(tx_generaldatadisplay_pi1_dataStructs $obj=NULL, $content='', $type='')
 		{
-		if (!$content && !$type)
+		if ($obj)
 			{
 			$content = $obj->getObjVar('datacontent');
 			$type = $obj->getObjVar('datafield_type');
