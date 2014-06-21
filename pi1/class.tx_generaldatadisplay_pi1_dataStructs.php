@@ -384,22 +384,22 @@ class tx_generaldatadisplay_pi1_tempdata extends tx_generaldatadisplay_pi1_dataS
 
 	public function newDS()
 		{
-		$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->table, $this->cleanedObjVars(FALSE));
+		$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->table.DATA_PID, $this->cleanedObjVars(FALSE));
 		return $GLOBALS['TYPO3_DB']->sql_insert_id();
 		}
 
 	public function deleteDS()
 		{
-		$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->table, 'uid='.$this->uid);
+		$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->table.DATA_PID, 'uid='.$this->uid);
 		}
 
 	public function createTable($createFields)
 		{
 		// create temptable
-		$GLOBALS['TYPO3_DB']->sql_query("CREATE TEMPORARY TABLE ".$this->table." (".$createFields.")");
+		$GLOBALS['TYPO3_DB']->sql_query("CREATE TEMPORARY TABLE ".$this->table.DATA_PID." (".$createFields.")");
 		if (!$dberror = $GLOBALS['TYPO3_DB']->sql_error())
 			{
-			self::$tempTable = $dberror ? FALSE : $this->table;
+			self::$tempTable = $dberror ? FALSE : $this->table.DATA_PID;
 			}
 		return $dberror;
 		}

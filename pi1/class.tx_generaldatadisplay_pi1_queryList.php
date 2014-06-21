@@ -148,14 +148,14 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		$this->restrictQuery = "pid=".DATA_PID;
 		}
 
-	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range='', $formatContent=FALSE)
+	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range="", $formatContent=FALSE)
 		{
 		$this->createTempTable($formatContent);
 
-		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
+		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table.DATA_PID) : "");
 
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 
-								$this->table, 
+								$this->table.DATA_PID, 
 								$where=$whereClause, 
 								$groupBy='', 
 								$orderBy=$this->orderField, 
@@ -184,7 +184,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 
 	private function createTempTable($formatContent)
-		{
+		{ #$formatContent = TRUE;
 		// if temptable is already existing nothing has to be done
 		if (tx_generaldatadisplay_pi1_tempdata::tempTableExist()) return TRUE;
 
@@ -230,11 +230,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 				if (! $GLOBALS['TYPO3_DB']->sql_error())
 					{
-					// instantiate baseObj
 					$baseObj = t3lib_div::makeInstance(PREFIX_ID);
-					$baseObj->cObj = t3lib_div::makeInstance('tslib_cObj');
-					$baseObj->pi_loadLL();
-
 					while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 						if ($row['datafield_name']) $dataContent[$row['datafield_name']] = 
 							$formatContent ? $baseObj->formatContentType(NULL,$row['datacontent'],$row['datafield_type']) : $row['datacontent'];
@@ -353,13 +349,13 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 		}
 
 	public function getUsedCategoryValues($valueField='category_name')
-		{
-		// returns an array of used values of the category table
-		$usedHashArr = array();
+                {
+                // returns an array of used values of the category table
+                $usedHashArr = array();
 
-		// get special dataList Hash
-		$dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataOnlyList');
-		$dataList->getDS();
+                // get special dataList Hash
+                $dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
+                $dataList->getDS();
 
 		// special data_category hash
 		$dataCategoryHash = $dataList->getHash('uid', 'data_category');
@@ -375,8 +371,8 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 					$usedHashArr[$uid] = $this->objArr[$uid]->getObjVar($valueField);
 				}
 			}
-		return $usedHashArr;
-		}
+                return $usedHashArr;
+                }
 
 	public function getAllProgenitors($dataCategory)
 		{
