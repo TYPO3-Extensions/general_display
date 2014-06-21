@@ -81,11 +81,11 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 
 		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
 
-		if ($this->nrResults) 
-			{
-			// delete former result	
-			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
+		// delete former result	
+		$this->objArr = array();
 
+		if ($this->nrResults > 0) 
+			{ 
 			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
@@ -163,7 +163,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
 
-		if ($this->nrResults) 
+		if ($this->nrResults > 0) 
 			{
 			// delete former result	
 			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
