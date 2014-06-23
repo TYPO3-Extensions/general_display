@@ -70,6 +70,9 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
 	
 	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range="")
 		{
+		// delete former result	
+		$this->objArr = array();
+
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
 
 		$dataSet=$GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 
@@ -80,9 +83,6 @@ abstract class tx_generaldatadisplay_pi1_queryList extends tslib_pibase
         							$limit=$range);
 
 		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
-
-		// delete former result	
-		$this->objArr = array();
 
 		if ($this->nrResults > 0) 
 			{ 
@@ -150,6 +150,8 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL, $range="", $formatContent=FALSE)
 		{
+		$this->objArr = array();
+
 		$this->createTempTable($formatContent);
 
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table.DATA_PID) : "");
@@ -164,10 +166,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
 
 		if ($this->nrResults > 0) 
-			{
-			// delete former result	
-			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
-
+			{ 
 			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
@@ -184,7 +183,7 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 
 	private function createTempTable($formatContent)
-		{ #$formatContent = TRUE;
+		{
 		// if temptable is already existing nothing has to be done
 		if (tx_generaldatadisplay_pi1_tempdata::tempTableExist()) return TRUE;
 
@@ -228,9 +227,12 @@ class tx_generaldatadisplay_pi1_dataList extends tx_generaldatadisplay_pi1_query
 
 				$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
 
-				if (! $GLOBALS['TYPO3_DB']->sql_error())
+				if ($this->nrResults > 0)
 					{
 					$baseObj = t3lib_div::makeInstance(PREFIX_ID);
+					$baseObj->cObj = t3lib_div::makeInstance('tslib_cObj');
+					$baseObj->pi_loadLL();
+
 					while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 						if ($row['datafield_name']) $dataContent[$row['datafield_name']] = 
 							$formatContent ? $baseObj->formatContentType(NULL,$row['datacontent'],$row['datafield_type']) : $row['datacontent'];
@@ -300,6 +302,9 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 
 	public function getDS(tx_generaldatadisplay_pi1_objClause &$clause=NULL)
 		{
+		// delete former result	
+		$this->objArr = array();
+
 		$table = $this->table;
 
 		$whereClause = $this->restrictQuery.($clause && $clause->notEmpty() ? " AND ".$clause->get($this->table) : "");
@@ -314,11 +319,8 @@ class tx_generaldatadisplay_pi1_datacontentList extends tx_generaldatadisplay_pi
 
 		$this->nrResults = $GLOBALS['TYPO3_DB']->sql_affected_rows();
 
-		if ($this->nrResults) 
+		if ($this->nrResults > 0) 
 			{
-			// delete former result	
-			foreach ($this->objArr AS $key => $value) unset($this->objArr[$key]); 
-
 			// Content
 			while ($row=$GLOBALS['TYPO3_DB']->sql_fetch_assoc($dataSet))
 				{
@@ -354,7 +356,7 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
                 $usedHashArr = array();
 
                 // get special dataList Hash
-                $dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataList');
+                $dataList = t3lib_div::makeInstance(PREFIX_ID.'_dataOnlyList');
                 $dataList->getDS();
 
 		// special data_category hash
