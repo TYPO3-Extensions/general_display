@@ -266,6 +266,27 @@
 							</config>
 						</TCEforms>
 					</feAdminGroups>
+					<strictPerm>
+						<TCEforms>
+							<label>LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_flexform.sheet_administration_strictPerm</label>
+							<config>
+								<type>select</type>
+								<items type="array">
+									<numIndex index="0" type="array">
+										<numIndex index="0">LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_datafields.answer.yes</numIndex>
+										<numIndex index="1">1</numIndex>
+									</numIndex>
+									<numIndex index="1" type="array">
+										<numIndex index="0">LLL:EXT:general_data_display/locallang_db.xml:tx_generaldatadisplay_datafields.answer.no</numIndex>
+										<numIndex index="1">0</numIndex>
+									</numIndex>
+								</items>
+								<minitems>0</minitems>
+								<maxitems>1</maxitems>
+								<size>1</size>
+							</config>
+						</TCEforms>
+					</strictPerm>
 				</el>
 			</ROOT>
 		</administration>
