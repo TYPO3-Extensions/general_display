@@ -51,6 +51,7 @@
 			<label index="tx_generaldatadisplay_flexform.sheet_administration">FE user administration</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_users">Allowed users</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_groups">Allowed groups</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_administration_strictPerm">Strict permissions</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_listview">List view</label>
 		</languageKey>
 		<languageKey index="de" type="array">
@@ -100,6 +101,7 @@
 			<label index="tx_generaldatadisplay_flexform.sheet_administration">FE Benutzer Administration</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_users">Berechtigte Benutzer</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_administration_groups">Berechtigte Gruppen</label>
+			<label index="tx_generaldatadisplay_flexform.sheet_administration_strictPerm">Strenge Berechtigungen</label>
 			<label index="tx_generaldatadisplay_flexform.sheet_listview">Listenansicht</label>
 		</languageKey>
 	</data>
