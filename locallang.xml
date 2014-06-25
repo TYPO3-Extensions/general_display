@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<type>module</type>
+		<description>Language labels for extension 'general_data_display'</description>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="pi1_title">General Data Display</label>
+			<label index="pi1_plus_wiz_description">Displays a linklist of categorized data</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="pi1_title">Genereller Datenanzeiger</label>
+			<label index="pi1_plus_wiz_description">Zeigt eine Linkliste kategorisierter Daten an</label>
+		</languageKey>
+	</data>
+</T3locallang>
