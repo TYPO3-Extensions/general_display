@@ -17,15 +17,16 @@
 	padding: 0.3em;
 }
 
-.tx-generaldatadisplay-pi1 .optionfield-reset img {
-	width: 18px;
-	height: 18px;
-	vertical-align: top; 
+.tx-generaldatadisplay-pi1 .optionfield-adminLinks img {
+	width: 16px;
+	height: 16px;
+	vertical-align: top;
 }
 
-.tx-generaldatadisplay-pi1 .optionfield-adminLinks {
-	background: #F0E68C;
-	padding: 0.3em;
+.tx-generaldatadisplay-pi1 .optionfield-reset img {
+	width: 22px;
+	height: 22px;
+	vertical-align: top; 
 }
 
 .tx-generaldatadisplay-pi1 .optionfield-categorylvl0 {
@@ -101,6 +102,7 @@
 }
 
 .tx-generaldatadisplay-pi1 .singleView-adminstuff img{
+	vertical-align: top;
 	margin-left: 16px;
 	margin-right: 16px;
 	width: 16px;
@@ -124,6 +126,10 @@
 	
 .tx-generaldatadisplay-pi1 .listView-listdata {
 	margin-top:1em;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-browselist a:hover{
+	background: #D0D0D0;
 }
 
 .tx-generaldatadisplay-pi1 .optionfield-browselist {
@@ -184,13 +190,13 @@
 .tx-generaldatadisplay-pi1 .listView-pagelinks {
 	text-align: center;
 	margin-top: 1em;
-	padding-left: 0.3em;
+	padding: 0.3em;
 	border-top: solid 1px #E8E8E8;
 	border-bottom: solid 1px #E8E8E8;
 }
 
-.tx-generaldatadisplay-pi1 .listView-pagelinks {
-	padding: 0.3em;
+.tx-generaldatadisplay-pi1 .listView-pagelinks a:hover {
+	background: #D0D0D0;
 }
 
 .tx-generaldatadisplay-pi1 .listView-pageLink {
@@ -236,9 +242,10 @@
 }
 
 .tx-generaldatadisplay-pi1 .tableView-admincreate img{
+	vertical-align: top;
 	margin-left: 0.5em;
-	width: 18px;
-	height: 18px;
+	width: 16px;
+	height: 16px;
 }
 
 .tx-generaldatadisplay-pi1 .tableView-categorylvl0 {
