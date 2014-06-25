@@ -27,7 +27,6 @@
  * Hint: use extdeveval to insert/update function index above.
  */
 
-#require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once('class.tx_generaldatadisplay_pi1_objVar.php');
 require_once('class.tx_generaldatadisplay_pi1_objClause.php');
 require_once('class.tx_generaldatadisplay_pi1_dataStructs.php');
@@ -76,7 +75,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		// get & store permission
 		define(ADM_PERM, $this->isAdmin());
-		define(STRICT_PERM, $this->getConfigValue('strict_perm', 'int', 1, 'administration')); 
+		define(STRICT_PERM, $this->getConfigValue('strictPerm', 'int', 1, 'administration')); 
 
 		// use configured templates,  if none is given use standard template
 		$templateFile = $this->getConfigValue('userTemplateFile', 'file', 'EXT:'.$this->extKey.'/templates/template.html', 'general');
@@ -1634,8 +1633,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 			if ($type=='datafield' && ADM_PERM == 'BE')
 				{
-				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'button_down.gif" title="'.$this->getLL('entry_down').'" alt="['.$this->getLL('entry_down').']" />', array('uid' => $uid,  'action' => 'update-sequence',  'type' => $type,  'direction' => 'down'), '1', '1');
-				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'button_up.gif" title="'.$this->getLL('entry_up').'" alt="['.$this->getLL('entry_up').']" />', array('uid' => $uid,  'action' => 'update-sequence',  'type' => $type,  'direction' => 'up'), '1', '1');
+				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'toggle_down.png" title="'.$this->getLL('entry_down').'" alt="['.$this->getLL('entry_down').']" />', array('uid' => $uid,  'action' => 'update-sequence',  'type' => $type,  'direction' => 'down'), '1', '1');
+				$stuff.= $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'toggle_up.png" title="'.$this->getLL('entry_up').'" alt="['.$this->getLL('entry_up').']" />', array('uid' => $uid,  'action' => 'update-sequence',  'type' => $type,  'direction' => 'up'), '1', '1');
 				}	
 
 			return $stuff;
@@ -1649,15 +1648,15 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			{
 			$subpart=$this->cObj->getSubpart(TEMPLATE, '###ADMINLINKS###');
 
-			$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('new_data').']', array('action' => 'update',  'type' => 'data'), '1', '1');
+			$adminMenu[] = $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'create.png" title="'.$this->getLL('new_data').'" alt="['.$this->getLL('new_data').']" />', array('action' => 'update',  'type' => 'data'), '1', '1');
 			if (ADM_PERM == 'BE')
 				{
-				$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('categories').']', array('type' => 'category', 'view'=>'3'), '1', '1');
-				$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('datafields').']', array('type' => 'datafield', 'view'=>'3'), '1', '1');
+				$adminMenu[] = $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'categories.png" title="'.$this->getLL('categories').'" alt="['.$this->getLL('categories').']" />', array('type' => 'category', 'view'=>'3'), '1', '1');
+				$adminMenu[] = $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'datafields.png" title="'.$this->getLL('datafields').'" alt="['.$this->getLL('datafields').']" />', array('type' => 'datafield', 'view'=>'3'), '1', '1');
 				if ($this->getConfigValue('allowDataExport','bool',FALSE))
-					$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('export_data').']', array('action' => 'export'), '1', '1');
+					$adminMenu[] = $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'export_data.png" title="'.$this->getLL('export_data').'" alt="['.$this->getLL('export_data').']" />', array('action' => 'export'), '1', '1');
 				if ($this->getConfigValue('allowDataImport','bool',FALSE))
-					$adminMenu[] = $this->pi_linkTP_keepPIvars('['.$this->getLL('import_data').']', array('action' => 'import'), '1', '1');
+					$adminMenu[] = $this->pi_linkTP_keepPIvars('<img src="'.PICTURE_PATH.'import_data.png" title="'.$this->getLL('import_data').'" alt="['.$this->getLL('import_data').']" />', array('action' => 'import'), '1', '1');
 				}
 
 			$contentArray['###ADMIN_MENU###'] = implode(' | ', $adminMenu);
