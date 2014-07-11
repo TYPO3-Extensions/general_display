@@ -407,8 +407,11 @@ class tx_generaldatadisplay_pi1_categoryList extends tx_generaldatadisplay_pi1_q
 		// Get options
 		foreach($this->objArr as $key => $obj)
 			{
+			$lvlspaces = '';
+			$lvl = $obj->getObjVar('level') ? $obj->getObjVar('level') : 0;
+			for($i=1;$i<=$lvl;$i++) $lvlspaces .= '&nbsp;&nbsp;'; 
 			$optionEntry = '<option value="'.$obj->getObjVar($checkfield).'"'.(($obj->getObjVar($checkfield) == $selected) ? 
-				' selected="selected">' : '>').$obj->getObjVar($field).'</option>';
+				' selected="selected">' : '>').$lvlspaces.$obj->getObjVar($field).'</option>';
 			
 			// add level class
 			$optionEntry = $this->cObj->addParams($optionEntry, array('class' => 'optionfield-categorylvl'.$obj->getObjVar('level')));

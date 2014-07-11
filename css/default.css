@@ -29,25 +29,6 @@
 	vertical-align: top; 
 }
 
-.tx-generaldatadisplay-pi1 .optionfield-categorylvl0 {
-	margin-left: 0em;
-}
-
-.tx-generaldatadisplay-pi1 .optionfield-categorylvl1 {
-	margin-left: 1em;
-}
-
-.tx-generaldatadisplay-pi1 .optionfield-categorylvl2 {
-	margin-left: 2em;
-}
-
-.tx-generaldatadisplay-pi1 .optionfield-categorylvl3 {
-	margin-left: 3em;
-}
-
-/* If you need higher levels of indentation (categorylvl5..n) - you can define it here */
-
-
 .tx-generaldatadisplay-pi1 .deleteRequest table {
 	min-width:30%;
 	margin-top: 2px;
