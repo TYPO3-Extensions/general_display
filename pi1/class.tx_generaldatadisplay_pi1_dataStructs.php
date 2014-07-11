@@ -116,6 +116,7 @@ abstract class tx_generaldatadisplay_pi1_dataStructs
 				if (strlen($value['HOUR']) == 1) $value['HOUR'] = '0'. $value['HOUR'];
 				if (strlen($value['MINUTE']) == 1) $value['MINUTE'] = '0'. $value['MINUTE'];
 				if (strlen($value['SECOND']) == 1) $value['SECOND'] = '0'. $value['SECOND'];
+				
 				$content = serialize($value);
 				}
 			break;

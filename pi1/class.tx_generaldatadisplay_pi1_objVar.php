@@ -51,7 +51,7 @@ class tx_generaldatadisplay_pi1_objVar
 		}
 
 	
-	public function get($key="", $plain=FALSE)
+	public function get($key = '', $plain = FALSE)
 		{
 		$item = (is_array($this->data) && $key) ? $this->data[$key]: $this->data;
 
@@ -71,7 +71,7 @@ class tx_generaldatadisplay_pi1_objVar
 		else unset($this->data);
 		}
 
-	public static function specialchars(&$item, $encode=TRUE)
+	public static function specialchars(&$item, $encode = TRUE)
 		{
 		if (is_array($item))
 			{

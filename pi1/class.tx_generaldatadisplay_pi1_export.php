@@ -50,8 +50,8 @@ abstract class tx_generaldatadisplay_pi1_export {
 class tx_generaldatadisplay_pi1_exportCSV extends tx_generaldatadisplay_pi1_export {
 	public function setData($data, $filename) {
 		// set headerContent / Type
-		$this->headerContentType = "Content-type: text/csv";
-		$this->headerContent = "Content-Disposition: inline; filename=".$filename.".csv"; 
+		$this->headerContentType = 'Content-type: text/csv';
+		$this->headerContent = 'Content-Disposition: inline; filename='.$filename.'.csv'; 
 
 		// set data
 		foreach ($data as $key => $col) {
