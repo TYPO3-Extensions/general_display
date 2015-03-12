@@ -75,6 +75,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 		// get & store permission
 		define(ADM_PERM, $this->isAdmin());
+
 		define(STRICT_PERM, $this->getConfigValue('strictPerm', 'int', 1, 'administration')); 
 
 		// use configured templates,  if none is given use standard template
@@ -1340,21 +1341,23 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if ($flexUsers || $flexGroups)
  				{
 				// array from flexform users & groups
-				$flexUsersArr = explode(', ', $flexUsers);
-				$flexGroupsArr = explode(', ', $flexGroups);
+				$flexUsersArr = explode(',', $flexUsers);
+				$flexGroupsArr = explode(',', $flexGroups);
 
 				// uid from session
 				$sessUser=$GLOBALS['TSFE']->fe_user->user['uid'];
 				// create array from user & groups
-				$sessGroupArr=explode(', ', $GLOBALS['TSFE']->fe_user->user['usergroup']);
+				$sessGroupArr=explode(',', $GLOBALS['TSFE']->fe_user->user['usergroup']);
 
 				// Check permission
 				// is user in userlist
-				foreach ($flexUsersArr as $adminUser) if ($sessUser==$adminUser) return 'FE';
+				foreach ($flexUsersArr as $adminUser) 
+					if ($sessUser==$adminUser) return 'FE';
 				// is user in grouplist
 				foreach ($flexGroupsArr as $adminGroup)
-					{
-					foreach ($sessGroupArr as $sessGroup) if ($sessGroup==$adminGroup) return 'FE';
+					{ 
+					foreach ($sessGroupArr as $sessGroup)
+						if ($sessGroup==$adminGroup) return 'FE';
 					}
 				}
 			}
