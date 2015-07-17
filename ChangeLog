@@ -29,3 +29,9 @@ Version	Changes
 1.5.1:	Experimental Import / Export (CSV)
 	Template change
 	Bugfixing
+1.6.0	Permissions of configured FE user restricted (can only add datasets, no categories/datafields)
+	Introduced standard values for datafields - please read update instructions!
+	New datafield type added (currency)
+	Template changes
+	Bugfixing & code cleaning
+1.6.1	Maintanance release
