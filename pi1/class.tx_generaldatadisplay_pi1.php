@@ -94,7 +94,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] .= '<link rel="stylesheet" href="'.$cssFile.'" type="text/css" />';
 
 		// set img upload path
-		define(IMGUPLOADPATH, $this->uploadPath.'/'.DATA_PID);
+		define(FILEUPLOADPATH, $this->uploadPath.'/'.DATA_PID);
 
 		// max upload image size
 		define(MAXIMGSIZE, $this->getConfigValue('maxImageSize', 'int', 500000));
@@ -1052,7 +1052,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			{
 			// return error if file has wrong mime type
 			if (!preg_match('/^text/', $_FILES[PREFIX_ID]['type']['importfile'])) {
-				return $this->showError('error_mimeType');
+				return $this->showError('error_fileMimeType');
 			}
 
 			$tdl = $this->secPiVars->get('import_text_delimiter', TRUE);
@@ -1470,6 +1470,10 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$content = $this->cObj->typoLink($content, array('parameter' => $content, 'extTarget' => '_blank'));
 			break;	
 
+			case 'file':
+			$content = $this->cObj->typoLink($content, array('parameter' => FILEUPLOADPATH.'/'.$content, 'extTarget' => '_blank'));
+			break;
+			
 			case 'bool':
 			$content = $this->getLL($content);
 			break;
@@ -1482,7 +1486,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				if ($metadata['img_size_x']) $imgSizeArr[] = 'width="'.$metadata['img_size_x'].'"';
 				if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
-				$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.IMGUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ', $imgSizeArr).' /></div>';
+				$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.FILEUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ', $imgSizeArr).' /></div>';
 				}
 			break;
 

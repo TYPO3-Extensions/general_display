@@ -122,7 +122,7 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 		switch ($this->type)
 			{
 			case 'img':
-				$keyArr = array('img_size_x' => 's', 'img_size_y' => 'int', 'img_align' => 'string');
+				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'img_size_x' => 'int', 'img_size_y' => 'int', 'img_align' => 'string');
 
 				if ($metadata['img_size_x']) $metadata['img_size_x'] = (int)$metadata['img_size_x'];
 				if ($metadata['img_size_y']) $metadata['img_size_y'] = (int)$metadata['img_size_y'];
@@ -135,6 +135,10 @@ abstract class tx_generaldatadisplay_pi1_dataFields extends tslib_pibase
 
 			case 'time':
 				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool', 'time_defaultvalue' => 'bool');
+			break;
+			
+			case 'file':
+				$keyArr = array('datafield_searchable' => 'bool', 'datafield_required' => 'bool', 'content_visible' => 'bool');
 			break;
 
 			case 'currency':
@@ -198,6 +202,13 @@ class tx_generaldatadisplay_pi1_img extends tx_generaldatadisplay_pi1_dataFields
 	protected $config = array('subpartType' => array('edit' => '###IMAGE_INPUT###',  'config' => '###METADATA_IMAGE###'), 
 				  'imgAlign' => array('left' => 'left', 'center' => 'center', 'right' => 'right')
 				 );
+	}
+	
+class tx_generaldatadisplay_pi1_file extends tx_generaldatadisplay_pi1_dataFields
+	{
+	// vars
+	protected $type = "file";
+	protected $config = array('subpartType' => array('edit' => '###FILE_INPUT###',  'config' => '###METADATA_FILE###'));
 	}
 
 class tx_generaldatadisplay_pi1_int extends tx_generaldatadisplay_pi1_dataFields

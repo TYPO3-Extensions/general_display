@@ -152,10 +152,18 @@
 <!-- ###IMAGE_INPUT### -->
 	###HEADING_DATAFIELD###
 	###DATAFIELD_CONTENT_ERROR###
-	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="40" value="###DATAFIELD_CONTENT###" readonly /><br />
-	<input name="###PI_BASE###[###DATAFIELD_NAME###][select]" type="file" size="20" />
-	<input type="submit" name="###PI_BASE###[###DATAFIELD_NAME###][delete]" value="x" />
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="20" value="###DATAFIELD_CONTENT###" readonly />
+	<input type="submit" name="###PI_BASE###[###DATAFIELD_NAME###][delete]" value="x" /><br />
+	<input name="###PI_BASE###[###DATAFIELD_NAME###][select]" type="file" size="20" accept="image/*" />
 <!-- ###IMAGE_INPUT### -->
+
+<!-- ###FILE_INPUT### -->
+	###HEADING_DATAFIELD###
+	###DATAFIELD_CONTENT_ERROR###
+	<input ###DATAFIELD_CONTENT_ERRORCLASS### type="text" name="###PI_BASE###[###DATAFIELD_NAME###]" size="20" value="###DATAFIELD_CONTENT###" readonly />
+	<input type="submit" name="###PI_BASE###[###DATAFIELD_NAME###][delete]" value="x" /><br />
+	<input name="###PI_BASE###[###DATAFIELD_NAME###][select]" type="file" size="20" />
+<!-- ###FILE_INPUT### -->
 
 <!-- ###INT_INPUT### -->
 	###HEADING_DATAFIELD###
@@ -301,6 +309,9 @@
 <!-- ###METADATA_CURRENCY### -->
 
 <!-- ###METADATA_IMAGE### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###
 	<div>
 		###HEADING_IMGSIZE###
 		<input type="text" name="###PI_BASE###[meta][img_size_x]" size="3" maxlength="3" value="###CONTENT_IMGSIZE_X###" />
@@ -312,6 +323,12 @@
 		<select name="###PI_BASE###[meta][img_align]">###IMGALIGN_OPTIONS###</select>
 	</div>
 <!-- ###METADATA_IMAGE### -->
+
+<!-- ###METADATA_FILE### -->
+	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_searchable]" value="yes" ###DATAFIELD_SEARCHABLE### />###HEADING_SEARCHABLE###
+	<input type="checkbox" name="###PI_BASE###[meta][datafield_required]" value="yes" ###DATAFIELD_REQUIRED### />###HEADING_REQUIRED###
+<!-- ###METADATA_FILE### -->
 
 <!-- ###METADATA_BOOL### -->
 	<input type="checkbox" name="###PI_BASE###[meta][content_visible]" value="yes" ###CONTENT_VISIBLE### />###HEADING_CONTENT_VISIBLE###

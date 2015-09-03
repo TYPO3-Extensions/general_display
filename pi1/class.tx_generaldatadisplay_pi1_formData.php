@@ -210,6 +210,15 @@ abstract class tx_generaldatadisplay_pi1_formData
 				$error[$check] = ($matches[0] || !$value) ? 0 : $check;	
 				break;	
 
+				case 'validImg':
+				if (!preg_match('/^.+\.(jpeg|jpg|jpe|gif|tif|tiff|png|gif)$/i', $value))
+					{
+					// unlink file if existing
+					if (is_file(FILEUPLOADPATH."/".$value)) unlink(FILEUPLOADPATH."/".$value);
+					$error[$check] = $check;
+					} else $error[$check] = 0;
+				break;
+				
 				case 'isType':
 				$types = implode('|', tx_generaldatadisplay_pi1_dataFields::getTypes());
 				$error[$check] = preg_match('/^('.$types.')$/', $value) ? 0 : $check;
@@ -246,25 +255,22 @@ abstract class tx_generaldatadisplay_pi1_formData
 		return 0;
 		}
 
-	public function validImg($key)
+	public function validFile($key)
 		{
 		if (!$_FILES[PREFIX_ID]['tmp_name'][$key]['select']) return FALSE;
+		
 		if (!$_FILES[PREFIX_ID]['error'][$key]['select']
-			&& $_FILES[PREFIX_ID]['size'][$key]['select'] < MAXIMGSIZE 
-			&& preg_match('/^image\//', $_FILES[PREFIX_ID]['type'][$key]['select'])) return $_FILES[PREFIX_ID]['name'][$key]['select'];
+			&& $_FILES[PREFIX_ID]['size'][$key]['select'] < MAXIMGSIZE) return $_FILES[PREFIX_ID]['name'][$key]['select'];
 
 		else
 			{
-			if ($_FILES[PREFIX_ID]['error'][$key]['select']) $this->formError[$key] = array('imgUpload');
-			if ($_FILES[PREFIX_ID]['size'][$key]['select'] > MAXIMGSIZE) $this->formError[$key] = array('imgFilesize');  
-			if (!preg_match('/^image\//', $_FILES[PREFIX_ID]['type'][$key]['select'])) $this->formError[$key] = array('mimeType');
-
+			if ($_FILES[PREFIX_ID]['error'][$key]['select']) $this->formError[$key] = array('fileUpload');
+			if ($_FILES[PREFIX_ID]['size'][$key]['select'] > MAXIMGSIZE) $this->formError[$key] = array('fileFilesize');
 			return FALSE;
 			}
 		}
-
 	}
-
+	
 
 class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formData
 	{
@@ -325,7 +331,11 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 					case 'url':
 					$checkMethod[] = 'isURL';
 					break;
-
+					
+					case 'img':
+					$checkMethod[] = 'validImg';
+					break;
+					
 					default:
 					$checkMethod[] = 'existing';
 					}
@@ -334,33 +344,38 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 			unset($checkMethod);
 			}
 
-		// if img datafields existing
+		// if file datafields existing
 		if ($_FILES[PREFIX_ID]['tmp_name'])
 			{
 			// create imguploaddir if necessary
-			if (!is_dir(IMGUPLOADPATH)) mkdir(IMGUPLOADPATH,  0755,  TRUE);
+			if (!is_dir(FILEUPLOADPATH)) mkdir(FILEUPLOADPATH,  0755,  TRUE);
 
 			foreach ($_FILES[PREFIX_ID]['tmp_name'] as $key => $value)
 				{
-				if ($filename = $this->validImg($key)) 
+				if ($filename = $this->validFile($key)) 
 					{
+					$this->setFormValue($key, $filename);
 					// get unique filename
 					$i=0;
 					preg_match('/^(.+)\.([^\.]+)$/', $filename, $fileNamePart);
-					$newFilename = $filename;
-					while(is_file(IMGUPLOADPATH."/".$newFilename)) $newFilename = $fileNamePart[1].$i++.".".$fileNamePart[2];
-					$succMove = move_uploaded_file($_FILES[PREFIX_ID]['tmp_name'][$key]['select'], IMGUPLOADPATH."/".$newFilename);
-					if ($succMove)
+					// don't process php files
+					if (isset($fileNamePart[2]) && !preg_match('/^(php[3-6]?|phpsh|phtml)$/',$fileNamePart[2]))
 						{
-						// check if value was already set
-						// if ($this->formData[$key]) unlink(IMGUPLOADPATH."/".$this->formData[$key]);
-						$this->setFormValue($key, $newFilename);
-						} else $this->formError[$key] = "imgUpload";
+						$newFilename = $filename;
+						while(is_file(FILEUPLOADPATH."/".$newFilename)) $newFilename = $fileNamePart[1].$i++.".".$fileNamePart[2];
+						$succMove = move_uploaded_file($_FILES[PREFIX_ID]['tmp_name'][$key]['select'], FILEUPLOADPATH."/".$newFilename);
+						if ($succMove)
+							{
+							// check if value was already set
+							// if ($this->formData[$key]) unlink(FILEUPLOADPATH."/".$this->formData[$key]);
+							$this->setFormValue($key, $newFilename);
+							} else $this->formError[$key] = array('fileUpload');
+						} else $this->formError[$key] = array('fileMimeType');
 					}
 				else 
 					{
-					$imgvalue = $secPiVars ? $secPiVars->get($key, TRUE) : NULL;
-					if (is_array($imgvalue) && isset($imgvalue['delete'])) $this->formData->delKey($key);
+					$filevalue = $secPiVars ? $secPiVars->get($key, TRUE) : NULL;
+					if (is_array($filevalue) && isset($filevalue['delete'])) $this->formData->delKey($key);
 					}
 				}
 			}

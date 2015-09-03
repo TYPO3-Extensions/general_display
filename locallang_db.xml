@@ -25,6 +25,7 @@
 			<label index="tx_generaldatadisplay_datafields.type.I.7">Email field</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.8">URL field</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.9">Picture</label>
+			<label index="tx_generaldatadisplay_datafields.type.I.10">File</label>
 			<label index="tx_generaldatadisplay_datafields.type">Type</label>
 			<label index="tx_generaldatadisplay_datafields.answer.yes">Yes</label>
 			<label index="tx_generaldatadisplay_datafields.answer.no">No</label>
@@ -75,6 +76,7 @@
 			<label index="tx_generaldatadisplay_datafields.type.I.7">Emailfeld</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.8">URL Feld</label>
 			<label index="tx_generaldatadisplay_datafields.type.I.9">Bild</label>
+			<label index="tx_generaldatadisplay_datafields.type.I.10">Datei</label>
 			<label index="tx_generaldatadisplay_datafields.type">Typ</label>
 			<label index="tx_generaldatadisplay_datafields.answer.yes">Ja</label>
 			<label index="tx_generaldatadisplay_datafields.answer.no">Nein</label>

@@ -66,6 +66,7 @@
 			<label index="tinytext">Input</label>
 			<label index="text">Text</label>
 			<label index="img">Picture</label>
+			<label index="file">File</label>
 			<label index="int">Integer</label>
 			<label index="bool">Yes/No</label>
 			<label index="currency">Currency</label>
@@ -91,9 +92,10 @@
 			<label index="error_isType">Unknown fieldtype</label>
 			<label index="error_isUnique">Value already existing</label>
 			<label index="error_missing_uid">No UID given</label>
-			<label index="error_imgUpload">Upload error</label>
-			<label index="error_imgFilesize">Max filesize exeeded</label>
-			<label index="error_mimeType">Wrong filetype</label>
+			<label index="error_fileUpload">Upload error</label>
+			<label index="error_fileFilesize">Max filesize exeeded</label>
+			<label index="error_fileMimeType">Unknown image format</label>
+			<label index="error_validImg">Wrong filetype</label>
 			<label index="error_plainColumn">Invalid chars in datafield name</label>
 			<label index="error_importLines">No import of the following line(s)</label>
 			
@@ -178,6 +180,7 @@
 			<label index="tinytext">Eingabe</label>
 			<label index="text">Text</label>
 			<label index="img">Bild</label>
+			<label index="file">Datei</label>
 			<label index="int">Ganzzahl</label>
 			<label index="bool">Ja/Nein</label>
 			<label index="currency">Währung</label>
@@ -204,9 +207,10 @@
 			<label index="error_isType">Unbekannter Feldtyp</label>
 			<label index="error_isUnique">Wert existiert bereits</label>
 			<label index="error_missing_uid">Keine UID angegeben</label>
-			<label index="error_imgUpload">Fehler beim Hochladen</label>
-			<label index="error_imgFilesize">Maximale Dateigröße überschritten</label>
-			<label index="error_mimeType">Falscher Dateityp</label>
+			<label index="error_fileUpload">Fehler beim Hochladen</label>
+			<label index="error_fileFilesize">Maximale Dateigröße überschritten</label>
+			<label index="error_fileMimeType">Falscher Dateityp</label>
+			<label index="error_validImg">Unbekanntes Bildformat</label>
 			<label index="error_plainColumn">Unerlaubte Zeichen im Datenfeldnamen</label>
 			<label index="error_importLines">Import folgender Zeile(n) fehlgeschlagen</label>
 			

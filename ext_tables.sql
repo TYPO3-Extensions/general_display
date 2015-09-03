@@ -67,7 +67,7 @@ CREATE TABLE tx_generaldatadisplay_datafields (
 	cruser_id int(11) DEFAULT '0' NOT NULL,
 	deleted tinyint(3) unsigned DEFAULT '0' NOT NULL,
 	datafield_name tinytext,
-	datafield_type enum('tinytext','text','img','int','bool','currency','date','time','email','url') NOT NULL,
+	datafield_type enum('tinytext','text','img','int','bool','currency','date','time','email','url','file') NOT NULL,
 	display_sequence int(11) DEFAULT '0' NOT NULL,
 	metadata tinytext,
 
