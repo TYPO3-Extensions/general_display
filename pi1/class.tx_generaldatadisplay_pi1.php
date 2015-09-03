@@ -1471,7 +1471,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;	
 
 			case 'file':
-			$content = $this->cObj->typoLink($content, array('parameter' => FILEUPLOADPATH.'/'.$content, 'extTarget' => '_blank'));
+			$content = $this->cObj->typoLink($content, array('parameter' => FILEUPLOADPATH.'/'.rawurlencode($content), 'extTarget' => '_blank'));
 			break;
 			
 			case 'bool':
@@ -1482,11 +1482,12 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			if ($obj)
 				{
 				$metadata = tx_generaldatadisplay_pi1_dataFields::getMetadata($obj->getObjVar('datafields_uid'));
-			
+
+				$imgSizeArr = array();
 				if ($metadata['img_size_x']) $imgSizeArr[] = 'width="'.$metadata['img_size_x'].'"';
 				if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
-				$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.FILEUPLOADPATH.'/'.$content.'" alt="'.$this->pi_getLL('img').'" '.implode(' ', $imgSizeArr).' /></div>';
+				$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.FILEUPLOADPATH.'/'.rawurlencode($content).'" alt="'.$this->pi_getLL('img').'" '.implode(' ', $imgSizeArr).' /></div>';
 				}
 			break;
 
