@@ -96,8 +96,8 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		// set img upload path
 		define(FILEUPLOADPATH, $this->uploadPath.'/'.DATA_PID);
 
-		// max upload image size
-		define(MAXIMGSIZE, $this->getConfigValue('maxImageSize', 'int', 500000));
+		// max uploadable file size
+		define(MAXFILESIZE, $this->getConfigValue('maxFileSize', 'int', 500000));
 
 		// define picturePath
 		define(PICTURE_PATH, t3lib_extMgm::siteRelPath($this->extKey).'images/');

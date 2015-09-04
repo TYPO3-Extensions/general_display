@@ -260,12 +260,12 @@ abstract class tx_generaldatadisplay_pi1_formData
 		if (!$_FILES[PREFIX_ID]['tmp_name'][$key]['select']) return FALSE;
 		
 		if (!$_FILES[PREFIX_ID]['error'][$key]['select']
-			&& $_FILES[PREFIX_ID]['size'][$key]['select'] < MAXIMGSIZE) return $_FILES[PREFIX_ID]['name'][$key]['select'];
+			&& $_FILES[PREFIX_ID]['size'][$key]['select'] < MAXFILESIZE) return $_FILES[PREFIX_ID]['name'][$key]['select'];
 
 		else
 			{
 			if ($_FILES[PREFIX_ID]['error'][$key]['select']) $this->formError[$key] = array('fileUpload');
-			if ($_FILES[PREFIX_ID]['size'][$key]['select'] > MAXIMGSIZE) $this->formError[$key] = array('fileFilesize');
+			if ($_FILES[PREFIX_ID]['size'][$key]['select'] > MAXFILESIZE) $this->formError[$key] = array('fileFilesize');
 			return FALSE;
 			}
 		}
