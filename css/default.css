@@ -1,0 +1,352 @@
+.tx-generaldatadisplay-pi1 select{
+	max-width: 14em;
+}
+	
+.tx-generaldatadisplay-pi1 .backLink {
+        margin-top: 1em;
+	margin-bottom:1em;
+}
+
+.tx-generaldatadisplay-pi1 .backLink img {
+	width: 16px;
+	height: 16px;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-adminLinks {
+	background: #F0E68C;
+	padding: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-adminLinks img {
+	width: 16px;
+	height: 16px;
+	vertical-align: top;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-reset img {
+	width: 22px;
+	height: 22px;
+	vertical-align: top; 
+}
+
+.tx-generaldatadisplay-pi1 .deleteRequest table {
+	min-width:30%;
+	margin-top: 2px;
+	font-size: 1em;
+	background: #E8E8E8;
+}
+
+.tx-generaldatadisplay-pi1 .deleteRequest th {
+	font-size: 1em;
+	background: #F0E68C;
+}
+
+.tx-generaldatadisplay-pi1 .deleteRequest td, th{
+	padding: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .importData label {
+	font-weight: bold;
+}
+
+.tx-generaldatadisplay-pi1 .deleteRequest-heading_delete_request, .deleteRequest-heading_title, .deleteRequest-heading_name, .deleteRequest-heading_type, .deleteRequest-dataHeading {
+	font-weight: bold;
+}
+
+.tx-generaldatadisplay-pi1 .singleView-dataHeading, .singleView-heading_title {
+	font-weight: bold;
+}
+
+.tx-generaldatadisplay-pi1 .singleView-category-name {
+	font-size: 1em;
+	font-weight: bold;
+	border-bottom: solid 2px #000000;
+	padding-bottom: 0.3em;
+	margin-bottom: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .singleView-data_title {
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-bottom: 1.2em;
+}
+
+.tx-generaldatadisplay-pi1 .singleView-dataContent {
+	margin-bottom: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .singleView-adminstuff{
+	margin-top: 0.3em;
+	padding: 0.1em;
+	text-align: center;
+	background: #F0E68C;
+}
+
+.tx-generaldatadisplay-pi1 .singleView-adminstuff img{
+	vertical-align: top;
+	margin-left: 16px;
+	margin-right: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-search{
+	background: #E8E8E8;
+	padding: 1em;
+	text-align: center;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-heading {
+	background: #D0D0D0;
+}
+
+.tx-generaldatadisplay-pi1 .heading_search {
+	padding: 0.3em;
+	font-weight: bold;
+}
+	
+.tx-generaldatadisplay-pi1 .listView-listdata {
+	margin-top:1em;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-browselist a:hover{
+	background: #D0D0D0;
+}
+
+.tx-generaldatadisplay-pi1 .optionfield-browselist {
+	margin-top: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-browselist-link {
+	padding:0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-browselist-link-active {
+	padding:0.3em;
+	font-weight: bold;
+}
+
+.tx-generaldatadisplay-pi1 .listView-categorylvl0 {
+	margin-left: 0em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-categorylvl1 {
+	margin-left: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-categorylvl2 {
+	margin-left: 2em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-categorylvl3 {
+	margin-left: 3em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-categorylvl4 {
+	margin-left: 4em;
+}
+
+/* If you need higher levels of indentation (categorylvl5..n) - you can define it here */
+
+.tx-generaldatadisplay-pi1 .editView-heading_title, .editView-heading_category, .editView-heading_subcategory, .editView-dataHeading, .editView-heading_input_datafields, .editView-heading_fieldname, .editView-heading_type, .editView-heading_datafield_config, .importData-heading_import, .importData-heading_importmap, .importData-heading_text_delimiter, .importData-heading_data_delimiter {
+	font-weight: bold;
+	margin-top: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-category-name {
+	margin-top:0.3em;
+	font-weight: bold;
+}
+
+.tx-generaldatadisplay-pi1 .listView-title {
+	padding: 0.1em;
+	margin-left: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-title a:hover{
+	background: #D0D0D0;
+}
+
+
+.tx-generaldatadisplay-pi1 .listView-pagelinks {
+	text-align: center;
+	margin-top: 1em;
+	padding: 0.3em;
+	border-top: solid 1px #E8E8E8;
+	border-bottom: solid 1px #E8E8E8;
+}
+
+.tx-generaldatadisplay-pi1 .listView-pagelinks a:hover {
+	background: #D0D0D0;
+}
+
+.tx-generaldatadisplay-pi1 .listView-pageLink {
+	font-weight: normal;
+	padding: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-pageLink-active {
+	font-weight: bold;
+	padding: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .listView-hits {
+	font-size: smaller;
+	text-align: center;
+	padding-left: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .tableView table {
+	margin-top: 2px;
+	font-size: 1em;
+	background: #E8E8E8;
+}
+
+.tx-generaldatadisplay-pi1 .tableView td, th {
+	padding: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .tableView th {
+	font-size: 1em;
+	background: #F0E68C;
+}
+
+.tx-generaldatadisplay-pi1 .tableView-adminstuff img{
+	margin-left: 0.5em;
+	width: 16px;
+	height: 16px;
+}
+
+
+.tx-generaldatadisplay-pi1 .tableView-admincreate {
+	text-align: right;
+}
+
+.tx-generaldatadisplay-pi1 .tableView-admincreate img{
+	vertical-align: top;
+	margin-left: 0.5em;
+	width: 16px;
+	height: 16px;
+}
+
+.tx-generaldatadisplay-pi1 .tableView-categorylvl0 {
+	margin-left: 0em;
+}
+
+.tx-generaldatadisplay-pi1 .tableView-categorylvl1 {
+	margin-left: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .tableView-categorylvl2 {
+	margin-left: 2em;
+}
+
+.tx-generaldatadisplay-pi1 .tableView-categorylvl3 {
+	margin-left: 3em;
+}
+
+.tx-generaldatadisplay-pi1 .tableView-categorylvl4 {
+	margin-left: 4em;
+}
+
+/* If you need higher levels of indentation (categorylvl5..n) - you can define it here */
+
+.tx-generaldatadisplay-pi1 .editView-datafields {
+	border-color: #FFFFFF;
+	border-width: 2px;
+	border-style: ridge;
+	padding-left: 1em;
+	padding-bottom: 1em;
+	margin-top: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .editView-datafieldConfig {
+	margin-bottom: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .editView-datafieldConfig input{
+	margin-bottom: 0.5em;
+}
+
+.tx-generaldatadisplay-pi1 .importData .mappingSelect {
+	width: 15em;
+}
+
+.tx-generaldatadisplay-pi1 .importData td,th {
+	padding-right: 2em;
+}
+
+.tx-generaldatadisplay-pi1 .importData .boxed {
+	border: 1px solid #000000;
+	padding: 1em;
+	margin-bottom: 1em;
+}
+
+.tx-generaldatadisplay-pi1 .importData-preview {
+	overflow: auto;
+	max-height: 20em;
+}
+
+.tx-generaldatadisplay-pi1 .importData-preview td {
+	border: solid black 1px;
+	padding:4px;
+}
+
+.tx-generaldatadisplay-pi1 .editView-formError{
+        font-weight: bold;
+        color: #FF0000;
+ }
+ 
+.tx-generaldatadisplay-pi1 select.formError, input.formError, textarea.formError {
+	background: #F0E68C;
+}
+ 
+.tx-generaldatadisplay-pi1 .tooltip {
+	text-decoration:none;
+	color: #000000;
+}
+
+.tx-generaldatadisplay-pi1 .tooltip span.tooltip-info{
+	 display:none;
+}
+
+.tx-generaldatadisplay-pi1 .tooltip:hover span.tooltip-info{
+	 display:block;
+	 position:fixed;
+	 top: 0px;
+	 background: #E8E8E8;
+	 padding: 0.5em;
+	
+}
+
+.tx-generaldatadisplay-pi1 .tooltip table {
+	font-size:1em;
+	border: 1px solid black;
+	border-collapse: collapse;
+	caption-side: top;
+}
+
+.tx-generaldatadisplay-pi1 .tooltip td {
+	border: 1px solid black;
+	padding: 0.3em;
+}
+
+.tx-generaldatadisplay-pi1 .tooltip th {
+	padding: 0.3em;
+	background: #F0E68C;
+	border: 1px solid black;
+}
+
+.tx-generaldatadisplay-pi1 .tooltip caption {
+	margin-bottom: 0.5em;
+	font-weight: bold;
+}
+
+.tx-generaldatadisplay-pi1 .showError-heading {
+	font-weight: bold;
+}
+
+.tx-generaldatadisplay-pi1 .showError-text {
+	color: #FF0000;
+	margin-bottom: 1em;
+}
