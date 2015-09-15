@@ -94,7 +94,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] .= '<link rel="stylesheet" href="'.$cssFile.'" type="text/css" />';
 
 		// set img upload path
-		define(FILEUPLOADPATH, $this->uploadPath.'/'.DATA_PID);
+		define(FILEUPLOADPATH, $this->uploadPath);
 
 		// max uploadable file size
 		define(MAXFILESIZE, $this->getConfigValue('maxFileSize', 'int', 500000));
@@ -121,7 +121,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				{
 				case $key=='type':
 					{
-					if (! preg_match('/^(data|category|datafield)$/', $this->secPiVars->get($key)))
+					if (!preg_match('/^(data|category|datafield)$/', $this->secPiVars->get($key)))
 						$this->secPiVars->setValue($key, 'data');
 					}
 				break;
@@ -395,6 +395,11 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 			case 'export':
 				$content = $this->exportData();
+			break;
+			
+			case 'download':
+				if ($this->secPiVars->get('selected_file'))
+					$content = $this->downloadFile($this->secPiVars->get('selected_file'));
 			break;
 
 			default:
@@ -719,6 +724,9 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 
 	private function editView(tx_generaldatadisplay_pi1_formData &$formData)
 		{
+		// check ADM_PERM
+		if (!ADM_PERM) return $this->showError('error_noPermission');
+		
 		// commons
 		$commonsArray = $this->makeCommonsArray();
 		$headingsArrayCSS = $this->wrapTemplateArrayInClass($this->makeHeadingsArray(), __FUNCTION__);
@@ -1294,6 +1302,14 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			$csv->export();
 			}
 		}
+		
+	private function downloadFile($filename)
+		{
+		$download = t3lib_div::makeInstance(PREFIX_ID.'_downloadFile');
+		$download->setData($filename); 
+		$download->export();
+		}
+	
 
 	private function showError($msgText, $page=TRUE)
 		{
@@ -1471,7 +1487,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 			break;	
 
 			case 'file':
-			$content = $this->cObj->typoLink($content, array('parameter' => FILEUPLOADPATH.'/'.rawurlencode($content), 'extTarget' => '_blank'));
+			$content = $this->pi_linkTP_keepPIvars($content,array('action' => 'download', 'selected_file' => $content),0);
 			break;
 			
 			case 'bool':
@@ -1487,7 +1503,7 @@ class tx_generaldatadisplay_pi1 extends tslib_pibase {
 				if ($metadata['img_size_x']) $imgSizeArr[] = 'width="'.$metadata['img_size_x'].'"';
 				if ($metadata['img_size_y']) $imgSizeArr[] = 'height="'.$metadata['img_size_y'].'"';
 			
-				$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'><img src="'.FILEUPLOADPATH.'/'.rawurlencode($content).'" alt="'.$this->pi_getLL('img').'" '.implode(' ', $imgSizeArr).' /></div>';
+				$content = '<div '.($metadata['img_align'] ? 'style="text-align:'.$metadata['img_align'].'"' : '').'>'.$this->pi_linkTP_keepPIvars('<img src="'.FILEUPLOADPATH.'/'.md5($content).'" alt="'.$content.'" '.implode(' ', $imgSizeArr).' />',array('action' => 'download', 'selected_file' => $content),0).'</div>';
 				}
 			break;
 

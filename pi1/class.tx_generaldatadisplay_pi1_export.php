@@ -51,7 +51,7 @@ class tx_generaldatadisplay_pi1_exportCSV extends tx_generaldatadisplay_pi1_expo
 	public function setData($data, $filename) {
 		// set headerContent / Type
 		$this->headerContentType = 'Content-type: text/csv';
-		$this->headerContent = 'Content-Disposition: inline; filename='.$filename.'.csv'; 
+		$this->headerContent = 'Content-Disposition: inline; filename="'.$filename.'.csv"'; 
 
 		// set data
 		foreach ($data as $key => $col) {
@@ -61,6 +61,54 @@ class tx_generaldatadisplay_pi1_exportCSV extends tx_generaldatadisplay_pi1_expo
 			}
 		$this->data .= "\n";
 		}
+	}
+}
+
+class tx_generaldatadisplay_pi1_downloadFile extends tx_generaldatadisplay_pi1_export {
+	public function setData($filename) {
+		// known mime types
+		$mimeTypes = array(
+			'xls' => 'application/msexcel',
+			'xla' => 'application/msexcel',
+			'ppt' => 'application/mspowerpoint',
+			'ppz' => 'application/mspowerpoint',
+			'pps' => 'application/mspowerpoint',
+			'pot' => 'application/mspowerpoint',
+			'doc' => 'application/msword',
+			'docx' => 'application/msword',
+			'pdf' => 'application/pdf',
+			'ps' => 'application/postscript',
+			'eps' => 'application/postscript',
+			'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			'mp3' => 'audio/x-mpeg',
+			'wav' => 'audio/x-wav',
+			'mid' => 'audio/x-midi',
+			'midi' => 'audio/x-midi',
+			'csv' => 'text/csv',
+			'htm' => 'text/html',
+			'html' => 'text/html',
+			'shtml' => 'text/html',
+			'txt' => 'text/plain',
+			'rtf' => 'text/rtf',
+			'xml' => 'text/xml',
+			'mpeg' => 'video/mpeg',
+			'mpg' => 'video/mpeg',
+			'mpe' => 'video/mpeg',
+			'qt' => 'video/quicktime',
+			'mov' => 'video/quicktime',
+			'avi' => 'video/x-msvideo'
+		);
+		
+		// extract file extension
+		preg_match('/^(.+)\.([^\.]+)$/', $filename, $fileNamePart);
+		$type = isset($mimeTypes[$fileNamePart[2]]) ? $mimeTypes[$fileNamePart[2]] : 'application/'.$fileNamePart[2];
+		
+		// set headerContent / Type
+		$this->headerContentType = 'Content-type: application/'.$type;
+		$this->headerContent = 'Content-Disposition: inline; filename="'.$filename.'"';
+		
+		// set data
+		$this->data = file_get_contents(FILEUPLOADPATH."/".md5($filename));
 	}
 }
 

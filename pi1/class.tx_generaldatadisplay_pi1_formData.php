@@ -344,8 +344,8 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 			unset($checkMethod);
 			}
 
-		// if file datafields existing
-		if ($_FILES[PREFIX_ID]['tmp_name'])
+		// filehandling only if user has ADM_PERM
+		if (ADM_PERM && $_FILES[PREFIX_ID]['tmp_name'])
 			{
 			// create imguploaddir if necessary
 			if (!is_dir(FILEUPLOADPATH)) mkdir(FILEUPLOADPATH,  0755,  TRUE);
@@ -354,6 +354,10 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 				{
 				if ($filename = $this->validFile($key)) 
 					{
+					// check/remove previous file
+					if ($formData->get($key) && is_file(FILEUPLOADPATH."/".md5($formData->get($key)))) 
+						unlink(FILEUPLOADPATH."/".md5($formData->get($key)));
+						
 					$this->setFormValue($key, $filename);
 					// get unique filename
 					$i=0;
@@ -361,21 +365,29 @@ class tx_generaldatadisplay_pi1_dataForm extends tx_generaldatadisplay_pi1_formD
 					// don't process php files
 					if (isset($fileNamePart[2]) && !preg_match('/^(php[3-6]?|phpsh|phtml)$/',$fileNamePart[2]))
 						{
-						$newFilename = $filename;
-						while(is_file(FILEUPLOADPATH."/".$newFilename)) $newFilename = $fileNamePart[1].$i++.".".$fileNamePart[2];
+						$newFilename = md5($filename);
+						while(is_file(FILEUPLOADPATH."/".$newFilename)) 
+							{
+							$filename = $fileNamePart[1].'_'.$i++.'.'.$fileNamePart[2];
+							$newFilename = md5($filename);
+							}
 						$succMove = move_uploaded_file($_FILES[PREFIX_ID]['tmp_name'][$key]['select'], FILEUPLOADPATH."/".$newFilename);
 						if ($succMove)
 							{
-							// check if value was already set
-							// if ($this->formData[$key]) unlink(FILEUPLOADPATH."/".$this->formData[$key]);
-							$this->setFormValue($key, $newFilename);
+							$this->setFormValue($key, $filename);
 							} else $this->formError[$key] = array('fileUpload');
 						} else $this->formError[$key] = array('fileMimeType');
 					}
 				else 
 					{
 					$filevalue = $secPiVars ? $secPiVars->get($key, TRUE) : NULL;
-					if (is_array($filevalue) && isset($filevalue['delete'])) $this->formData->delKey($key);
+					if (is_array($filevalue) && isset($filevalue['delete'])) 
+						{
+						$this->formData->delKey($key);
+						// remove file if existent
+						if (is_file(FILEUPLOADPATH."/".md5($formData->get($key))))
+							unlink(FILEUPLOADPATH."/".md5($formData->get($key)));
+						}
 					}
 				}
 			}
