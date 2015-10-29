@@ -11,6 +11,7 @@
 			<label index="tx_generaldatadisplay_data.category">Category</label>
 			<label index="tx_generaldatadisplay_datacontent">General data display-data content</label>
 			<label index="tx_generaldatadisplay_datacontent.datacontent">Data content</label>
+			<label index="tx_generaldatadisplay_categories">General data display-categories</label>
 			<label index="tx_generaldatadisplay_categories.name">Category</label>
 			<label index="tx_generaldatadisplay_categories.progenitor">Subcategory of</label>
 			<label index="tx_generaldatadisplay_datafields">General data display-data fields</label>
