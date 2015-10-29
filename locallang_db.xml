@@ -6,7 +6,7 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
-			<label index="tx_generaldatadisplay_data">General data display-title</label>
+			<label index="tx_generaldatadisplay_data">General data display-titles</label>
 			<label index="tx_generaldatadisplay_data.title">Title</label>
 			<label index="tx_generaldatadisplay_data.category">Category</label>
 			<label index="tx_generaldatadisplay_datacontent">General data display-data content</label>
