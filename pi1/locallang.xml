@@ -235,5 +235,119 @@
 				&lt;/table&gt;
 			</label>
 		</languageKey>
+		<languageKey index="nl" type="array">
+			<label index="data">Dataset</label>
+			<label index="title">Titel</label>
+			<label index="name">Naam</label>
+			<label index="search">Zoeken</label>
+			<label index="all">alles</label>
+			<label index="category">Categorie</label>
+			<label index="categories">Categorieën</label>
+			<label index="subcategory">Subcategorie van</label>
+			<label index="datafield">Dataveld</label>
+			<label index="datafields">Datavelden</label>
+			<label index="filename">File naam</label>
+			<label index="preview">Preview</label>
+			<label index="import">Import</label>
+			<label index="import_data">CSV import</label>
+			<label index="import_read_csvfile">Lees CSV file</label>
+			<label index="import_map">Dataveld mapping</label>
+			<label index="import_data_delimiter">Data scheidingsteken</label>
+			<label index="import_text_delimiter">Tekst scheidingsteken</label>
+			<label index="import_data_csvfields">CSV velden</label>
+			<label index="import_data_mapping">Data mapping</label>
+			<label index="import_category_field">Categorie veld</label>
+			<label index="import_categories">Import categorieën</label>
+			<label index="import_from_row">Import van rij</label>
+			<label index="export_data">CSV export</label>
+			<label index="fieldname">Veldnaam</label>
+			<label index="type">Veldtype</label>
+			<label index="required">Verplicht</label>
+			<label index="searchable">Zoekveld</label>
+			<label index="visible">Content zichtbaar</label>
+			<label index="default_value">Default waarde</label>
+			<label index="default_current_date">Huidige datum</label>
+			<label index="default_current_time">Huidige tijd</label>
+			<label index="all_items">Alle velden</label>
+			<label index="all_categories">Alle categorieën</label>
+			<label index="entry_up">Entry up</label>
+			<label index="entry_down">Entry down</label>
+			<label index="hits">Hits</label>
+			<label index="back">terug</label>
+			<label index="cancel">cancel</label>
+			<label index="submit">bevestigen</label>
+			<label index="reset">reset</label>
+			<label index="show">show</label>
+			<label index="yes">ja</label>
+			<label index="no">nee</label>
+			<label index="ok">ok</label>
+			<label index="new_data">Nieuwe data</label>
+			<label index="new_category">Nieuwe categorie</label>
+			<label index="new_datafield">Nieuw dataveld</label>
+			<label index="datafield_config">Dataveld configuratie</label>
+			<label index="img_size">Afbeeldingsgrootte</label>
+			<label index="img_align">Afbeelding uitlijning</label>
+			<label index="left">links</label>
+			<label index="center">centreer</label>
+			<label index="right">rechts</label>
+			<label index="delete_request">Delete bevestiging</label>
+			<label index="delete">Delete data</label>
+			<label index="modify">Edit data</label>
+			<label index="tinytext">Input</label>
+			<label index="text">Tekst</label>
+			<label index="img">Afbeelding</label>
+			<label index="file">File</label>
+			<label index="int">Integer</label>
+			<label index="bool">Ja/Nee</label>
+			<label index="currency">Valuta</label>
+			<label index="date">Datum</label>
+			<label index="time">Tijd</label>
+			<label index="email">Email</label>
+			<label index="url">URL</label>
+			<label index="empty_category">Geen categorie </label>
+			<label index="no_category">Geen categorie toegewezen</label>
+			<label index="no_data">Geen data gevonden</label>
+			<label index="no_datafields">Geen datavelden gedefiniëerd</label>
+			
+			<label index="error">Er is een fout opgetreden!</label>
+			<label index="error_noPermission">U heeft niet de benodigde rechten!</label>
+			<label index="error_notEmpty">Veld is leeg</label>
+			<label index="error_isNumeric">Waarde is niet numeriek</label>
+			<label index="error_isBool">Veldwaarde is niet boolean</label>
+			<label index="error_isDate">Onbekend datum formaat</label>
+			<label index="error_isCurrency">Onbekend valuta formaat</label>
+			<label index="error_isTime">Onbekend tijd formaat</label>
+			<label index="error_isEmail">Incorrect email adres</label>
+			<label index="error_isURL">Incorrecte URL</label>
+			<label index="error_isType">Onbekend veldtype</label>
+			<label index="error_isUnique">Waarde bestaat reeds</label>
+			<label index="error_missing_uid">Geen UID opgegeven</label>
+			<label index="error_fileUpload">Upload fout</label>
+			<label index="error_fileFilesize">Max bestandsgrootte overschreden</label>
+			<label index="error_fileMimeType">Onbekend afbeeldingsformaat</label>
+			<label index="error_validImg">Foutief filetype</label>
+			<label index="error_plainColumn">Ongeldige characters in dataveld naam</label>
+			<label index="error_importLines">Geen import van de volgende rijen</label>
+			
+			<label index="dberror_permission">Permissie geweigerd: U bent niet de eigenaar van deze dataset</label>
+			<label index="dberror_no_dataset">Opgevraagde dataset bestaat niet</label>
+			<label index="dberror_import">Import van data in database is mislukt</label>
+			
+			<label index="HTMLsubstitutionTip">
+				&lt;table&gt;
+				&lt;caption&gt;Mogelijke tekst decoraties&lt;/caption&gt;
+				&lt;tr&gt;&lt;th&gt;Tekst decoratie&lt;/th&gt;&lt;th&gt;Notatie&lt;/th&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;b&gt;vet&lt;/b&gt;&lt;/td&gt;&lt;td&gt;**vet**&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;i&gt;cursief&lt;/i&gt;&lt;/td&gt;&lt;td&gt;//cursief//&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;u&gt;onderstreept&lt;/u&gt;&lt;/td&gt;&lt;td&gt;__onderstreept__&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;&lt;tt&gt;teletyper&lt;/tt&gt;&lt;/td&gt;&lt;td&gt;%%teletyper%%&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;super&lt;sup&gt;script&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;super^^script^^&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;sub&lt;sub&gt;script&lt;/sub&gt;&lt;/td&gt;&lt;td&gt;sub,,script,,&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Lijst (geordend/ongeordend)&lt;/td&gt;&lt;td&gt;{{ ~/* lijstitem1 ...}}&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;Link&lt;/td&gt;&lt;td&gt;[[URL]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td&gt;named link&lt;/td&gt;&lt;td&gt;[[URL|identifier]]&lt;/td&gt;&lt;/tr&gt;
+				&lt;/table&gt;
+			</label>
+		</languageKey>
 	</data>
 </T3locallang>
